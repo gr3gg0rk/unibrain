@@ -166,13 +166,82 @@ Explicit exclusions documented to prevent scope creep.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (populated by roadmapper) | | |
+| FOUND-01 | Phase 1 | Pending |
+| FOUND-02 | Phase 1 | Pending |
+| FOUND-03 | Phase 1 | Pending |
+| FOUND-04 | Phase 1 | Pending |
+| FOUND-05 | Phase 1 | Pending |
+| FOUND-06 | Phase 1 | Pending |
+| DISC-01 | Phase 1 | Pending |
+| DISC-02 | Phase 1 | Pending |
+| DISC-03 | Phase 1 | Pending |
+| WRITE-01 | Phase 2 | Pending |
+| WRITE-02 | Phase 2 | Pending |
+| WRITE-03 | Phase 2 | Pending |
+| WRITE-04 | Phase 2 | Pending |
+| WRITE-05 | Phase 2 | Pending |
+| WRITE-06 | Phase 2 | Pending |
+| CAPT-01 | Phase 3 | Pending |
+| CAPT-02 | Phase 3 | Pending |
+| CAPT-04 | Phase 3 | Pending |
+| CAPT-05 | Phase 3 | Pending |
+| CAPT-06 | Phase 3 | Pending |
+| TRAN-01 | Phase 3 | Pending |
+| TRAN-02 | Phase 3 | Pending |
+| TRAN-03 | Phase 3 | Pending |
+| TRAN-04 | Phase 3 | Pending |
+| TRAN-05 | Phase 3 | Pending |
+| TRAN-06 | Phase 3 | Pending |
+| CLAS-01 | Phase 4 | Pending |
+| CLAS-02 | Phase 4 | Pending |
+| CLAS-03 | Phase 4 | Pending |
+| CLAS-04 | Phase 4 | Pending |
+| CLAS-05 | Phase 4 | Pending |
+| CLAS-06 | Phase 4 | Pending |
+| CLAS-07 | Phase 4 | Pending |
+| ONBD-02 | Phase 4 | Pending |
+| ONBD-03 | Phase 4 | Pending |
+| CAPT-03 | Phase 5 | Pending |
+| ONBD-01 | Phase 5 | Pending |
+| ONBD-04 | Phase 5 | Pending |
+| ONBD-05 | Phase 5 | Pending |
+| DISC-04 | Phase 5 | Pending |
+| SUMM-01 | Phase 6 | Pending |
+| SUMM-02 | Phase 6 | Pending |
+| SUMM-03 | Phase 6 | Pending |
+| SUMM-04 | Phase 6 | Pending |
+| SUMM-05 | Phase 6 | Pending |
+| SUMM-06 | Phase 6 | Pending |
+| SUMM-07 | Phase 6 | Pending |
+| CLOUD-01 | Phase 6 | Pending |
+| CLOUD-02 | Phase 6 | Pending |
+| CLOUD-03 | Phase 6 | Pending |
+| CLOUD-04 | Phase 6 | Pending |
+| CLOUD-05 | Phase 6 | Pending |
+| CLOUD-06 | Phase 6 | Pending |
+| CLOUD-07 | Phase 6 | Pending |
+| CLOUD-08 | Phase 6 | Pending |
+| CLOUD-09 | Phase 6 | Pending |
+| CLOUD-10 | Phase 6 | Pending |
+| CLOUD-11 | Phase 6 | Pending |
+| CLOUD-12 | Phase 6 | Pending |
+| CLOUD-13 | Phase 6 | Pending |
+| DISC-05 | Phase 6 | Pending |
+| DISC-06 | Phase 6 | Pending |
 
 **Coverage:**
-- v1 requirements: 53 total (40 original + 13 cloud-provider)
-- Mapped to phases: 0
-- Unmapped: 53 ⚠️ (pending roadmap creation)
+- v1 requirements: 62 total (corrected from earlier "53" which predated cloud-provider additions)
+- Mapped to phases: 62
+- Unmapped: 0
+
+**Phase distribution:**
+- Phase 1 (Foundation): 9 requirements
+- Phase 2 (Pure Pipeline Logic): 6 requirements
+- Phase 3 (macOS Capture + Transcribe): 11 requirements
+- Phase 4 (Course Classification + Smart Routing): 9 requirements
+- Phase 5 (iOS Capture + iCloud Handoff + Onboarding): 5 requirements
+- Phase 6 (Gated Summarization + Cloud Providers + MVP Polish): 22 requirements
 
 ---
 *Requirements defined: 2026-07-13*
-*Last updated: 2026-07-13 after initial definition*
+*Last updated: 2026-07-13 after roadmap creation*
