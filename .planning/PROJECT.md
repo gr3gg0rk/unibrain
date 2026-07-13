@@ -24,9 +24,10 @@ If the schedule-to-folder routing fails, the app has failed. Everything else (su
 - [ ] **Local transcription** — whisper.cpp + Metal on the MacBook Air, RAM-conscious (model loaded only at inference time)
 - [ ] **Course classification** — map recording timestamp → course via Apple Calendar; auto-populate `course` and `tags` frontmatter
 - [ ] **Obsidian write-out** — Markdown note per lecture in the right course folder, with YAML frontmatter (`course`, `datetime`, `source`, `tags`, `syllabus_link`, `vector_id`)
-- [ ] **Gated summarization** — optional post-ingest step that calls a small Ollama model and writes key points into the same note; off by default to conserve RAM
+- [ ] **Gated summarization** — optional post-ingest step that calls a small Ollama model OR a user-configured cloud provider (OpenAI / Anthropic / Grok / Z.ai); off by default; user picks the LLM provider in Settings
 - [ ] **8GB RAM discipline** — only one heavy model (ASR or LLM) loaded at a time; idle models released immediately
 - [ ] **Build/test via GitHub Actions macOS CI** — every push builds + unit-tests the Swift target on a macOS runner, since no Mac is in the dev loop
+- [ ] **Provider layer (local + cloud)** — protocol-abstraction layer covering LLM, ASR, Vision, Audio modalities; local backends (Ollama, whisper.cpp) ship as default; cloud backends (OpenAI, Anthropic, X/Grok, Z.ai) selectable per modality in Settings; API keys in Keychain
 
 ### Out of Scope
 
@@ -35,7 +36,7 @@ If the schedule-to-folder routing fails, the app has failed. Everything else (su
 - **Local embeddings index + semantic retrieval** — Phase 2 (SQLite/FAISS, single index per vault)
 - **Quiz generation / study modes** — Phase 2
 - **Hermes daily-ingest + weekly Study Pack Discord jobs** — Phase 2+ (Hermes already runs on RPi 5 with idle cycles)
-- **Cloud LLM as primary path** — local-only by mandate; narrow opt-in "escape hatch" per-document with explicit consent only
+- **Cloud-first by default** — local is always the default mode; cloud providers require explicit user configuration per modality
 - **Obsidian community plugin** — deferred; MVP uses plain folder + frontmatter conventions, no plugin dependency
 - **Multi-user accounts / auth** — single-user (Angelica); no auth surface in v1
 - **iPad-native capture** — iPad is a sync/view surface in MVP; recording happens on MacBook or iPhone
@@ -59,11 +60,12 @@ If the schedule-to-folder routing fails, the app has failed. Everything else (su
 
 ## Constraints
 
-- **Hardware**: MacBook Air 8GB unified memory — only one heavy model loaded at a time; cap context windows; batch operations
-- **Local-first**: No third-party cloud for primary storage; iCloud Drive acceptable for vault sync between Angelica's own devices only
+- **Hardware**: MacBook Air 8GB unified memory — only one local heavy model loaded at a time; cloud offload relieves this when configured
+- **Local-first by default, cloud by choice**: Local (Ollama, whisper.cpp) is the always-available default. Cloud AI providers (OpenAI, Anthropic, X/Grok, Z.ai, others) are explicit opt-in alternatives per modality (LLM / ASR / Vision / Audio). Local is never removed — only augmented. No cloud call ever happens without user configuration.
+- **Storage stays local**: Lecture audio + transcripts + vault live on Angelica's devices. iCloud Drive acceptable for vault sync between Angelica's own devices only. Audio never sent to cloud storage — only routed through cloud models transiently when the user opts in.
 - **Apple-native**: SwiftUI + native frameworks (AVFoundation / Vision / Speech / Metal / EventKit). No Electron, no web wrapper, no cross-platform abstraction in v1
 - **Dev access**: No Mac in dev loop — GitHub Actions macOS CI is the build/test path from WSL2
-- **Privacy**: Lecture content stays on Angelica's devices + her vault. No telemetry, no cloud LLM as primary path
+- **Privacy**: Local-only is the default mode (zero cloud, zero telemetry). Cloud mode sends only what the user explicitly routes; per-document consent gate the first time per modality. API keys stored in macOS Keychain / iOS Secure Enclave.
 - **Single-user**: v1 is Angelica only — no auth, no multi-tenant, no sharing surface
 - **Schedule source**: Course schedule lives in Apple Calendar on Angelica's devices (read via EventKit)
 
@@ -75,8 +77,8 @@ If the schedule-to-folder routing fails, the app has failed. Everything else (su
 | whisper.cpp + Metal for ASR | Best accuracy/footprint tradeoff on 8GB; releases RAM when idle | — Pending |
 | GitHub Actions macOS CI for builds | No Mac in lab; CI is the only build/test path from WSL2 | — Pending |
 | Capture on MacBook Air **and** iPhone in MVP | User choice — wider scope, but iPhone is the realistic in-class recording device | — Pending |
-| Local LLM via Ollama, escape-hatch only | Privacy + offline by mandate; cloud only with explicit per-document consent | — Pending |
-| Obsidian vault as primary store (Markdown + YAML frontmatter) | Local-first mandate; no plugin dependency in MVP | — Pending |
+| **Local-default + cloud-opt-in provider layer** | Local (Ollama, whisper.cpp) is always available as default. Cloud providers (OpenAI, Anthropic, X/Grok, Z.ai, others) are explicit opt-in alternatives per modality (LLM / ASR / Vision / Audio). User picks per modality in Settings. Preserves privacy-by-default + offline capability while unlocking subscription quality. | — Pending |
+| Obsidian vault as primary store (Markdown + YAML frontmatter) | Local-first storage mandate; no plugin dependency in MVP | — Pending |
 | Hermes integration deferred to Phase 2+ | MVP is capture → classify → write; Hermes jobs (ingest QA, Study Pack, CI) layer on after MVP ships | — Pending |
 | Course classification via Apple Calendar + EventKit | Already on Angelica's devices; no separate schedule DB to maintain | — Pending |
 
