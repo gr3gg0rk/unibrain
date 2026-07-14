@@ -77,4 +77,31 @@ public struct FrontmatterSchema: Codable, Sendable {
         self.vectorId = vectorId
         self.summaryModel = summaryModel
     }
+
+    /// Validates the frontmatter schema for required fields and data consistency.
+    ///
+    /// Per WRITE-02: all required fields must be non-empty before emitting a note.
+    /// Per T-2-03 (mitigate): prevents null/empty frontmatter from reaching the vault.
+    ///
+    /// - Throws: ``FrontmatterValidationError`` if validation fails:
+    ///   - `.emptyField` for empty required string fields
+    ///   - `.invalidDuration` for non-positive duration_seconds
+    ///   - `.missingRequiredField` for empty tags array
+    public func validate() throws {
+        guard !course.isEmpty else {
+            throw FrontmatterValidationError.emptyField("course")
+        }
+        guard !courseName.isEmpty else {
+            throw FrontmatterValidationError.emptyField("course_name")
+        }
+        guard !term.isEmpty else {
+            throw FrontmatterValidationError.emptyField("term")
+        }
+        guard durationSeconds > 0 else {
+            throw FrontmatterValidationError.invalidDuration(durationSeconds)
+        }
+        guard !tags.isEmpty else {
+            throw FrontmatterValidationError.missingRequiredField("tags")
+        }
+    }
 }

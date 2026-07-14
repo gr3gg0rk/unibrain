@@ -121,4 +121,120 @@ struct FrontmatterSchemaTests {
         #expect(yamlString.contains("duration_seconds"))
         #expect(yamlString.contains("audio_file"))
     }
+
+    // MARK: - Validation Tests
+
+    @Test("validate() succeeds when all required fields are non-empty and duration > 0")
+    func validateSucceedsOnValidSchema() throws {
+        let schema = FrontmatterSchema(
+            schemaVersion: 1,
+            course: "CS101",
+            courseName: "Intro to CS",
+            term: "Fall 2026",
+            datetime: Date(timeIntervalSince1970: 1_700_000_000),
+            durationSeconds: 3600,
+            source: "MacBook Air",
+            audioFile: "lecture.m4a",
+            tags: ["lecture"]
+        )
+
+        #expect(throws: Never.self) {
+            try schema.validate()
+        }
+    }
+
+    @Test("validate() throws emptyField when course is empty")
+    func validateThrowsOnEmptyCourse() throws {
+        let schema = FrontmatterSchema(
+            schemaVersion: 1,
+            course: "",
+            courseName: "Intro to CS",
+            term: "Fall 2026",
+            datetime: Date(timeIntervalSince1970: 1_700_000_000),
+            durationSeconds: 3600,
+            source: "MacBook Air",
+            audioFile: "lecture.m4a",
+            tags: ["lecture"]
+        )
+
+        #expect(throws: FrontmatterValidationError.emptyField("course")) {
+            try schema.validate()
+        }
+    }
+
+    @Test("validate() throws emptyField when courseName is empty")
+    func validateThrowsOnEmptyCourseName() throws {
+        let schema = FrontmatterSchema(
+            schemaVersion: 1,
+            course: "CS101",
+            courseName: "",
+            term: "Fall 2026",
+            datetime: Date(timeIntervalSince1970: 1_700_000_000),
+            durationSeconds: 3600,
+            source: "MacBook Air",
+            audioFile: "lecture.m4a",
+            tags: ["lecture"]
+        )
+
+        #expect(throws: FrontmatterValidationError.emptyField("course_name")) {
+            try schema.validate()
+        }
+    }
+
+    @Test("validate() throws emptyField when term is empty")
+    func validateThrowsOnEmptyTerm() throws {
+        let schema = FrontmatterSchema(
+            schemaVersion: 1,
+            course: "CS101",
+            courseName: "Intro to CS",
+            term: "",
+            datetime: Date(timeIntervalSince1970: 1_700_000_000),
+            durationSeconds: 3600,
+            source: "MacBook Air",
+            audioFile: "lecture.m4a",
+            tags: ["lecture"]
+        )
+
+        #expect(throws: FrontmatterValidationError.emptyField("term")) {
+            try schema.validate()
+        }
+    }
+
+    @Test("validate() throws invalidDuration when duration <= 0")
+    func validateThrowsOnZeroDuration() throws {
+        let schema = FrontmatterSchema(
+            schemaVersion: 1,
+            course: "CS101",
+            courseName: "Intro to CS",
+            term: "Fall 2026",
+            datetime: Date(timeIntervalSince1970: 1_700_000_000),
+            durationSeconds: 0,
+            source: "MacBook Air",
+            audioFile: "lecture.m4a",
+            tags: ["lecture"]
+        )
+
+        #expect(throws: FrontmatterValidationError.invalidDuration(0)) {
+            try schema.validate()
+        }
+    }
+
+    @Test("validate() throws missingRequiredField when tags is empty")
+    func validateThrowsOnEmptyTags() throws {
+        let schema = FrontmatterSchema(
+            schemaVersion: 1,
+            course: "CS101",
+            courseName: "Intro to CS",
+            term: "Fall 2026",
+            datetime: Date(timeIntervalSince1970: 1_700_000_000),
+            durationSeconds: 3600,
+            source: "MacBook Air",
+            audioFile: "lecture.m4a",
+            tags: []
+        )
+
+        #expect(throws: FrontmatterValidationError.missingRequiredField("tags")) {
+            try schema.validate()
+        }
+    }
 }

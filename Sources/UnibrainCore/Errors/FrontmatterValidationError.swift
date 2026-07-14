@@ -9,7 +9,7 @@ import Foundation
 ///
 /// Follows the ProviderError pattern (D-16) — structured cases prevent
 /// raw error strings from leaking to the UI.
-public enum FrontmatterValidationError: Error, Sendable {
+public enum FrontmatterValidationError: Error, Sendable, Equatable {
     /// A required string field is empty.
     /// - Parameter field: The CodingKey name of the empty field (e.g., "course").
     case emptyField(String)
