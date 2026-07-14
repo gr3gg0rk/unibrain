@@ -2,9 +2,9 @@
 
 ## What This Is
 
-unibrain is a local-first, Apple-native lecture capture and study assistant for university students. It records lectures on a MacBook Air and iPhone, transcribes them on-device with whisper.cpp/Metal, auto-classifies each recording to the right course using the student's Apple Calendar schedule, and writes structured Markdown notes (with YAML frontmatter and a gated Ollama-generated summary) into an Obsidian vault. The MVP delivers the "Record-to-Obsidian" loop end-to-end; broader ingestion (PDFs, whiteboard photos, syllabi), embeddings/retrieval, and quiz generation are deferred.
+unibrain is a local-first, Apple-native lecture capture and study assistant for university students. It records lectures on a MacBook Neo and iPhone, transcribes them on-device with whisper.cpp/Metal, auto-classifies each recording to the right course using the student's Apple Calendar schedule, and writes structured Markdown notes (with YAML frontmatter and a gated Ollama-generated summary) into an Obsidian vault. The MVP delivers the "Record-to-Obsidian" loop end-to-end; broader ingestion (PDFs, whiteboard photos, syllabi), embeddings/retrieval, and quiz generation are deferred.
 
-The first user is Angelica (starting university, MacBook Air 8GB / iPhone / iPad Pro); the same shape can later serve Isabella (master's program).
+The first user is Angelica (starting university, MacBook Neo 8GB / iPhone / iPad Pro); the same shape can later serve Isabella (master's program).
 
 ## Core Value
 
@@ -20,8 +20,8 @@ If the schedule-to-folder routing fails, the app has failed. Everything else (su
 
 ### Active
 
-- [ ] **Audio capture** — record lectures on MacBook Air (built-in mic) and iPhone, with a clear start/stop UX
-- [ ] **Local transcription** — whisper.cpp + Metal on the MacBook Air, RAM-conscious (model loaded only at inference time)
+- [ ] **Audio capture** — record lectures on MacBook Neo (built-in mic) and iPhone, with a clear start/stop UX
+- [ ] **Local transcription** — whisper.cpp + Metal on the MacBook Neo, RAM-conscious (model loaded only at inference time)
 - [ ] **Course classification** — map recording timestamp → course via Apple Calendar; auto-populate `course` and `tags` frontmatter
 - [ ] **Obsidian write-out** — Markdown note per lecture in the right course folder, with YAML frontmatter (`course`, `datetime`, `source`, `tags`, `syllabus_link`, `vector_id`)
 - [ ] **Gated summarization** — optional post-ingest step that calls a small Ollama model OR a user-configured cloud provider (OpenAI / Anthropic / Grok / Z.ai); off by default; user picks the LLM provider in Settings
@@ -46,21 +46,21 @@ If the schedule-to-folder routing fails, the app has failed. Everything else (su
 
 **Origin.** Conceived 2026-06-25 (Plaud recording `plaud-2026-06-25-…lecture-assistant…`). The brief that initiated this project is the polished form of that transcript. The user (Greg / `gr3gg0rk`) is building this for his daughter Angelica, who is just starting university; Isabella (master's program) is a secondary future user.
 
-**Dev environment.** Primary development happens on WSL2 Linux (`/home/gr3gg0rk/unibrain`) using Claude Code with GLM 5.2 + the GSD harness. **No Mac is in the home lab.** The only Apple device in scope is Angelica's MacBook Air, which is a deployment target, not a dev seat.
+**Dev environment.** Primary development happens on WSL2 Linux (`/home/gr3gg0rk/unibrain`) using Claude Code with GLM 5.2 + the GSD harness. **No Mac is in the home lab.** The only Apple device in scope is Angelica's MacBook Neo, which is a deployment target, not a dev seat.
 
-**Build loop.** Swift source is written on WSL2, pushed to git, and built/tested by a GitHub Actions macOS runner. Angelica's MacBook Air handles ad-hoc local builds and TestFlight-style device testing when she is available. This is the only viable native dev loop given the lab topology.
+**Build loop.** Swift source is written on WSL2, pushed to git, and built/tested by a GitHub Actions macOS runner. Angelica's MacBook Neo handles ad-hoc local builds and TestFlight-style device testing when she is available. This is the only viable native dev loop given the lab topology.
 
-**Transcription.** whisper.cpp with Metal acceleration, `small.en` model class. ~1GB RAM when loaded, released immediately after transcription. Chosen over Apple Speech framework (weaker on technical/lecture content) and MLX-Whisper (newer, more setup friction).
+**Transcription.** whisper.cpp with Metal acceleration, `small.en` model class. ~1GB RAM when loaded, released immediately after transcription. Chosen over Apple Speech framework (weaker on technical/lecture content) and MLX-Whisper (newer, more setup friction). Note: MacBook Neo A-series Neural Engine may favor CoreML/WhisperKit over Metal — Phase 3 ASR strategy will re-evaluate.
 
 **Hermes agent (existing infrastructure).** A Hermes agent already runs on a Raspberry Pi 5 in the home lab, integrated with Discord. Current jobs: Aletheia Dreams (idea generation every 6h), nightly committee selection, KISS refactoring. It has idle cycles and a Discord surface — Phase 2+ work for unibrain (daily ingest QA, weekly Study Pack delivery, lightweight CI on the Pi) is a natural fit.
 
-**Obsidian vault topology (assumption — see Assumptions below).** Greg's existing vault at `/mnt/c/Obsidian-vault/griak-home/` is unrelated. Angelica gets her own vault on her MacBook Air, synced to her iPhone/iPad Pro via iCloud Drive. Hermes jobs (Phase 2+) observe a read-only sync copy on the home network — they do not host or own her vault.
+**Obsidian vault topology (assumption — see Assumptions below).** Greg's existing vault at `/mnt/c/Obsidian-vault/griak-home/` is unrelated. Angelica gets her own vault on her MacBook Neo, synced to her iPhone/iPad Pro via iCloud Drive. Hermes jobs (Phase 2+) observe a read-only sync copy on the home network — they do not host or own her vault.
 
-**Apple ecosystem constraints.** Target devices: MacBook Air (Apple Silicon, 8GB unified memory), iPhone, iPad Pro. Native frameworks preferred: AVFoundation (audio capture), Vision (OCR, Phase 2), Speech (fallback ASR only), Metal (whisper.cpp acceleration), EventKit (Apple Calendar access for course classification).
+**Apple ecosystem constraints.** Target devices: MacBook Neo (A-series chip, macOS 26 Tahoe, 8GB unified memory), iPhone, iPad Pro. Native frameworks preferred: AVFoundation (audio capture), Vision (OCR, Phase 2), Speech (fallback ASR only), Metal (whisper.cpp acceleration), EventKit (Apple Calendar access for course classification).
 
 ## Constraints
 
-- **Hardware**: MacBook Air 8GB unified memory — only one local heavy model loaded at a time; cloud offload relieves this when configured
+- **Hardware**: MacBook Neo (A-series chip, macOS 26 Tahoe, 8GB unified memory) — only one local heavy model loaded at a time; cloud offload relieves this when configured
 - **Local-first by default, cloud by choice**: Local (Ollama, whisper.cpp) is the always-available default. Cloud AI providers (OpenAI, Anthropic, X/Grok, Z.ai, others) are explicit opt-in alternatives per modality (LLM / ASR / Vision / Audio). Local is never removed — only augmented. No cloud call ever happens without user configuration.
 - **Storage stays local**: Lecture audio + transcripts + vault live on Angelica's devices. iCloud Drive acceptable for vault sync between Angelica's own devices only. Audio never sent to cloud storage — only routed through cloud models transiently when the user opts in.
 - **Apple-native**: SwiftUI + native frameworks (AVFoundation / Vision / Speech / Metal / EventKit). No Electron, no web wrapper, no cross-platform abstraction in v1
@@ -73,20 +73,27 @@ If the schedule-to-folder routing fails, the app has failed. Everything else (su
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Native SwiftUI app (not Python pipeline / hybrid) | Best UX, native framework access, native memory discipline on 8GB | — Pending |
-| whisper.cpp + Metal for ASR | Best accuracy/footprint tradeoff on 8GB; releases RAM when idle | — Pending |
-| GitHub Actions macOS CI for builds | No Mac in lab; CI is the only build/test path from WSL2 | — Pending |
-| Capture on MacBook Air **and** iPhone in MVP | User choice — wider scope, but iPhone is the realistic in-class recording device | — Pending |
-| **Local-default + cloud-opt-in provider layer** | Local (Ollama, whisper.cpp) is always available as default. Cloud providers (OpenAI, Anthropic, X/Grok, Z.ai, others) are explicit opt-in alternatives per modality (LLM / ASR / Vision / Audio). User picks per modality in Settings. Preserves privacy-by-default + offline capability while unlocking subscription quality. | — Pending |
-| Obsidian vault as primary store (Markdown + YAML frontmatter) | Local-first storage mandate; no plugin dependency in MVP | — Pending |
-| Hermes integration deferred to Phase 2+ | MVP is capture → classify → write; Hermes jobs (ingest QA, Study Pack, CI) layer on after MVP ships | — Pending |
-| Course classification via Apple Calendar + EventKit | Already on Angelica's devices; no separate schedule DB to maintain | — Pending |
+| Native SwiftUI app (not Python pipeline / hybrid) | Best UX, native framework access, native memory discipline on 8GB | Decided |
+| whisper.cpp + Metal for ASR | Best accuracy/footprint tradeoff on 8GB; releases RAM when idle | Decided (Phase 3 will re-evaluate vs SpeechAnalyzer / WhisperKit on MacBook Neo A-series) |
+| GitHub Actions macOS CI for builds | No Mac in lab; CI is the only build/test path from WSL2 | Decided (D-02) |
+| Capture on MacBook Neo **and** iPhone in MVP | User choice — wider scope, but iPhone is the realistic in-class recording device | Decided |
+| **Local-default + cloud-opt-in provider layer** | Local (Ollama, whisper.cpp) is always available as default. Cloud providers (OpenAI, Anthropic, X/Grok, Z.ai, others) are explicit opt-in alternatives per modality (LLM / ASR / Vision / Audio). User picks per modality in Settings. Preserves privacy-by-default + offline capability while unlocking subscription quality. | Decided |
+| Obsidian vault as primary store (Markdown + YAML frontmatter) | Local-first storage mandate; no plugin dependency in MVP | Decided |
+| Hermes integration deferred to Phase 2+ | MVP is capture → classify → write; Hermes jobs (ingest QA, Study Pack, CI) layer on after MVP ships | Decided |
+| Course classification via Apple Calendar + EventKit | Already on Angelica's devices; no separate schedule DB to maintain | Decided |
+| Apple Developer Program | Deferred to Phase 3 — $99/yr paid recommended for TestFlight + crash logs. Not blocking Phase 1 SPM/CI work. | Deferred (D-01, FOUND-06) |
+| Public repository | Unlimited free macOS CI minutes on GitHub Actions. No proprietary logic, no secrets, single-user. | Decided (D-02) |
+| MacBook Neo hardware | macOS 26 (Tahoe), A-series chip, 8GB unified memory. Affects ASR strategy (CoreML/ANE may favor WhisperKit over Metal). | Confirmed (D-03, D-06) |
+| Deployment targets | macOS 26 (Tahoe) / iOS 17. Unlocks SpeechAnalyzer on macOS; keeps EventKit iOS 17+ API. | Decided (D-05) |
+| iPhone/iPad OS versions | Unknown — verify with Angelica before Phase 5 iOS capture work. iPad is view/sync surface only in MVP. | Informational (D-04) |
+| Bundle ID | app.unibrain (subject to change when Apple Dev account is activated in Phase 3) | Provisional |
+| Swift 6 strict concurrency | swiftLanguageMode(.v6) on all targets. Greenfield project — start in Swift 6 from day one. | Decided |
 
 ## Assumptions (confirm during PROJECT.md review)
 
 These were not explicitly confirmed in questioning and are documented here so they can be corrected before they propagate into the roadmap:
 
-1. **Angelica's vault is separate** — a new vault on her MacBook Air, not a folder inside Greg's `griak-home` vault.
+1. **Angelica's vault is separate** — a new vault on her MacBook Neo, not a folder inside Greg's `griak-home` vault.
 2. **iCloud Drive syncs** her vault to her iPhone/iPad Pro.
 3. **Hermes Phase-2 jobs** observe a read-only sync copy on Greg's home network — they never host or write to Angelica's vault directly.
 4. **Greg is sole developer**; Angelica is end-user + feedback source (not a co-developer).
@@ -111,4 +118,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-13 after initialization*
+*Last updated: 2026-07-14 — Phase 1 foundation complete (SPM, protocols, ModelLoadGate, Yams, CI, app shell, all decisions documented)*
