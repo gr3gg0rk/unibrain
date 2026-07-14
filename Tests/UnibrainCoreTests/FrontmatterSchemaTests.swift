@@ -1,5 +1,6 @@
 import Testing
 import Foundation
+import Yams
 @testable import UnibrainCore
 
 @Suite("FrontmatterSchema")
@@ -25,5 +26,99 @@ struct FrontmatterSchemaTests {
         #expect(schema.schemaVersion == 1)
         #expect(schema.durationSeconds == 5400)
         #expect(schema.tags.count == 2)
+    }
+
+    // MARK: - Yams Round-Trip Tests
+
+    @Test("Full Yams round-trip preserves all 12 fields")
+    func roundTripPreservesAllFields() throws {
+        let original = FrontmatterSchema(
+            schemaVersion: 1,
+            course: "CS101",
+            courseName: "Intro to CS",
+            term: "Fall 2026",
+            datetime: Date(timeIntervalSince1970: 1_700_000_000),
+            durationSeconds: 3600,
+            source: "lecture",
+            audioFile: "recording.m4a",
+            tags: ["cs", "lecture"],
+            syllabusLink: "https://example.edu/syllabus",
+            vectorId: "vec-001",
+            summaryModel: "llama-3.2-3b"
+        )
+
+        let encoder = YAMLEncoder()
+        let yamlString = try encoder.encode(original)
+
+        let decoder = YAMLDecoder()
+        let decoded = try decoder.decode(FrontmatterSchema.self, from: yamlString)
+
+        #expect(decoded.schemaVersion == original.schemaVersion)
+        #expect(decoded.course == original.course)
+        #expect(decoded.courseName == original.courseName)
+        #expect(decoded.term == original.term)
+        #expect(decoded.datetime == original.datetime)
+        #expect(decoded.durationSeconds == original.durationSeconds)
+        #expect(decoded.source == original.source)
+        #expect(decoded.audioFile == original.audioFile)
+        #expect(decoded.tags == original.tags)
+        #expect(decoded.syllabusLink == original.syllabusLink)
+        #expect(decoded.vectorId == original.vectorId)
+        #expect(decoded.summaryModel == original.summaryModel)
+    }
+
+    @Test("Nullable fields survive nil round-trip through Yams")
+    func nullableFieldsSurviveNilRoundTrip() throws {
+        let original = FrontmatterSchema(
+            schemaVersion: 1,
+            course: "MATH201",
+            courseName: "Linear Algebra",
+            term: "Spring 2026",
+            datetime: Date(timeIntervalSince1970: 1_700_000_000),
+            durationSeconds: 2700,
+            source: "iPhone",
+            audioFile: "math-lecture.wav",
+            tags: ["math", "algebra"],
+            syllabusLink: nil,
+            vectorId: nil,
+            summaryModel: nil
+        )
+
+        let encoder = YAMLEncoder()
+        let yamlString = try encoder.encode(original)
+
+        let decoder = YAMLDecoder()
+        let decoded = try decoder.decode(FrontmatterSchema.self, from: yamlString)
+
+        #expect(decoded.syllabusLink == nil)
+        #expect(decoded.vectorId == nil)
+        #expect(decoded.summaryModel == nil)
+    }
+
+    @Test("YAML output uses snake_case keys")
+    func yamlOutputUsesSnakeCaseKeys() throws {
+        let schema = FrontmatterSchema(
+            schemaVersion: 1,
+            course: "CS101",
+            courseName: "Intro to CS",
+            term: "Fall 2026",
+            datetime: Date(timeIntervalSince1970: 1_700_000_000),
+            durationSeconds: 3600,
+            source: "lecture",
+            audioFile: "recording.m4a",
+            tags: ["cs"],
+            syllabusLink: nil,
+            vectorId: nil,
+            summaryModel: nil
+        )
+
+        let encoder = YAMLEncoder()
+        let yamlString = try encoder.encode(schema)
+
+        // Verify snake_case CodingKeys appear in the YAML output
+        #expect(yamlString.contains("schema_version"))
+        #expect(yamlString.contains("course_name"))
+        #expect(yamlString.contains("duration_seconds"))
+        #expect(yamlString.contains("audio_file"))
     }
 }
