@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  linux-tests:
+    name: Linux (UnibrainCore only)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Swift 6.0.3
+        uses: swift-actions/setup-swift@v2
+        with:
+          swift-version: "6.0.3"
+
+      - name: Verify Swift version
+        run: swift --version
+
+      - name: Resolve package dependencies
+        run: swift package resolve
+
+      - name: Build UnibrainCore target
+        run: swift build --target UnibrainCore
+
+      - name: Run UnibrainCore tests
+        run: swift test --filter UnibrainCoreTests
+
+  macos-tests:
+    name: macOS (all targets)
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache SPM dependencies
+        id: spm-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/Library/Caches/org.swift.swiftpm
+            ~/Library/org.swift.swiftpm
+          key: ${{ runner.os }}-spm-${{ hashFiles('Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
+
+      - name: Cache DerivedData
+        id: dd-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/Library/Developer/Xcode/DerivedData
+          key: ${{ runner.os }}-dd-${{ hashFiles('Package.resolved', 'Package.swift') }}
+          restore-keys: |
+            ${{ runner.os }}-dd-
+
+      - name: Report cache status
+        run: |
+          echo "SPM cache hit: ${{ steps.spm-cache.outputs.cache-hit }}"
+          echo "DerivedData cache hit: ${{ steps.dd-cache.outputs.cache-hit }}"
+
+      - name: Build all targets
+        run: swift build
+
+      - name: Run all tests
+        run: swift test
