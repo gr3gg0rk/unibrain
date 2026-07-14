@@ -13,7 +13,7 @@ A six-phase journey from foundation to a shipping local-first lecture capture ap
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation** - SPM architecture, provider protocols, macOS CI, ModelLoadGate, Yams, Apple Dev decision
+- [x] **Phase 1: Foundation** - SPM architecture, provider protocols, macOS CI, ModelLoadGate, Yams, Apple Dev decision
 - [ ] **Phase 2: Pure Pipeline Logic** - WSL2-testable core: FrontmatterSchema, Normalizer, Orchestrator, atomic-write helpers, CourseClassifier pure logic
 - [ ] **Phase 3: macOS Capture + Transcribe** - First end-to-end vertical slice: AVFoundation record, whisper.cpp+Metal, hardcoded-folder write-out
 - [ ] **Phase 4: Course Classification + Smart Routing** - The moat: EventKit calendar-to-course mapping, manual picker fallback, multi-term folders
@@ -36,7 +36,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. The four provider protocols (`LLMSummarizer`, `AudioTranscriber`, `VisionDescriber`, `AudioSynthesizer`) compile behind `#if canImport()` guards and the `ModelLoadGate` actor enforces one-heavy-local-model-at-a-time in a unit test
   5. The Apple Developer Program decision (paid $99/yr vs free) is documented in PROJECT.md Key Decisions with the chosen rationale
 
-**Plans**: 3/4 plans executed
+**Plans**: 4/4 plans executed
 **Wave 1**
 
 - [x] 01-01-PLAN.md — Swift 6.0.x toolchain install, Package.swift, .gitignore, all source scaffolds and test stubs (Wave 0)
@@ -45,7 +45,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 01-04-PLAN.md — PROJECT.md Key Decisions update, Xcode app shell, SKELETON.md, phase verification checkpoint (Wave 2)
+- [x] 01-04-PLAN.md — PROJECT.md Key Decisions update, Xcode app shell, SKELETON.md, phase verification checkpoint (Wave 2)
 
 ### Phase 2: Pure Pipeline Logic
 
@@ -65,7 +65,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 ### Phase 3: macOS Capture + Transcribe
 
-**Goal**: A user can record a lecture on a MacBook Air via the menu-bar record button, stop it, and within minutes see a transcript written as a Markdown note into a hardcoded vault folder — proving the whisper.cpp+Metal integration, the Task.detached threading model, the RAM discipline (model loaded only at inference time then released), and the end-to-end pipeline on macOS.
+**Goal**: A user can record a lecture on a MacBook NEO via the menu-bar record button, stop it, and within minutes see a transcript written as a Markdown note into a hardcoded vault folder — proving the whisper.cpp+Metal integration, the Task.detached threading model, the RAM discipline (model loaded only at inference time then released), and the end-to-end pipeline on macOS.
 **Mode**: mvp
 **Depends on**: Phase 2
 **Requirements**: CAPT-01, CAPT-02, CAPT-04, CAPT-05, CAPT-06, TRAN-01, TRAN-02, TRAN-03, TRAN-04, TRAN-05, TRAN-06
@@ -137,7 +137,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 3/4 | In Progress|  |
+| 1. Foundation | 4/4 | Complete | 2026-07-14 |
 | 2. Pure Pipeline Logic | 0/0 | Not started | - |
 | 3. macOS Capture + Transcribe | 0/0 | Not started | - |
 | 4. Course Classification + Smart Routing | 0/0 | Not started | - |
