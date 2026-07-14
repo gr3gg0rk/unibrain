@@ -9,8 +9,8 @@ Requirements for the MVP "Record-to-Obsidian" release. Each maps to a roadmap ph
 
 ### Foundation
 
-- [ ] **FOUND-01**: Swift Package Manager multiplatform target (macOS + iOS) in one Xcode project, sharing non-UI logic
-- [ ] **FOUND-02**: Protocol-abstraction layer (Provider layer) covering all inference modalities — `LLMSummarizer`, `AudioTranscriber`, `VisionDescriber`, `AudioSynthesizer` protocols with pluggable backends. Concrete backends: local (Ollama, whisper.cpp) + cloud (OpenAI, Anthropic, X/Grok, Z.ai). Enables pure-logic unit tests on WSL2 Linux Swift toolchain without Apple frameworks.
+- [x] **FOUND-01**: Swift Package Manager multiplatform target (macOS + iOS) in one Xcode project, sharing non-UI logic
+- [x] **FOUND-02**: Protocol-abstraction layer (Provider layer) covering all inference modalities — `LLMSummarizer`, `AudioTranscriber`, `VisionDescriber`, `AudioSynthesizer` protocols with pluggable backends. Concrete backends: local (Ollama, whisper.cpp) + cloud (OpenAI, Anthropic, X/Grok, Z.ai). Enables pure-logic unit tests on WSL2 Linux Swift toolchain without Apple frameworks.
 - [ ] **FOUND-03**: GitHub Actions macOS CI workflow on `macos-15` runner that builds the SPM package + runs tests on every push, with SPM cache and DerivedData cache to conserve minutes
 - [ ] **FOUND-04**: `ModelLoadGate` actor (Swift concurrency) that enforces one-heavy-model-at-a-time — ASR and LLM cannot be loaded simultaneously
 - [ ] **FOUND-05**: Yams YAML library integrated for frontmatter serialization/deserialization
@@ -74,7 +74,7 @@ Requirements for the MVP "Record-to-Obsidian" release. Each maps to a roadmap ph
 ### Discipline (Cross-Cutting)
 
 - [ ] **DISC-01**: At most one heavy LOCAL model (ASR or LLM) loaded into RAM at any time, enforced by `ModelLoadGate`. (Cloud providers don't count toward local RAM budget.)
-- [ ] **DISC-02**: All Apple-framework dependencies (AVFoundation, EventKit, FileManager, Ollama client) sit behind protocols so pure-logic tests run without Apple frameworks
+- [x] **DISC-02**: All Apple-framework dependencies (AVFoundation, EventKit, FileManager, Ollama client) sit behind protocols so pure-logic tests run without Apple frameworks
 - [ ] **DISC-03**: Pure-logic unit tests (Normalizer, FrontmatterSchema, CourseClassifier, Orchestrator with mocks) run on WSL2 Linux Swift toolchain without Xcode
 - [ ] **DISC-04**: App survives iOS backgrounding during an active recording
 - [ ] **DISC-05**: Local-first core path: capture → classify → transcribe (local) → write works fully offline by default. Cloud provider calls are explicit user opt-in per modality, never silently injected.
@@ -166,14 +166,14 @@ Explicit exclusions documented to prevent scope creep.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FOUND-01 | Phase 1 | Pending |
-| FOUND-02 | Phase 1 | Pending |
+| FOUND-01 | Phase 1 | Complete |
+| FOUND-02 | Phase 1 | Complete |
 | FOUND-03 | Phase 1 | Pending |
 | FOUND-04 | Phase 1 | Pending |
 | FOUND-05 | Phase 1 | Pending |
 | FOUND-06 | Phase 1 | Pending |
 | DISC-01 | Phase 1 | Pending |
-| DISC-02 | Phase 1 | Pending |
+| DISC-02 | Phase 1 | Complete |
 | DISC-03 | Phase 1 | Pending |
 | WRITE-01 | Phase 2 | Pending |
 | WRITE-02 | Phase 2 | Pending |
@@ -230,11 +230,13 @@ Explicit exclusions documented to prevent scope creep.
 | DISC-06 | Phase 6 | Pending |
 
 **Coverage:**
+
 - v1 requirements: 62 total (corrected from earlier "53" which predated cloud-provider additions)
 - Mapped to phases: 62
 - Unmapped: 0
 
 **Phase distribution:**
+
 - Phase 1 (Foundation): 9 requirements
 - Phase 2 (Pure Pipeline Logic): 6 requirements
 - Phase 3 (macOS Capture + Transcribe): 11 requirements
