@@ -36,11 +36,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. The four provider protocols (`LLMSummarizer`, `AudioTranscriber`, `VisionDescriber`, `AudioSynthesizer`) compile behind `#if canImport()` guards and the `ModelLoadGate` actor enforces one-heavy-local-model-at-a-time in a unit test
   5. The Apple Developer Program decision (paid $99/yr vs free) is documented in PROJECT.md Key Decisions with the chosen rationale
 
-**Plans**: 1/4 plans executed
+**Plans**: 2/4 plans executed
 **Wave 1**
 
 - [x] 01-01-PLAN.md — Swift 6.0.x toolchain install, Package.swift, .gitignore, all source scaffolds and test stubs (Wave 0)
-- [ ] 01-02-PLAN.md — ModelLoadGate deny-on-conflict implementation with comprehensive tests (Wave 1)
+- [x] 01-02-PLAN.md — ModelLoadGate deny-on-conflict implementation with comprehensive tests (Wave 1)
 - [ ] 01-03-PLAN.md — FrontmatterSchema Yams round-trip tests, provider protocol mock tests, GitHub Actions CI workflow (Wave 1)
 
 **Wave 2** *(blocked on Wave 1 completion)*
@@ -137,7 +137,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 1/4 | In Progress|  |
+| 1. Foundation | 2/4 | In Progress|  |
 | 2. Pure Pipeline Logic | 0/0 | Not started | - |
 | 3. macOS Capture + Transcribe | 0/0 | Not started | - |
 | 4. Course Classification + Smart Routing | 0/0 | Not started | - |

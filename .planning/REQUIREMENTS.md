@@ -12,7 +12,7 @@ Requirements for the MVP "Record-to-Obsidian" release. Each maps to a roadmap ph
 - [x] **FOUND-01**: Swift Package Manager multiplatform target (macOS + iOS) in one Xcode project, sharing non-UI logic
 - [x] **FOUND-02**: Protocol-abstraction layer (Provider layer) covering all inference modalities — `LLMSummarizer`, `AudioTranscriber`, `VisionDescriber`, `AudioSynthesizer` protocols with pluggable backends. Concrete backends: local (Ollama, whisper.cpp) + cloud (OpenAI, Anthropic, X/Grok, Z.ai). Enables pure-logic unit tests on WSL2 Linux Swift toolchain without Apple frameworks.
 - [ ] **FOUND-03**: GitHub Actions macOS CI workflow on `macos-15` runner that builds the SPM package + runs tests on every push, with SPM cache and DerivedData cache to conserve minutes
-- [ ] **FOUND-04**: `ModelLoadGate` actor (Swift concurrency) that enforces one-heavy-model-at-a-time — ASR and LLM cannot be loaded simultaneously
+- [x] **FOUND-04**: `ModelLoadGate` actor (Swift concurrency) that enforces one-heavy-model-at-a-time — ASR and LLM cannot be loaded simultaneously
 - [ ] **FOUND-05**: Yams YAML library integrated for frontmatter serialization/deserialization
 - [ ] **FOUND-06**: Apple Developer Program membership decision documented (research recommends $99/yr paid for TestFlight + crash logs; user to confirm)
 
@@ -73,7 +73,7 @@ Requirements for the MVP "Record-to-Obsidian" release. Each maps to a roadmap ph
 
 ### Discipline (Cross-Cutting)
 
-- [ ] **DISC-01**: At most one heavy LOCAL model (ASR or LLM) loaded into RAM at any time, enforced by `ModelLoadGate`. (Cloud providers don't count toward local RAM budget.)
+- [x] **DISC-01**: At most one heavy LOCAL model (ASR or LLM) loaded into RAM at any time, enforced by `ModelLoadGate`. (Cloud providers don't count toward local RAM budget.)
 - [x] **DISC-02**: All Apple-framework dependencies (AVFoundation, EventKit, FileManager, Ollama client) sit behind protocols so pure-logic tests run without Apple frameworks
 - [ ] **DISC-03**: Pure-logic unit tests (Normalizer, FrontmatterSchema, CourseClassifier, Orchestrator with mocks) run on WSL2 Linux Swift toolchain without Xcode
 - [ ] **DISC-04**: App survives iOS backgrounding during an active recording
@@ -169,10 +169,10 @@ Explicit exclusions documented to prevent scope creep.
 | FOUND-01 | Phase 1 | Complete |
 | FOUND-02 | Phase 1 | Complete |
 | FOUND-03 | Phase 1 | Pending |
-| FOUND-04 | Phase 1 | Pending |
+| FOUND-04 | Phase 1 | Complete |
 | FOUND-05 | Phase 1 | Pending |
 | FOUND-06 | Phase 1 | Pending |
-| DISC-01 | Phase 1 | Pending |
+| DISC-01 | Phase 1 | Complete |
 | DISC-02 | Phase 1 | Complete |
 | DISC-03 | Phase 1 | Pending |
 | WRITE-01 | Phase 2 | Pending |
