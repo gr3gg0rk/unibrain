@@ -1,0 +1,16 @@
+# Build artifacts
+.build/
+.swiftpm/
+DerivedData/
+
+# IDE / editor
+*.xcodeproj/
+*.xcworkspace/
+.vscode/
+.DS_Store
+
+# Caches
+.cache/
+.omc/
+
+# Note: Package.resolved is NOT ignored — it must be committed for reproducible builds
