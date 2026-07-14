@@ -10,7 +10,7 @@ A local-first, Apple-native lecture capture and study assistant for university s
 
 - Swift 6.0.3 SPM package builds green on Linux + macOS
 - 17 tests passing across ModelLoadGate, FrontmatterSchema, and ProviderProtocol suites
-- GitHub Actions CI runs Linux + macOS matrix on every push with SPM and DerivedData caching
+- GitHub Actions CI runs Linux + macOS matrix on every push with SPM dependency caching
 - Architectural decisions locked in [SKELETON.md](.planning/phases/01-foundation/SKELETON.md)
 
 Phases 2-6 (transcription pipeline, macOS record-write loop, calendar routing, iOS capture, gated summaries) are tracked in [`.planning/ROADMAP.md`](.planning/ROADMAP.md).

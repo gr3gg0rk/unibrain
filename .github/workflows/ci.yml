@@ -47,19 +47,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-spm-
 
-      - name: Cache DerivedData
-        id: dd-cache
-        uses: actions/cache@v4
-        with:
-          path: ~/Library/Developer/Xcode/DerivedData
-          key: ${{ runner.os }}-dd-${{ hashFiles('Package.resolved', 'Package.swift') }}
-          restore-keys: |
-            ${{ runner.os }}-dd-
-
       - name: Report cache status
         run: |
           echo "SPM cache hit: ${{ steps.spm-cache.outputs.cache-hit }}"
-          echo "DerivedData cache hit: ${{ steps.dd-cache.outputs.cache-hit }}"
 
       - name: Build all targets
         run: swift build

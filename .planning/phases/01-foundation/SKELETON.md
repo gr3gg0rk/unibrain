@@ -6,7 +6,7 @@
 
 ## Capability Proven
 
-Swift Package Manager package with **UnibrainCore** library builds and tests green on WSL2 Linux (Swift 6.0.3, strict concurrency mode). GitHub Actions CI runs the same build + test on macOS (macos-15, Xcode 16.4+) with SPM and DerivedData caching. The walking skeleton proves:
+Swift Package Manager package with **UnibrainCore** library builds and tests green on WSL2 Linux (Swift 6.0.3, strict concurrency mode). GitHub Actions CI runs the same build + test on macOS (macos-15, Xcode 16.4+) with SPM dependency caching (DerivedData caching deferred to Phase 3 when xcodebuild enters the loop). The walking skeleton proves:
 
 1. `swift build --target UnibrainCore` succeeds on Linux
 2. `swift test --filter UnibrainCoreTests` passes 17 tests on Linux (ModelLoadGate deny-on-conflict, FrontmatterSchema Yams round-trip, provider protocol mock conformances)
