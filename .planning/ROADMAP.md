@@ -61,7 +61,17 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. A unit test on Linux forces a write failure and verifies a clear error type is surfaced (WRITE-06) — no silent swallow
   5. The `PipelineOrchestrator` state machine unit test (all-mock dependencies) walks through idle -> transcribing -> classifying -> normalizing -> writing -> completed transitions and rejects a second concurrent run
 
-**Plans**: TBD
+**Plans**: 4 plans (Wave 1: 3 parallel vertical slices, Wave 2: orchestrator integration)
+
+**Wave 1** (parallel, no dependencies)
+
+- [ ] 02-01-PLAN.md — Note shape contract: NormalizedNote, NoteNormalizer, FrontmatterSchema validation (Wave 1)
+- [ ] 02-02-PLAN.md — Atomic write contract: NoteWriter protocol, NoteWriterError, TestNoteWriter (Wave 1)
+- [ ] 02-03-PLAN.md — Classification pure logic: CalendarEvent, CourseClassifier, FolderNameSanitizer (Wave 1)
+
+**Wave 2** (blocked on Wave 1 completion)
+
+- [ ] 02-04-PLAN.md — Orchestrator integration: PipelineState, PipelineInputs, PipelineOrchestrator actor (Wave 2)
 
 ### Phase 3: macOS Capture + Transcribe
 
