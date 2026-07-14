@@ -32,7 +32,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. GitHub Actions macOS CI (`macos-15` runner) builds the SPM package and runs tests on every push to main, with SPM cache and DerivedData cache verified as hits on the second run
   4. The four provider protocols (`LLMSummarizer`, `AudioTranscriber`, `VisionDescriber`, `AudioSynthesizer`) compile behind `#if canImport()` guards and the `ModelLoadGate` actor enforces one-heavy-local-model-at-a-time in a unit test
   5. The Apple Developer Program decision (paid $99/yr vs free) is documented in PROJECT.md Key Decisions with the chosen rationale
-**Plans**: TBD
+**Plans**: 4 plans
+- [ ] 01-01-PLAN.md — Swift 6.0.x toolchain install, Package.swift, .gitignore, all source scaffolds and test stubs (Wave 0)
+- [ ] 01-02-PLAN.md — ModelLoadGate deny-on-conflict implementation with comprehensive tests (Wave 1)
+- [ ] 01-03-PLAN.md — FrontmatterSchema Yams round-trip tests, provider protocol mock tests, GitHub Actions CI workflow (Wave 1)
+- [ ] 01-04-PLAN.md — PROJECT.md Key Decisions update, Xcode app shell, SKELETON.md, phase verification checkpoint (Wave 2)
 
 ### Phase 2: Pure Pipeline Logic
 **Goal**: Every line of business logic that can be expressed without Apple frameworks is written, tested, and green on WSL2 Linux — the FrontmatterSchema, NoteNormalizer, VaultWriter atomic-write logic, CourseClassifier pure matching logic, and the PipelineOrchestrator state machine with all-mock dependencies — establishing the protocol contracts that platform implementations must satisfy.
@@ -109,7 +113,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/0 | Not started | - |
+| 1. Foundation | 0/4 | Planning complete | - |
 | 2. Pure Pipeline Logic | 0/0 | Not started | - |
 | 3. macOS Capture + Transcribe | 0/0 | Not started | - |
 | 4. Course Classification + Smart Routing | 0/0 | Not started | - |
