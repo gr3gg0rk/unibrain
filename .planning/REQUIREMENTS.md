@@ -14,7 +14,7 @@ Requirements for the MVP "Record-to-Obsidian" release. Each maps to a roadmap ph
 - [x] **FOUND-03**: GitHub Actions macOS CI workflow on `macos-15` runner that builds the SPM package + runs tests on every push, with SPM cache and DerivedData cache to conserve minutes
 - [x] **FOUND-04**: `ModelLoadGate` actor (Swift concurrency) that enforces one-heavy-model-at-a-time — ASR and LLM cannot be loaded simultaneously
 - [x] **FOUND-05**: Yams YAML library integrated for frontmatter serialization/deserialization
-- [ ] **FOUND-06**: Apple Developer Program membership decision documented (research recommends $99/yr paid for TestFlight + crash logs; user to confirm)
+- [x] **FOUND-06**: Apple Developer Program membership decision documented (research recommends $99/yr paid for TestFlight + crash logs; user to confirm)
 
 ### Capture
 
@@ -171,7 +171,7 @@ Explicit exclusions documented to prevent scope creep.
 | FOUND-03 | Phase 1 | Complete |
 | FOUND-04 | Phase 1 | Complete |
 | FOUND-05 | Phase 1 | Complete |
-| FOUND-06 | Phase 1 | Pending |
+| FOUND-06 | Phase 1 | Complete |
 | DISC-01 | Phase 1 | Complete |
 | DISC-02 | Phase 1 | Complete |
 | DISC-03 | Phase 1 | Complete |
