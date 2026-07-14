@@ -44,4 +44,25 @@ struct ModelLoadGateTests {
         #expect(llmLease.kind == .llm)
         await llmLease.release()
     }
+
+    @Test("ModelLease is Sendable and can cross concurrency boundaries")
+    func leaseIsSendable() async throws {
+        let gate = ModelLoadGate()
+        let lease = try await gate.acquire(.asr)
+
+        // Compile-time Sendable check: assigning to a Sendable-existential
+        // variable succeeds only if ModelLease conforms to Sendable.
+        let sendable: any Sendable = lease
+        #expect(sendable is ModelLease)
+
+        // Runtime check: lease can be captured by a detached Task (crosses
+        // concurrency boundary). If ModelLease were not Sendable, Swift 6
+        // strict concurrency would reject this closure capture.
+        let kind = await Task.detached { () -> HeavyModelKind in
+            lease.kind
+        }.value
+        #expect(kind == .asr)
+
+        await lease.release()
+    }
 }
