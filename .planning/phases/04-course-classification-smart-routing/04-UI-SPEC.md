@@ -40,7 +40,7 @@ Inherited from Phase 3 — unchanged. SwiftUI points (pt). All multiples of 4pt.
 |-------|-------|-------|
 | xs | 4pt | Icon gaps, inline label padding, picker row leading inset |
 | sm | 8pt | Compact row spacing, button gap horizontal, banner internal padding |
-| md | 12pt | Default element vertical spacing, picker section gap |
+| md | 12pt | Default element vertical spacing, picker section gap (**12pt exception** — 280pt popover width requires finer granularity between sm(8) and lg(16); Apple HIG uses 12pt as a standard token) |
 | lg | 16pt | Section padding within popover, picker search field padding |
 | xl | 24pt | Popover top/bottom padding, sheet top padding |
 | 2xl | 32pt | Major section break (not used — surfaces are compact) |
@@ -196,13 +196,13 @@ Inline form revealed when "Create New Course" is tapped. Replaces the course lis
 │  Course Name                        │
 │  [ e.g., Intro to CS            ]   │
 │                                     │
-│  [ Cancel ]     [ Create + Route ]  │
+│  [ Discard ]    [ Create + Route ]  │
 └─────────────────────────────────────┘
 ```
 
 - **Course Code field**: `TextField`, placeholder "e.g., CS101". Required — Save button disabled when empty. Sanitized via `FolderNameSanitizer` on save.
 - **Course Name field**: `TextField`, placeholder "e.g., Intro to CS". Optional (defaults to course code if empty).
-- **Cancel button** (secondary): Returns to course picker list.
+- **Discard button** (secondary): "Discard New Course" — Returns to course picker list without creating anything.
 - **Create + Route button** (`.buttonStyle(.borderedProminent)`, accent): Creates `{vault}/{term}/{sanitized-code}/` folder, adds mapping to `.unibrain/courses.json`, routes recording there, dismisses entire sheet. Disabled when Course Code is empty.
 
 ---
@@ -239,7 +239,7 @@ Accessible from the idle-state popover via a "Manage Courses" button. Editable t
 - **Sheet header** (`.headline`, primary): "Manage Courses".
 - **Current term display** (`.subheadline` primary + `.caption` secondary): Shows `currentTerm.label` + date range. Tappable → opens term editor inline (same mini-form pattern as Create New Course — label, start date, end date fields).
 - **Mapping table**: `List` with `.insetGrouped` (or `.inset` on macOS) style. Each row: event title (`.subheadline`, primary) + arrow (`chevron.right`, `.tertiary`) + course code (`.subheadline`, `.secondary`). Tap row → inline edit mode with two `TextField`s (event title, course code).
-- **Delete**: swipe-to-delete on macOS (or `-` button in edit mode). Confirmation alert: "Delete mapping for '{event title}'? Recordings with this event title will auto-create a new folder next time." with "Delete" (destructive) and "Cancel" options.
+- **Delete**: swipe-to-delete on macOS (or `-` button in edit mode). Confirmation alert: "Delete mapping for '{event title}'? Recordings with this event title will auto-create a new folder next time." with "Delete" (destructive) and "Keep Mapping" options.
 - **Add Course Mapping button** (`.buttonStyle(.bordered)`, secondary): `plus.circle` icon. Opens inline form: Event Title field + Course Code field + Course Name field.
 - **Done button** (`.buttonStyle(.borderedProminent)`, accent): Saves changes to `.unibrain/courses.json`, dismisses sheet.
 - **Roughly 50-100 lines of SwiftUI** (M-04) — this is a minimal editor, not a full Settings UI. Becomes Phase 6's courses tab.
@@ -385,14 +385,14 @@ Inherits Phase 3 tone: calm, brief, no exclamation marks. Angelica is in a lectu
 | **Create New Course — code field placeholder** | "e.g., CS101" |
 | **Create New Course — name field placeholder** | "e.g., Intro to CS" |
 | **Create New Course — save button** | "Create + Route" |
-| **Create New Course — cancel button** | "Cancel" |
+| **Create New Course — discard button** | "Discard New Course" |
 | **Manage Courses — heading** | "Manage Courses" |
 | **Manage Courses — term display** | "Current Term: {label}" / "({startDate} – {endDate})" |
 | **Manage Courses — add mapping button** | "Add Course Mapping" |
 | **Manage Courses — done button** | "Done" |
 | **Manage Courses — delete confirmation** | "Delete mapping for '{event title}'? Recordings with this event title will auto-create a new folder next time." |
 | **Manage Courses — delete confirm action** | "Delete" |
-| **Manage Courses — delete cancel action** | "Cancel" |
+| **Manage Courses — delete cancel action** | "Keep Mapping" |
 | **Permission sheet — heading** | "Calendar Access Needed" |
 | **Permission sheet — body paragraph 1** | "unibrain uses your calendar to automatically route recordings to the right course folder." |
 | **Permission sheet — body paragraph 2** | "Without calendar access, you'll need to pick the course manually each time you record." |
@@ -405,7 +405,7 @@ Inherits Phase 3 tone: calm, brief, no exclamation marks. Angelica is in a lectu
 | **Term editor — label field placeholder** | "e.g., Fall 2026" |
 | **Term editor — start date label** | "Start Date" |
 | **Term editor — end date label** | "End Date" |
-| **Term editor — save button** | "Save Term" |
+| **Term editor — save button** | "Set Current Term" |
 | **Classification-paused — status line** | "Transcription done." / "Picking course…" |
 | **Classification-paused — progress caption** | "Analyzing calendar…" |
 | **Classification-paused — cancel** | "Cancel (save to _unsorted)" |
