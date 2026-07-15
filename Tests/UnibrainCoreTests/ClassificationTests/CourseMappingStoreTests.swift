@@ -28,6 +28,7 @@ struct CourseMappingStoreTests {
     private let termEnd = ISO8601DateFormatter().date(from: "2026-12-15T23:59:59Z")!
 
     // MARK: - Test 1: Document round-trip through JSON
+    // (Pure Codable, no actor needed — stays synchronous)
 
     @Test("CourseMappingDocument round-trips through JSONEncoder/Decoder with snake_case keys")
     func documentRoundTripsThroughJSON() throws {
@@ -68,12 +69,12 @@ struct CourseMappingStoreTests {
     // MARK: - Test 2: load() returns empty default on non-existent file
 
     @Test("load() returns empty default when file does not exist")
-    func loadReturnsEmptyOnMissingFile() throws {
+    func loadReturnsEmptyOnMissingFile() async throws {
         let vaultRoot = try makeVaultRoot()
         defer { cleanup(vaultRoot) }
 
         let store = CourseMappingStore(vaultRoot: vaultRoot)
-        let document = try store.load()
+        let document = try await store.load()
 
         #expect(document.schemaVersion == 1)
         #expect(document.mappings.isEmpty)
@@ -86,7 +87,7 @@ struct CourseMappingStoreTests {
     // MARK: - Test 3: load() returns empty default on malformed JSON
 
     @Test("load() returns empty default on malformed JSON")
-    func loadReturnsEmptyOnMalformedJSON() throws {
+    func loadReturnsEmptyOnMalformedJSON() async throws {
         let vaultRoot = try makeVaultRoot()
         defer { cleanup(vaultRoot) }
 
@@ -100,7 +101,7 @@ struct CourseMappingStoreTests {
         try "{ invalid json !!!".data(using: .utf8)!.write(to: storeFile)
 
         let store = CourseMappingStore(vaultRoot: vaultRoot)
-        let document = try store.load()
+        let document = try await store.load()
 
         #expect(document.schemaVersion == 1)
         #expect(document.mappings.isEmpty)
@@ -110,37 +111,37 @@ struct CourseMappingStoreTests {
     // MARK: - Test 4: lookup() returns mapping after upsert, nil for unmapped
 
     @Test("lookup() returns mapping after upsert, nil for unmapped title")
-    func lookupReturnsMappingAfterUpsert() throws {
+    func lookupReturnsMappingAfterUpsert() async throws {
         let vaultRoot = try makeVaultRoot()
         defer { cleanup(vaultRoot) }
 
         let store = CourseMappingStore(vaultRoot: vaultRoot)
         let mapping = CourseMapping(courseCode: "CS101", courseName: "Intro to CS")
 
-        try store.upsert(eventTitle: "CS101 Lecture", mapping: mapping)
+        try await store.upsert(eventTitle: "CS101 Lecture", mapping: mapping)
 
-        let found = try store.lookup(eventTitle: "CS101 Lecture")
+        let found = try await store.lookup(eventTitle: "CS101 Lecture")
         #expect(found?.courseCode == "CS101")
         #expect(found?.courseName == "Intro to CS")
 
-        let notFound = try store.lookup(eventTitle: "Unknown Event")
+        let notFound = try await store.lookup(eventTitle: "Unknown Event")
         #expect(notFound == nil)
     }
 
     // MARK: - Test 5: upsert() persists to disk, visible on fresh load
 
     @Test("upsert() writes immediately and is visible on fresh load()")
-    func upsertPersistsAndVisibleOnFreshLoad() throws {
+    func upsertPersistsAndVisibleOnFreshLoad() async throws {
         let vaultRoot = try makeVaultRoot()
         defer { cleanup(vaultRoot) }
 
         let store1 = CourseMappingStore(vaultRoot: vaultRoot)
         let mapping = CourseMapping(courseCode: "MATH200", courseName: "Calculus II")
-        try store1.upsert(eventTitle: "Calc II Lecture", mapping: mapping)
+        try await store1.upsert(eventTitle: "Calc II Lecture", mapping: mapping)
 
         // Create a NEW store instance — simulates app restart / different device via iCloud
         let store2 = CourseMappingStore(vaultRoot: vaultRoot)
-        let document = try store2.load()
+        let document = try await store2.load()
 
         #expect(document.mappings["Calc II Lecture"]?.courseCode == "MATH200")
         #expect(document.mappings["Calc II Lecture"]?.courseName == "Calculus II")
@@ -149,32 +150,32 @@ struct CourseMappingStoreTests {
     // MARK: - Test 6: addRecent() deduplicates and trims to 5
 
     @Test("addRecent() adds at position 0, deduplicates, trims to 5 entries")
-    func addRecentDeduplicatesAndTrims() throws {
+    func addRecentDeduplicatesAndTrims() async throws {
         let vaultRoot = try makeVaultRoot()
         defer { cleanup(vaultRoot) }
 
         let store = CourseMappingStore(vaultRoot: vaultRoot)
 
         // Add 5 distinct codes
-        try store.addRecent(courseCode: "CS101")
-        try store.addRecent(courseCode: "MATH200")
-        try store.addRecent(courseCode: "PHYS101")
-        try store.addRecent(courseCode: "CHEM150")
-        try store.addRecent(courseCode: "BIO120")
+        try await store.addRecent(courseCode: "CS101")
+        try await store.addRecent(courseCode: "MATH200")
+        try await store.addRecent(courseCode: "PHYS101")
+        try await store.addRecent(courseCode: "CHEM150")
+        try await store.addRecent(courseCode: "BIO120")
 
-        var recent = try store.allRecentCourses()
+        var recent = try await store.allRecentCourses()
         #expect(recent == ["BIO120", "CHEM150", "PHYS101", "MATH200", "CS101"])
 
         // Add a 6th — should trim the oldest (CS101)
-        try store.addRecent(courseCode: "ENG100")
-        recent = try store.allRecentCourses()
+        try await store.addRecent(courseCode: "ENG100")
+        recent = try await store.allRecentCourses()
         #expect(recent.count == 5)
         #expect(recent == ["ENG100", "BIO120", "CHEM150", "PHYS101", "MATH200"])
         #expect(!recent.contains("CS101"))
 
         // Add an existing code — should deduplicate (remove prior) and move to front
-        try store.addRecent(courseCode: "PHYS101")
-        recent = try store.allRecentCourses()
+        try await store.addRecent(courseCode: "PHYS101")
+        recent = try await store.allRecentCourses()
         #expect(recent.count == 5)
         #expect(recent[0] == "PHYS101")
         // PHYS101 should appear only once
@@ -184,31 +185,31 @@ struct CourseMappingStoreTests {
     // MARK: - Test 7: setCurrentTerm() updates and persists
 
     @Test("setCurrentTerm() updates the term and persists it")
-    func setCurrentTermPersists() throws {
+    func setCurrentTermPersists() async throws {
         let vaultRoot = try makeVaultRoot()
         defer { cleanup(vaultRoot) }
 
         let store = CourseMappingStore(vaultRoot: vaultRoot)
-        try store.setCurrentTerm(
+        try await store.setCurrentTerm(
             label: "Spring 2027",
             startDate: termStart,
             endDate: termEnd
         )
 
         // Verify via same store
-        let term = try store.currentTerm()
+        let term = try await store.currentTerm()
         #expect(term.label == "Spring 2027")
 
         // Verify via fresh store (disk persistence)
         let store2 = CourseMappingStore(vaultRoot: vaultRoot)
-        let term2 = try store2.currentTerm()
+        let term2 = try await store2.currentTerm()
         #expect(term2.label == "Spring 2027")
     }
 
     // MARK: - Test 8: load() decodes pre-written JSON with snake_case keys
 
     @Test("load() decodes pre-written JSON with snake_case keys (iCloud sync simulation)")
-    func loadDecodesPreWrittenSnakeCaseJSON() throws {
+    func loadDecodesPreWrittenSnakeCaseJSON() async throws {
         let vaultRoot = try makeVaultRoot()
         defer { cleanup(vaultRoot) }
 
@@ -244,7 +245,7 @@ struct CourseMappingStoreTests {
         try jsonPayload.data(using: .utf8)!.write(to: storeFile)
 
         let store = CourseMappingStore(vaultRoot: vaultRoot)
-        let document = try store.load()
+        let document = try await store.load()
 
         #expect(document.schemaVersion == 1)
         #expect(document.currentTerm.label == "Fall 2026")
@@ -257,47 +258,47 @@ struct CourseMappingStoreTests {
     // MARK: - Test 9: deleteMapping() removes entry and persists
 
     @Test("deleteMapping() removes entry from mappings and persists")
-    func deleteMappingRemovesAndPersists() throws {
+    func deleteMappingRemovesAndPersists() async throws {
         let vaultRoot = try makeVaultRoot()
         defer { cleanup(vaultRoot) }
 
         let store = CourseMappingStore(vaultRoot: vaultRoot)
         let mapping = CourseMapping(courseCode: "CS101", courseName: "Intro to CS")
-        try store.upsert(eventTitle: "CS101 Lecture", mapping: mapping)
+        try await store.upsert(eventTitle: "CS101 Lecture", mapping: mapping)
 
         // Verify it exists
-        #expect(try store.lookup(eventTitle: "CS101 Lecture") != nil)
+        #expect(try await store.lookup(eventTitle: "CS101 Lecture") != nil)
 
         // Delete it
-        try store.deleteMapping(eventTitle: "CS101 Lecture")
+        try await store.deleteMapping(eventTitle: "CS101 Lecture")
 
         // Verify it's gone
-        #expect(try store.lookup(eventTitle: "CS101 Lecture") == nil)
+        #expect(try await store.lookup(eventTitle: "CS101 Lecture") == nil)
 
         // Verify persistence via fresh load
         let store2 = CourseMappingStore(vaultRoot: vaultRoot)
-        let document = try store2.load()
+        let document = try await store2.load()
         #expect(document.mappings["CS101 Lecture"] == nil)
     }
 
     // MARK: - Test 10: allMappings() returns full dict
 
     @Test("allMappings() returns the complete mappings dictionary")
-    func allMappingsReturnsFullDict() throws {
+    func allMappingsReturnsFullDict() async throws {
         let vaultRoot = try makeVaultRoot()
         defer { cleanup(vaultRoot) }
 
         let store = CourseMappingStore(vaultRoot: vaultRoot)
-        try store.upsert(
+        try await store.upsert(
             eventTitle: "CS101 Lecture",
             mapping: CourseMapping(courseCode: "CS101", courseName: "Intro to CS")
         )
-        try store.upsert(
+        try await store.upsert(
             eventTitle: "MATH200 Lab",
             mapping: CourseMapping(courseCode: "MATH200", courseName: "Calculus II")
         )
 
-        let mappings = try store.allMappings()
+        let mappings = try await store.allMappings()
         #expect(mappings.count == 2)
         #expect(mappings["CS101 Lecture"]?.courseCode == "CS101")
         #expect(mappings["MATH200 Lab"]?.courseCode == "MATH200")
