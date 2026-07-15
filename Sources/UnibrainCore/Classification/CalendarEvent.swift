@@ -5,7 +5,9 @@ import Foundation
 /// Per C-01: Phase 4's EventKit adapter maps `EKEvent` → `CalendarEvent`
 /// at the boundary. Phase 2 tests build fake events directly.
 /// `id` enables stable identity across recurrences; `location` is optional.
-public struct CalendarEvent: Sendable {
+///
+/// `Codable` conformance enables Phase 4 EventKit adapter serialization if needed.
+public struct CalendarEvent: Codable, Sendable {
     /// Stable identifier (e.g., EventKit identifier or UUID for tests).
     public let id: String
     /// Event title (e.g., "Intro to Computer Science").
