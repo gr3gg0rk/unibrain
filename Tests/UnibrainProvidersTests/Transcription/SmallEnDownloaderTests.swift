@@ -1,5 +1,8 @@
 import Testing
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 @testable import UnibrainProviders
 
 // Tests for SmallEnDownloader — background model download with SHA256 verification.
@@ -26,10 +29,14 @@ struct SmallEnDownloaderTests {
 
     @Test("startDownload transitions to .downloading then .verified on success")
     func downloadSucceeds() async {
+        // SHA256 of Data([0x00, 0x01, 0x02, 0x03]) = 054edec1d0211f624fed0cbca9d4f9400b0e491c43742af2c5b0abebf0c990d8
+        let mockData = Data([0x00, 0x01, 0x02, 0x03])
+        let expectedHash = "054edec1d0211f624fed0cbca9d4f9400b0e491c43742af2c5b0abebf0c990d8"
+
         let downloader = SmallEnDownloader(
             downloadURL: URL(string: "https://example.com/model.bin")!,
-            expectedSHA256: "known-hash",
-            urlSession: MockURLSession(shouldSucceed: true, mockData: Data([0x00, 0x01, 0x02, 0x03]))
+            expectedSHA256: expectedHash,
+            urlSession: MockURLSession(shouldSucceed: true, mockData: mockData)
         )
 
         await downloader.startDownload()
@@ -162,13 +169,9 @@ struct SmallEnDownloaderTests {
 
 // MARK: - Mock URLSession
 
-/// Mock URLSession protocol for testing without real network calls.
-protocol MockURLSessionProtocol: Sendable {
-    func data(from url: URL) async throws -> (Data, URLResponse)
-}
-
 /// Mock URLSession that either succeeds or fails.
-struct MockURLSession: MockURLSessionProtocol, Sendable {
+/// Conforms to the public URLSessionProtocol from SmallEnDownloader.
+struct MockURLSession: URLSessionProtocol, Sendable {
     let shouldSucceed: Bool
     let mockData: Data
 
