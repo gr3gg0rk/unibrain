@@ -158,9 +158,14 @@ final class MenuBarViewModel {
     /// Orchestrator protocol — allows test injection via PipelineOrchestratorProtocol.
     private let overlayOrchestrator: PipelineOrchestratorProtocol?
 
-    /// Access to the real orchestrator for Phase 3 compatibility.
+    /// Per-recording orchestrator with fresh mapping snapshot (Phase 4 gap 1).
+    /// Reconstructed in stopRecording with the latest CourseMappingStore data.
+    private var currentOrchestrator: PipelineOrchestrator?
+
+    /// Access to the real orchestrator — prefers per-recording instance,
+    /// falls back to the injected (test) orchestrator.
     private var orchestrator: PipelineOrchestrator? {
-        overlayOrchestrator as? PipelineOrchestrator
+        currentOrchestrator ?? (overlayOrchestrator as? PipelineOrchestrator)
     }
 
     // MARK: - Phase 4: Injected Dependencies
@@ -179,6 +184,12 @@ final class MenuBarViewModel {
 
     /// Task observing download state changes.
     private var downloadObserverTask: Task<Void, Never>?
+
+    /// Task polling orchestrator.currentState for .awaitingUserChoice (Phase 4 gap 2).
+    private var stateObserverTask: Task<Void, Never>?
+
+    /// Events captured during stopRecording for match reconstruction (Phase 4 gap 2).
+    private var pendingEvents: [CalendarEvent] = []
 
     /// The recording start date — needed for PipelineInputs construction.
     private var recordingStartDate: Date?
@@ -317,6 +328,24 @@ final class MenuBarViewModel {
             inputs.events = events
             inputs.termLabel = currentTermLabel
 
+            // Phase 4 gap 2: Store events for match reconstruction when
+            // the orchestrator parks at .awaitingUserChoice.
+            self.pendingEvents = events
+
+            // Phase 4 gap 1: Construct a fresh orchestrator with the latest
+            // mapping snapshot so newly-learned courses route correctly.
+            let mapping = (try? await courseMappingStore?.allMappings()) ?? [:]
+            let fresh = PipelineWiring.makeScheduleAwareOrchestrator(
+                modelPath: SmallEnDownloader.modelStoragePath,
+                vaultRoot: HardcodedVaultResolver.vaultRoot,
+                termLabel: currentTermLabel,
+                mapping: mapping
+            )
+            self.currentOrchestrator = fresh
+
+            // Phase 4 gap 2: Start observing orchestrator state for .awaitingUserChoice.
+            self.startObservingOrchestratorState()
+
             // Per TRAN-03: run transcription off MainActor.
             guard let orchestrator = self.orchestrator else {
                 sessionState = .error("Pipeline orchestrator not available.")
@@ -341,6 +370,8 @@ final class MenuBarViewModel {
 
     /// Dismisses the completion state and returns to idle.
     func dismissCompletion() async {
+        stateObserverTask?.cancel()
+        stateObserverTask = nil
         if let orchestrator {
             await orchestrator.reset()
         }
@@ -353,6 +384,7 @@ final class MenuBarViewModel {
         pauseCount = 0
         totalPausedSeconds = 0
         recordingStartDate = nil
+        pendingEvents = []
     }
 
     /// Retries the model download after a failure (P-18).
@@ -555,6 +587,90 @@ final class MenuBarViewModel {
 
     // MARK: - Phase 4: Private Helpers
 
+    /// Starts polling orchestrator.currentState for the .awaitingUserChoice
+    /// transition (Phase 4 gap 2).
+    ///
+    /// Per T-04-06-01: The observer self-terminates after firing
+    /// handleClassificationPause (its sole job). It is also cancelled in
+    /// onTranscriptionComplete, onTranscriptionError, and dismissCompletion.
+    private func startObservingOrchestratorState() {
+        stateObserverTask?.cancel()
+        stateObserverTask = Task { @MainActor [weak self] in
+            while !Task.isCancelled {
+                guard let self else { return }
+
+                // Poll the current orchestrator's state.
+                let state: PipelineState?
+                if let orch = self.orchestrator {
+                    state = await orch.currentState
+                } else {
+                    state = nil
+                }
+
+                if case .awaitingUserChoice = state {
+                    // Reconstruct the CourseMatch from pendingEvents.
+                    let match: CourseMatch
+                    if self.pendingEvents.count >= 2 {
+                        match = .multiple(self.pendingEvents)
+                    } else {
+                        match = .none
+                    }
+
+                    self.stateObserverTask?.cancel()
+                    await self.handleClassificationPause(match: match)
+                    return
+                }
+
+                // Poll every 100ms — state transitions are fast but not frame-critical.
+                try? await Task.sleep(nanoseconds: 100_000_000)
+            }
+        }
+    }
+
+    // MARK: - Phase 4: Picker Data Exposure (Gap 3)
+
+    /// Recent courses from the CoursePickerViewModel for CoursePickerView.
+    var pickerRecentCourses: [CourseSummary] {
+        coursePickerViewModel?.recentCourses ?? []
+    }
+
+    /// Filtered courses from the CoursePickerViewModel for CoursePickerView.
+    var pickerFilteredCourses: [CourseSummary] {
+        coursePickerViewModel?.filteredCourses ?? []
+    }
+
+    /// Search query from the CoursePickerViewModel for CoursePickerView.
+    var pickerSearchQuery: String {
+        coursePickerViewModel?.searchQuery ?? ""
+    }
+
+    // MARK: - Phase 4: Mappings Loader for ManageCoursesView (Gap 4)
+
+    /// Loads all course mappings from CourseMappingStore.
+    ///
+    /// Used by ManageCoursesView to display real data from courses.json.
+    func loadAllMappings() async -> [String: CourseMapping] {
+        guard let store = courseMappingStore else { return [:] }
+        return (try? await store.allMappings()) ?? [:]
+    }
+
+    /// Deletes a mapping via CourseMappingStore (M-04).
+    ///
+    /// Called by ManageCoursesView.deleteMapping to persist deletions.
+    func deleteMapping(eventTitle: String) async {
+        try? await courseMappingStore?.deleteMapping(eventTitle: eventTitle)
+    }
+
+    /// Adds a mapping via CourseMappingStore (M-04).
+    ///
+    /// Called by ManageCoursesView.addMapping to persist new mappings.
+    func addMapping(eventTitle: String, code: String, name: String) async {
+        try? await courseMappingStore?.upsert(
+            eventTitle: eventTitle,
+            mapping: CourseMapping(courseCode: code, courseName: name)
+        )
+    }
+
     /// Updates mapping and recent list for a course selection (M-03).
     private func updateMappingAndRecent(code: String, name: String) async {
         guard let store = courseMappingStore else { return }
@@ -656,6 +772,8 @@ final class MenuBarViewModel {
     /// Per P-11: fires a macOS system notification and transitions to .completed.
     private func onTranscriptionComplete() {
         stopPolling()
+        stateObserverTask?.cancel()
+        stateObserverTask = nil
         sessionState = .completed
         fireCompletionNotification()
     }
@@ -663,6 +781,8 @@ final class MenuBarViewModel {
     /// Called when transcription fails.
     private func onTranscriptionError(_ error: Error) {
         stopPolling()
+        stateObserverTask?.cancel()
+        stateObserverTask = nil
         sessionState = .error("Transcription failed: \(error.localizedDescription)")
     }
 
