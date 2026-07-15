@@ -142,7 +142,8 @@ None yet.
 
 | Phase | State | Resume |
 |-------|-------|--------|
-| (none — all deferred verification resolved) | — | — |
+| 03 | verification_deferred_human (Task 4 macOS device verify) | /gsd-verify-work 03 |
+| 04 | verification_deferred_human (04-05 Task 3 macOS device verify — 8 scenarios) | /gsd-verify-work 04 |
 
 ## Session Continuity
 
