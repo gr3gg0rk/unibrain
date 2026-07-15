@@ -1,5 +1,6 @@
 import Testing
 import Foundation
+#if canImport(CryptoKit)
 #if canImport(FoundationNetworking)
 import FoundationNetworking
 #endif
@@ -184,3 +185,5 @@ struct MockURLSession: URLSessionProtocol, Sendable {
         }
     }
 }
+
+#endif // canImport(CryptoKit)

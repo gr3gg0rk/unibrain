@@ -73,7 +73,6 @@ public struct NSFileCoordinatorNoteWriter: NoteWriter, Sendable {
         // Data.write(to:options:.atomic) for POSIX-level atomicity.
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
             let coordinator = NSFileCoordinator(filePresenter: nil)
-            coordinator.writeAccessAllowed = true
 
             var coordinationError: NSError?
             coordinator.coordinate(writingItemAt: destination, options: .forReplacing, error: &coordinationError) { newURL in

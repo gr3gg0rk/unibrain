@@ -56,7 +56,7 @@ public final class AudioRecorder: @unchecked Sendable {
     /// - Sample rate: 16000 Hz (whisper.cpp native rate)
     /// - Channels: 1 (mono — lectures are single-source)
     /// - Quality: high
-    public static let audioSettings: [String: Any] = [
+    public nonisolated(unsafe) static let audioSettings: [String: Any] = [
         AVFormatIDKey: kAudioFormatMPEG4AAC,
         AVSampleRateKey: 16000.0,
         AVNumberOfChannelsKey: 1,

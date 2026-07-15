@@ -1,6 +1,8 @@
 import Foundation
-import CryptoKit
 import UnibrainCore
+
+#if canImport(CryptoKit)
+import CryptoKit
 
 #if canImport(FoundationNetworking)
 import FoundationNetworking
@@ -269,3 +271,5 @@ public protocol URLSessionProtocol: Sendable {
 
 /// Conform URLSession to the protocol.
 extension URLSession: URLSessionProtocol {}
+
+#endif // canImport(CryptoKit)
