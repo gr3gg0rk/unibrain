@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 02
-current_phase_name: pure-pipeline-logic
-status: verifying
-stopped_at: context exhaustion at 75% (2026-07-15)
-last_updated: "2026-07-15T00:30:32.935Z"
+current_phase: 03
+current_phase_name: macos-capture-transcribe
+status: planning
+stopped_at: context exhaustion at 75% during autonomous 3-6 (2026-07-14)
+last_updated: "2026-07-15T01:30:00.000Z"
 last_activity: 2026-07-14
-last_activity_desc: Phase 02 execution started
+last_activity_desc: Phase 03 AI-SPEC + UI-SPEC generated; planning not started
 progress:
   total_phases: 6
   completed_phases: 2
@@ -118,7 +118,7 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-15T00:30:32.916Z
-Stopped at: context exhaustion at 75% (2026-07-15)
-Resume file: .planning/phases/02-pure-pipeline-logic/02-VERIFICATION.md
-Next action: /clear then /gsd-autonomous 3 to 6
+Last session: 2026-07-15T01:06:48.052Z
+Stopped at: context exhaustion at 75% during /gsd-autonomous 3 to 6 (2026-07-14)
+Resume file: .planning/phases/03-macos-capture-transcribe/03-CONTEXT.md
+Next action: /clear then /gsd-autonomous --from 3 --to 6
