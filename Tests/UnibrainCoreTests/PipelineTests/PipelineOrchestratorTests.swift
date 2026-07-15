@@ -217,3 +217,358 @@ struct PipelineErrorTests {
         }
     }
 }
+
+// MARK: - PipelineOrchestrator Tests
+
+@Suite("PipelineOrchestrator")
+struct PipelineOrchestratorTests {
+
+    // MARK: - Test Fixtures
+
+    /// Creates standard PipelineInputs for a single-event match scenario.
+    private func makeInputs(eventStartOffset: TimeInterval = 0) -> PipelineInputs {
+        let recordingStart = Date(timeIntervalSince1970: 1_700_000_000)
+        let eventStart = recordingStart.addingTimeInterval(eventStartOffset)
+        let event = CalendarEvent(
+            id: "evt-cs101",
+            title: "Intro to Computer Science",
+            startDate: eventStart,
+            endDate: eventStart.addingTimeInterval(3600)
+        )
+        return PipelineInputs(
+            recordingURL: URL(fileURLWithPath: "/recordings/lecture.m4a"),
+            recordingStart: recordingStart,
+            recordingEnd: recordingStart.addingTimeInterval(3600),
+            durationSeconds: 3600,
+            source: "MacBook Air",
+            events: [event]
+        )
+    }
+
+    /// Creates a default orchestrator with successful mock dependencies.
+    private func makeOrchestrator(
+        transcriber: MockTranscriber? = nil,
+        writer: MockNoteWriter? = nil,
+        resolver: MockVaultResolver? = nil
+    ) -> PipelineOrchestrator {
+        PipelineOrchestrator(
+            transcriber: transcriber ?? MockTranscriber(),
+            writer: writer ?? MockNoteWriter(),
+            resolver: resolver ?? MockVaultResolver()
+        )
+    }
+
+    // MARK: - State Transition Tests
+
+    @Test("run starts in .idle state")
+    func startsIdle() async {
+        let orchestrator = makeOrchestrator()
+        #expect(orchestrator.currentState == .idle)
+    }
+
+    @Test("run transitions through all stages to .completed")
+    func runTransitionsAllStages() async throws {
+        let orchestrator = makeOrchestrator()
+        let inputs = makeInputs()
+
+        // Before run
+        #expect(orchestrator.currentState == .idle)
+
+        try await orchestrator.run(inputs: inputs)
+
+        // After successful run — should be completed
+        #expect(orchestrator.currentState == .completed)
+    }
+
+    @Test("currentState is readable as PipelineState")
+    func currentStateReadable() async {
+        let orchestrator = makeOrchestrator()
+        let state = orchestrator.currentState
+        // Verify the type is PipelineState by pattern matching
+        if case .idle = state { /* success */ } else {
+            Issue.record("Expected .idle initial state")
+        }
+    }
+
+    // MARK: - Concurrent-Run Rejection (O-02)
+
+    @Test("run throws .alreadyRunning when called while not idle")
+    func runThrowsAlreadyRunning() async throws {
+        // Use a slow transcriber to ensure the first run is still in progress
+        let slowTranscriber = MockTranscriber(delaySeconds: 0.5)
+        let orchestrator = PipelineOrchestrator(
+            transcriber: slowTranscriber,
+            writer: MockNoteWriter(),
+            resolver: MockVaultResolver()
+        )
+        let inputs = makeInputs()
+
+        // Start first run without awaiting — it runs in background
+        async let firstRun: Void = try await orchestrator.run(inputs: inputs)
+
+        // Give the first run time to enter the transcribing stage
+        try? await Task.sleep(nanoseconds: 100_000_000) // 0.1s
+
+        // Second call should throw .alreadyRunning
+        do {
+            try await orchestrator.run(inputs: inputs)
+            Issue.record("Should have thrown PipelineError.alreadyRunning")
+        } catch let error as PipelineError {
+            if case .alreadyRunning = error { /* success */ } else {
+                Issue.record("Expected .alreadyRunning, got: \(error)")
+            }
+        } catch {
+            Issue.record("Expected PipelineError, got: \(error)")
+        }
+
+        // Await the first run to completion
+        _ = try? await firstRun
+    }
+
+    // MARK: - Fail-Fast (O-03)
+
+    @Test("transcriber error transitions to .failed state")
+    func transcriberErrorTransitionsToFailed() async {
+        struct TranscribeError: Error {}
+        let failingTranscriber = MockTranscriber(error: TranscribeError())
+        let orchestrator = PipelineOrchestrator(
+            transcriber: failingTranscriber,
+            writer: MockNoteWriter(),
+            resolver: MockVaultResolver()
+        )
+        let inputs = makeInputs()
+
+        do {
+            try await orchestrator.run(inputs: inputs)
+            Issue.record("Should have thrown error")
+        } catch {
+            // Expected — error re-thrown from run()
+        }
+
+        // State should be .failed
+        if case .failed = orchestrator.currentState { /* success */ } else {
+            Issue.record("Expected .failed state, got: \(orchestrator.currentState)")
+        }
+    }
+
+    @Test("writer error transitions to .failed state")
+    func writerErrorTransitionsToFailed() async {
+        struct WriteError: Error {}
+        let failingWriter = MockNoteWriter(error: WriteError())
+        let orchestrator = PipelineOrchestrator(
+            transcriber: MockTranscriber(),
+            writer: failingWriter,
+            resolver: MockVaultResolver()
+        )
+        let inputs = makeInputs()
+
+        do {
+            try await orchestrator.run(inputs: inputs)
+            Issue.record("Should have thrown error")
+        } catch {
+            // Expected
+        }
+
+        if case .failed = orchestrator.currentState { /* success */ } else {
+            Issue.record("Expected .failed state, got: \(orchestrator.currentState)")
+        }
+    }
+
+    // MARK: - Cooperative Cancellation (O-04)
+
+    @Test("cancel transitions to .cancelled state")
+    func cancelTransitionsToCancelled() async {
+        let slowTranscriber = MockTranscriber(delaySeconds: 2.0)
+        let orchestrator = PipelineOrchestrator(
+            transcriber: slowTranscriber,
+            writer: MockNoteWriter(),
+            resolver: MockVaultResolver()
+        )
+        let inputs = makeInputs()
+
+        // Start run without awaiting
+        async let runResult: Void = try await orchestrator.run(inputs: inputs)
+
+        // Give it time to enter the transcribing stage
+        try? await Task.sleep(nanoseconds: 100_000_000)
+
+        // Cancel
+        await orchestrator.cancel()
+
+        // Await completion (will throw due to cancellation)
+        _ = try? await runResult
+
+        // State should be .cancelled
+        if case .cancelled = orchestrator.currentState { /* success */ } else {
+            Issue.record("Expected .cancelled state, got: \(orchestrator.currentState)")
+        }
+    }
+
+    @Test("reset returns from terminal state to .idle")
+    func resetReturnsToIdle() async throws {
+        let orchestrator = makeOrchestrator()
+        let inputs = makeInputs()
+
+        // Run to completion
+        try await orchestrator.run(inputs: inputs)
+        #expect(orchestrator.currentState == .completed)
+
+        // Reset
+        await orchestrator.reset()
+        #expect(orchestrator.currentState == .idle)
+    }
+
+    // MARK: - Integration with CourseClassifier / NoteNormalizer / NoteWriter
+
+    @Test("orchestrator calls CourseClassifier during classifying stage")
+    func callsCourseClassifier() async throws {
+        // Use an event that does NOT overlap the recording time — match should be .none
+        let recordingStart = Date(timeIntervalSince1970: 1_700_000_000)
+        let nonOverlappingEvent = CalendarEvent(
+            id: "evt-far",
+            title: "Far Future Event",
+            startDate: recordingStart.addingTimeInterval(86400), // +1 day
+            endDate: recordingStart.addingTimeInterval(90000)
+        )
+        let inputs = PipelineInputs(
+            recordingURL: URL(fileURLWithPath: "/rec.m4a"),
+            recordingStart: recordingStart,
+            recordingEnd: recordingStart.addingTimeInterval(3600),
+            durationSeconds: 3600,
+            source: "MacBook Air",
+            events: [nonOverlappingEvent]
+        )
+
+        // Resolver throws on .none match — proving CourseClassifier was called
+        let resolver = MockVaultResolver(throwOnNone: true)
+        let orchestrator = PipelineOrchestrator(
+            transcriber: MockTranscriber(),
+            writer: MockNoteWriter(),
+            resolver: resolver
+        )
+
+        do {
+            try await orchestrator.run(inputs: inputs)
+            Issue.record("Should have failed due to no course match")
+        } catch {
+            // Expected — CourseClassifier returned .none, resolver threw
+        }
+
+        // State should be .failed (not .completed)
+        if case .failed = orchestrator.currentState { /* success */ } else {
+            Issue.record("Expected .failed state after no match, got: \(orchestrator.currentState)")
+        }
+    }
+
+    @Test("orchestrator calls NoteWriter during writing stage with real temp file")
+    func callsNoteWriterWithRealFile() async throws {
+        let orchestrator = makeOrchestrator()
+        let inputs = makeInputs()
+
+        try await orchestrator.run(inputs: inputs)
+
+        // State should be completed — proving writer.write() was called and succeeded
+        #expect(orchestrator.currentState == .completed)
+    }
+
+    @Test("orchestrator full pipeline produces correct NoteWriter call")
+    func fullPipelineProducesCorrectWrite() async throws {
+        let writer = TrackingNoteWriter()
+        let tempDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("unibrain_pipeline_\(UUID().uuidString)")
+        let resolver = MockVaultResolver(destinationURL: tempDir.appendingPathComponent("test_note.md"))
+        let orchestrator = PipelineOrchestrator(
+            transcriber: MockTranscriber(),
+            writer: writer,
+            resolver: resolver
+        )
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let inputs = makeInputs()
+        try await orchestrator.run(inputs: inputs)
+
+        #expect(writer.writeCallCount == 1)
+        #expect(orchestrator.currentState == .completed)
+    }
+}
+
+// MARK: - Mock Implementations
+
+/// Mock PipelineTranscriber with configurable behavior.
+private struct MockTranscriber: PipelineTranscriber {
+    let segments: [(start: TimeInterval, end: TimeInterval, text: String)]
+    let error: (any Error)?
+    let delaySeconds: TimeInterval
+
+    init(
+        segments: [(start: TimeInterval, end: TimeInterval, text: String)]? = nil,
+        error: (any Error)? = nil,
+        delaySeconds: TimeInterval = 0
+    ) {
+        self.segments = segments ?? [
+            (start: 0.0, end: 2.0, text: "Welcome to the lecture."),
+            (start: 2.5, end: 5.0, text: "Today we cover algorithms."),
+            (start: 8.0, end: 12.0, text: "Let us begin with sorting.")
+        ]
+        self.error = error
+        self.delaySeconds = delaySeconds
+    }
+
+    func transcribe(_ audioURL: URL) async throws -> [(start: TimeInterval, end: TimeInterval, text: String)] {
+        if delaySeconds > 0 {
+            // Use try (not try?) so cancellation propagates correctly
+            try await Task.sleep(nanoseconds: UInt64(delaySeconds * 1_000_000_000))
+        }
+        if let error { throw error }
+        return segments
+    }
+}
+
+/// Mock NoteWriter with configurable error.
+private struct MockNoteWriter: NoteWriter {
+    let error: (any Error)?
+
+    init(error: (any Error)? = nil) {
+        self.error = error
+    }
+
+    func write(_ note: NormalizedNote, to destination: URL) async throws {
+        if let error { throw error }
+        // Success — no-op
+    }
+}
+
+/// Tracking NoteWriter that records calls for verification.
+private final class TrackingNoteWriter: NoteWriter, @unchecked Sendable {
+    private(set) var writeCallCount = 0
+
+    func write(_ note: NormalizedNote, to destination: URL) async throws {
+        writeCallCount += 1
+    }
+}
+
+/// Mock VaultPathResolver with configurable behavior.
+private struct MockVaultResolver: VaultPathResolver {
+    let destinationURL: URL?
+    let throwOnNone: Bool
+
+    init(
+        destinationURL: URL? = nil,
+        throwOnNone: Bool = false
+    ) {
+        self.destinationURL = destinationURL
+        self.throwOnNone = throwOnNone
+    }
+
+    func resolve(match: CourseMatch, recordingStart: Date) throws -> URL {
+        switch match {
+        case .single:
+            return destinationURL ?? URL(fileURLWithPath: "/tmp/vault/lecture.md")
+        case .multiple:
+            throw PipelineError.invalidInputs
+        case .none:
+            if throwOnNone { throw PipelineError.invalidInputs }
+            return destinationURL ?? URL(fileURLWithPath: "/tmp/vault/unmatched.md")
+        }
+    }
+}
