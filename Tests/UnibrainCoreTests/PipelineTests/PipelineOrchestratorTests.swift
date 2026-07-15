@@ -263,7 +263,10 @@ struct PipelineOrchestratorTests {
     @Test("run starts in .idle state")
     func startsIdle() async {
         let orchestrator = makeOrchestrator()
-        #expect(orchestrator.currentState == .idle)
+        let state = await orchestrator.currentState
+        if case .idle = state { /* success */ } else {
+            Issue.record("Expected .idle, got: \(state)")
+        }
     }
 
     @Test("run transitions through all stages to .completed")
@@ -272,19 +275,24 @@ struct PipelineOrchestratorTests {
         let inputs = makeInputs()
 
         // Before run
-        #expect(orchestrator.currentState == .idle)
+        let beforeState = await orchestrator.currentState
+        if case .idle = beforeState {} else {
+            Issue.record("Expected .idle before run")
+        }
 
         try await orchestrator.run(inputs: inputs)
 
         // After successful run — should be completed
-        #expect(orchestrator.currentState == .completed)
+        let afterState = await orchestrator.currentState
+        if case .completed = afterState {} else {
+            Issue.record("Expected .completed after run, got: \(afterState)")
+        }
     }
 
     @Test("currentState is readable as PipelineState")
     func currentStateReadable() async {
         let orchestrator = makeOrchestrator()
-        let state = orchestrator.currentState
-        // Verify the type is PipelineState by pattern matching
+        let state = await orchestrator.currentState
         if case .idle = state { /* success */ } else {
             Issue.record("Expected .idle initial state")
         }
@@ -346,8 +354,9 @@ struct PipelineOrchestratorTests {
         }
 
         // State should be .failed
-        if case .failed = orchestrator.currentState { /* success */ } else {
-            Issue.record("Expected .failed state, got: \(orchestrator.currentState)")
+        let state = await orchestrator.currentState
+        if case .failed = state { /* success */ } else {
+            Issue.record("Expected .failed state, got: \(state)")
         }
     }
 
@@ -369,8 +378,9 @@ struct PipelineOrchestratorTests {
             // Expected
         }
 
-        if case .failed = orchestrator.currentState { /* success */ } else {
-            Issue.record("Expected .failed state, got: \(orchestrator.currentState)")
+        let state = await orchestrator.currentState
+        if case .failed = state { /* success */ } else {
+            Issue.record("Expected .failed state, got: \(state)")
         }
     }
 
@@ -399,8 +409,9 @@ struct PipelineOrchestratorTests {
         _ = try? await runResult
 
         // State should be .cancelled
-        if case .cancelled = orchestrator.currentState { /* success */ } else {
-            Issue.record("Expected .cancelled state, got: \(orchestrator.currentState)")
+        let cancelState = await orchestrator.currentState
+        if case .cancelled = cancelState { /* success */ } else {
+            Issue.record("Expected .cancelled state, got: \(cancelState)")
         }
     }
 
@@ -411,11 +422,17 @@ struct PipelineOrchestratorTests {
 
         // Run to completion
         try await orchestrator.run(inputs: inputs)
-        #expect(orchestrator.currentState == .completed)
+        let completedState = await orchestrator.currentState
+        if case .completed = completedState {} else {
+            Issue.record("Expected .completed before reset")
+        }
 
         // Reset
         await orchestrator.reset()
-        #expect(orchestrator.currentState == .idle)
+        let idleState = await orchestrator.currentState
+        if case .idle = idleState {} else {
+            Issue.record("Expected .idle after reset, got: \(idleState)")
+        }
     }
 
     // MARK: - Integration with CourseClassifier / NoteNormalizer / NoteWriter
@@ -455,8 +472,9 @@ struct PipelineOrchestratorTests {
         }
 
         // State should be .failed (not .completed)
-        if case .failed = orchestrator.currentState { /* success */ } else {
-            Issue.record("Expected .failed state after no match, got: \(orchestrator.currentState)")
+        let failedState = await orchestrator.currentState
+        if case .failed = failedState { /* success */ } else {
+            Issue.record("Expected .failed state after no match, got: \(failedState)")
         }
     }
 
@@ -468,7 +486,10 @@ struct PipelineOrchestratorTests {
         try await orchestrator.run(inputs: inputs)
 
         // State should be completed — proving writer.write() was called and succeeded
-        #expect(orchestrator.currentState == .completed)
+        let state = await orchestrator.currentState
+        if case .completed = state {} else {
+            Issue.record("Expected .completed, got: \(state)")
+        }
     }
 
     @Test("orchestrator full pipeline produces correct NoteWriter call")
@@ -488,7 +509,10 @@ struct PipelineOrchestratorTests {
         try await orchestrator.run(inputs: inputs)
 
         #expect(writer.writeCallCount == 1)
-        #expect(orchestrator.currentState == .completed)
+        let finalState = await orchestrator.currentState
+        if case .completed = finalState {} else {
+            Issue.record("Expected .completed, got: \(finalState)")
+        }
     }
 }
 

@@ -77,10 +77,12 @@ public final class AudioRecorder: @unchecked Sendable {
     /// - Throws: An error if the audio session cannot be configured
     ///   or the recorder cannot be created.
     public func start(to url: URL) throws {
-        // Configure audio session
+        // Configure audio session (iOS only — AVAudioSession is unavailable on macOS)
+        #if os(iOS)
         let session = AVAudioSession.sharedInstance()
         try session.setCategory(.playAndRecord, mode: .default)
         try session.setActive(true)
+        #endif
 
         // Create recorder with URL + settings
         let recorder = try AVAudioRecorder(url: url, settings: Self.audioSettings)
