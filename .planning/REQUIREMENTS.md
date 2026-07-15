@@ -18,12 +18,12 @@ Requirements for the MVP "Record-to-Obsidian" release. Each maps to a roadmap ph
 
 ### Capture
 
-- [ ] **CAPT-01**: One-tap start/stop recording on macOS via menu-bar (`MenuBarExtra`) and app-window record button
-- [ ] **CAPT-02**: Pause/resume during recording maintaining a single contiguous audio file with pause/resume timestamps
+- [x] **CAPT-01**: One-tap start/stop recording on macOS via menu-bar (`MenuBarExtra`) and app-window record button
+- [x] **CAPT-02**: Pause/resume during recording maintaining a single contiguous audio file with pause/resume timestamps
 - [ ] **CAPT-03**: Background recording on iOS using `AVAudioSession` background audio mode with lock-screen recording indicator
-- [ ] **CAPT-04**: Live recording timer + waveform display during capture
-- [ ] **CAPT-05**: Mic level meter confirming the lecturer is audible
-- [ ] **CAPT-06**: Audio exported as `.m4a` (AAC) into the vault attachment folder alongside the note
+- [x] **CAPT-04**: Live recording timer + waveform display during capture
+- [x] **CAPT-05**: Mic level meter confirming the lecturer is audible
+- [x] **CAPT-06**: Audio exported as `.m4a` (AAC) into the vault attachment folder alongside the note
 
 ### Classify
 
@@ -181,11 +181,11 @@ Explicit exclusions documented to prevent scope creep.
 | WRITE-04 | Phase 2 | Complete |
 | WRITE-05 | Phase 2 | Complete |
 | WRITE-06 | Phase 2 | Complete |
-| CAPT-01 | Phase 3 | Pending |
-| CAPT-02 | Phase 3 | Pending |
-| CAPT-04 | Phase 3 | Pending |
-| CAPT-05 | Phase 3 | Pending |
-| CAPT-06 | Phase 3 | Pending |
+| CAPT-01 | Phase 3 | Complete |
+| CAPT-02 | Phase 3 | Complete |
+| CAPT-04 | Phase 3 | Complete |
+| CAPT-05 | Phase 3 | Complete |
+| CAPT-06 | Phase 3 | Complete |
 | TRAN-01 | Phase 3 | Pending |
 | TRAN-02 | Phase 3 | Pending |
 | TRAN-03 | Phase 3 | Pending |

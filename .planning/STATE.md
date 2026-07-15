@@ -4,16 +4,16 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 03
 current_phase_name: macos-capture-transcribe
-status: planned
+status: executing
 stopped_at: Phase 3 planned, execution needs fresh session (2026-07-14)
-last_updated: "2026-07-15T02:00:00.000Z"
-last_activity: 2026-07-14
-last_activity_desc: Phase 03 fully planned (4 plans, 2 waves, AI-SPEC, UI-SPEC)
+last_updated: "2026-07-15T02:52:45.967Z"
+last_activity: 2026-07-15
+last_activity_desc: Phase 03 execution started
 progress:
   total_phases: 6
   completed_phases: 2
-  total_plans: 8
-  completed_plans: 8
+  total_plans: 12
+  completed_plans: 9
   percent: 33
 ---
 
@@ -24,14 +24,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-13)
 
 **Core value:** Every recording lands in the right course folder, transcribed and optionally summarized, without the student ever manually organizing it.
-**Current focus:** Phase 02 — pure-pipeline-logic
+**Current focus:** Phase 03 — macos-capture-transcribe
 
 ## Current Position
 
-Phase: 02 (pure-pipeline-logic) — EXECUTING
-Plan: 4 of 4
+Phase: 03 (macos-capture-transcribe) — EXECUTING
+Plan: 2 of 4
 Status: Ready to execute
-Last activity: 2026-07-14 — Phase 02 execution started
+Last activity: 2026-07-15 — Phase 03 execution started
 
 Progress: [█░░░░░░░░░] 17%
 
@@ -63,6 +63,7 @@ Progress: [█░░░░░░░░░] 17%
 | Phase 02 P02 | 5m | 4 tasks | 3 files |
 | Phase 02 P03 | 3m | 7 tasks | 8 files |
 | Phase 02 P04 | 4m | 5 tasks | 6 files |
+| Phase 03 P01 | 15m | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -89,6 +90,8 @@ Recent decisions affecting current work:
 - [Phase ?]: Phase 02 Plan 03: CourseMatch is result type not Error; FolderNameSanitizer uses Swift 6 Regex for whitespace; T-2-01 path traversal mitigated
 - [Phase ?]: PipelineTranscriber protocol created to avoid AudioTranscriber associated types
 - [Phase ?]: PipelineState uses @unchecked Sendable for .failed(any Error)
+- [Phase ?]: Phase 03 Plan 01: PauseInterval as Sendable struct instead of raw tuple for Swift 6 concurrency
+- [Phase ?]: Phase 03 Plan 01: AudioRecorder is @unchecked Sendable — access serialized via RecordingSession actor
 
 ### Pending Todos
 
@@ -118,7 +121,7 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-15T01:06:48.052Z
+Last session: 2026-07-15T02:52:37.921Z
 Stopped at: context exhaustion at 75% during /gsd-autonomous 3 to 6 (2026-07-14)
 Resume file: .planning/phases/03-macos-capture-transcribe/03-CONTEXT.md
 Next action: /clear then /gsd-autonomous --from 3 --to 6
