@@ -14,7 +14,7 @@ A six-phase journey from foundation to a shipping local-first lecture capture ap
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation** - SPM architecture, provider protocols, macOS CI, ModelLoadGate, Yams, Apple Dev decision
-- [ ] **Phase 2: Pure Pipeline Logic** - WSL2-testable core: FrontmatterSchema, Normalizer, Orchestrator, atomic-write helpers, CourseClassifier pure logic
+- [x] **Phase 2: Pure Pipeline Logic** - WSL2-testable core: FrontmatterSchema, Normalizer, Orchestrator, atomic-write helpers, CourseClassifier pure logic (completed 2026-07-15)
 - [ ] **Phase 3: macOS Capture + Transcribe** - First end-to-end vertical slice: AVFoundation record, whisper.cpp+Metal, hardcoded-folder write-out
 - [ ] **Phase 4: Course Classification + Smart Routing** - The moat: EventKit calendar-to-course mapping, manual picker fallback, multi-term folders
 - [ ] **Phase 5: iOS Capture + iCloud Handoff + Onboarding** - Second capture surface: iOS background recording, iCloud Drive handoff, full onboarding flow
@@ -61,7 +61,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. A unit test on Linux forces a write failure and verifies a clear error type is surfaced (WRITE-06) — no silent swallow
   5. The `PipelineOrchestrator` state machine unit test (all-mock dependencies) walks through idle -> transcribing -> classifying -> normalizing -> writing -> completed transitions and rejects a second concurrent run
 
-**Plans**: 3/4 plans executed
+**Plans**: 4/4 plans complete
 
 **Wave 1** (parallel, no dependencies)
 
@@ -71,7 +71,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 **Wave 2** (blocked on Wave 1 completion)
 
-- [ ] 02-04-PLAN.md — Orchestrator integration: PipelineState, PipelineInputs, PipelineOrchestrator actor (Wave 2)
+- [x] 02-04-PLAN.md — Orchestrator integration: PipelineState, PipelineInputs, PipelineOrchestrator actor (Wave 2)
 
 ### Phase 3: macOS Capture + Transcribe
 
@@ -148,7 +148,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 4/4 | Complete    | 2026-07-14 |
-| 2. Pure Pipeline Logic | 3/4 | In Progress|  |
+| 2. Pure Pipeline Logic | 4/4 | Complete   | 2026-07-15 |
 | 3. macOS Capture + Transcribe | 0/0 | Not started | - |
 | 4. Course Classification + Smart Routing | 0/0 | Not started | - |
 | 5. iOS Capture + iCloud Handoff + Onboarding | 0/0 | Not started | - |
