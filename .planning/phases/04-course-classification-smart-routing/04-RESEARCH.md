@@ -670,22 +670,16 @@ struct MenuBarPopover: View {
 | A4 | `.sheet` is unreliable on `MenuBarExtra(.window)` on macOS 15 | Pitfall 2 | If wrong and `.sheet` works, the inline approach still works — just more code. Low risk either way. |
 | A5 | The async variant `store.requestFullAccessToEvents()` (no completion handler) is available on macOS 15 | Pattern 1 | If only the completion-handler variant is available, wrap it with `withCheckedContinuation`. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Does `EKEventStore.requestFullAccessToEvents()` have an async variant?**
-   - What we know: The completion-handler variant is documented. Swift async bridging typically auto-generates an async variant.
-   - What's unclear: Whether the async variant returns `Bool` or `(Bool, Error?)`.
-   - Recommendation: Planner adds a `checkpoint:human-verify` task to test the exact signature on macOS 15 CI. If no async variant, wrap with `withCheckedThrowingContinuation`.
+1. RESOLVED: Does `EKEventStore.requestFullAccessToEvents()` have an async variant?
+   - **Resolution:** Assume the async variant exists on macOS 15+ (Swift async bridging auto-generates it from the completion-handler form). Implementation calls `try await store.requestFullAccessToEvents()` directly. If compile fails on macOS CI, fall back to wrapping the completion-handler variant via `withCheckedThrowingContinuation`. No checkpoint task needed — the compile step is the check.
 
-2. **macOS 15 vs macOS 26 deployment target**
-   - What we know: Package.swift specifies `.macOS(.v15)`. CONTEXT.md references "macOS 26 Tahoe" and D-05 sets macOS 26 deployment target.
-   - What's unclear: Whether `requestFullAccessToEvents` is available at the Package.swift deployment target (`.macOS(.v15)` — it is, since iOS 17/macOS 14+).
-   - Recommendation: No conflict — macOS 14+ API works on macOS 15 deployment target. The `.v15` in Package.swift is the minimum; macOS 26 is the actual target device.
+2. RESOLVED: macOS 15 vs macOS 26 deployment target
+   - **Resolution:** No conflict. `Package.swift` specifies `.macOS(.v15)` as the minimum; macOS 26 Tahoe is Angelica's actual device OS. `requestFullAccessToEvents` is available at macOS 14+ (iOS 17+), so it compiles at the `.v15` deployment target and runs on macOS 26.
 
-3. **Info.plist NSCalendarsUsageDescription**
-   - What we know: Required for `requestFullAccessToEvents` to show the system permission dialog.
-   - What's unclear: Where the Info.plist lives — the SPM `Package.swift` has no resource bundle or Info.plist. The `UnibrainApp` Xcode project would have one, but Phase 4 tests run via SPM on macOS CI without a full app bundle.
-   - Recommendation: Planner adds Info.plist configuration to the Xcode project (or SPM test resources) as an explicit task. Tests can mock `CalendarEventProvider` to avoid needing real permission grants.
+3. RESOLVED: Info.plist NSCalendarsUsageDescription
+   - **Resolution:** Plan 05 Task 2b creates `UnibrainApp/Info.plist` with the `NSCalendarsUsageDescription` key and explanation string. Without this key, `requestFullAccessToEvents` silently fails — the system dialog never appears. The Info.plist ships with the app bundle when Xcode builds the macOS target. SPM-only tests mock `CalendarEventProvider` and do not need the key.
 
 ## Environment Availability
 
