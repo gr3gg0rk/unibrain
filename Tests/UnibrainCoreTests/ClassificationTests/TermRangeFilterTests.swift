@@ -129,10 +129,12 @@ struct CalendarPermissionStatusTests {
     }
 
     @Test("CalendarPermissionStatus is Sendable")
-    func isSendable() throws {
+    func isSendable() async throws {
         // This test compiles only if CalendarPermissionStatus conforms to Sendable.
+        // Sending the value across an isolation boundary is the compile-time proof.
         let status: CalendarPermissionStatus = .fullAccess
-        let sendable: any Sendable = status
-        #expect(sendable != nil)
+        let task = Task { @Sendable () -> CalendarPermissionStatus in status }
+        let resolved = await task.value
+        #expect(resolved == .fullAccess)
     }
 }
