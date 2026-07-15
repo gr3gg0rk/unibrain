@@ -1,4 +1,5 @@
 import SwiftUI
+import UnibrainCore
 
 // MARK: - MenuBarPopover
 
@@ -9,10 +10,33 @@ import SwiftUI
 /// and interaction contracts.
 ///
 /// Per P-D5: waveform uses Canvas inside TimelineView for efficient rendering.
+///
+/// Per Phase 4 Pitfall 2 (FB11984872): The body switches on
+/// `viewModel.overlayState` FIRST. If overlayState is not .none, render the
+/// overlay view inline. If .none, fall through to the existing sessionState switch.
+/// This replaces `.sheet` which is unreliable on MenuBarExtra(.window).
 struct MenuBarPopover: View {
     @Bindable var viewModel: MenuBarViewModel
 
     var body: some View {
+        switch viewModel.overlayState {
+        case .none:
+            mainContent
+        case .coursePicker(let mode):
+            CoursePickerView(mode: mode, viewModel: viewModel)
+        case .manageCourses:
+            ManageCoursesView(viewModel: viewModel)
+        case .permissionDenied:
+            PermissionDeniedSheet(viewModel: viewModel)
+        case .termEditor:
+            TermEditorForm(viewModel: viewModel)
+        }
+    }
+
+    // MARK: - Main Content (session state switch)
+
+    @ViewBuilder
+    private var mainContent: some View {
         switch viewModel.sessionState {
         case .idle:
             idleState
@@ -22,6 +46,8 @@ struct MenuBarPopover: View {
             pausedState
         case .transcribing:
             transcribingState
+        case .awaitingCourseSelection:
+            ClassificationPausedView(viewModel: viewModel)
         case .completed:
             completedState
         case .error(let message):
