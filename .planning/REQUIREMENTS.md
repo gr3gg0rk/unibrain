@@ -37,12 +37,12 @@ Requirements for the MVP "Record-to-Obsidian" release. Each maps to a roadmap ph
 
 ### Transcribe
 
-- [ ] **TRAN-01**: whisper.cpp + Metal integrated via Swift binding (`SwiftWhisper` or whisper.cpp native SPM) — the LOCAL backend of the `AudioTranscriber` provider protocol
-- [ ] **TRAN-02**: `small.en` model (~852MB runtime RAM) downloaded on first run with checksum verification
-- [ ] **TRAN-03**: Transcription runs on `Task.detached` (never on `@MainActor`) — UI stays responsive
-- [ ] **TRAN-04**: Transcription is post-capture only (no live transcript display in MVP — deliberate RAM tradeoff)
+- [x] **TRAN-01**: whisper.cpp + Metal integrated via Swift binding (`SwiftWhisper` or whisper.cpp native SPM) — the LOCAL backend of the `AudioTranscriber` provider protocol
+- [x] **TRAN-02**: `small.en` model (~852MB runtime RAM) downloaded on first run with checksum verification
+- [x] **TRAN-03**: Transcription runs on `Task.detached` (never on `@MainActor`) — UI stays responsive
+- [x] **TRAN-04**: Transcription is post-capture only (no live transcript display in MVP — deliberate RAM tradeoff)
 - [ ] **TRAN-05**: Transcript post-processed into paragraphs by time gaps between whisper segments
-- [ ] **TRAN-06**: Model released from memory immediately after transcription completes
+- [x] **TRAN-06**: Model released from memory immediately after transcription completes
 
 ### Vault Write-Out
 
@@ -186,12 +186,12 @@ Explicit exclusions documented to prevent scope creep.
 | CAPT-04 | Phase 3 | Complete |
 | CAPT-05 | Phase 3 | Complete |
 | CAPT-06 | Phase 3 | Complete |
-| TRAN-01 | Phase 3 | Pending |
-| TRAN-02 | Phase 3 | Pending |
-| TRAN-03 | Phase 3 | Pending |
-| TRAN-04 | Phase 3 | Pending |
+| TRAN-01 | Phase 3 | Complete |
+| TRAN-02 | Phase 3 | Complete |
+| TRAN-03 | Phase 3 | Complete |
+| TRAN-04 | Phase 3 | Complete |
 | TRAN-05 | Phase 3 | Pending |
-| TRAN-06 | Phase 3 | Pending |
+| TRAN-06 | Phase 3 | Complete |
 | CLAS-01 | Phase 4 | Pending |
 | CLAS-02 | Phase 4 | Pending |
 | CLAS-03 | Phase 4 | Pending |
