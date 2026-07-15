@@ -1,35 +1,25 @@
 ---
 phase: 02-pure-pipeline-logic
-verified: 2026-07-14T17:35:00Z
-status: human_needed
+verified: 2026-07-15T18:20:00Z
+status: passed
 score: 5/5 truths verified
-behavior_unverified: 4
+behavior_unverified: 0
 overrides_applied: 0
-behavior_unverified_items:
-  - truth: "PipelineOrchestrator actor enforces 8-state lifecycle (idle -> transcribing -> classifying -> normalizing -> writing -> completed) per O-01"
-    test: "Run the full PipelineOrchestratorTests suite on Linux CI to verify state transitions execute at runtime"
-    expected: "All 8 states observed in order; .completed reached on success"
-    why_human: "State machine transitions are runtime behavior; Swift toolchain not available on WSL2 for local execution"
-  - truth: "PipelineOrchestrator.run(inputs:) throws PipelineError.alreadyRunning when called concurrently per O-02"
-    test: "Run concurrent-run rejection test on Linux CI verifying actor isolation serializes the guard"
-    expected: "Second run() call throws PipelineError.alreadyRunning while first is in-flight"
-    why_human: "Concurrent actor access is a runtime invariant; grep cannot verify the synchronous guard executes correctly under contention"
-  - truth: "PipelineOrchestrator supports cooperative cancellation via cancel() method transitioning to .cancelled state per O-04"
-    test: "Run cancellation test on Linux CI verifying Task.checkCancellation() propagates to .cancelled state"
-    expected: "cancel() during transcribing stage transitions state to .cancelled"
-    why_human: "Cancellation is a runtime ordering invariant; presence of checkCancellation() calls is necessary but not sufficient"
-  - truth: "PipelineOrchestrator fail-fast model: any error transitions to .failed(error) terminal state per O-03"
-    test: "Run fail-fast tests on Linux CI verifying error from any stage sets .failed state before re-throwing"
-    expected: "transcriber error and writer error both transition state to .failed(error)"
-    why_human: "State-before-rethrow ordering is a runtime invariant that grep cannot verify executes correctly"
+behavior_unverified_items: []
+ci_evidence:
+  run_id: 29439950523
+  commit: 024a271
+  url: https://github.com/gr3gg0rk/unibrain/actions/runs/29439950523
+  linux_job: "Linux (UnibrainCore only) — 1m1s — all UnibrainCoreTests pass"
+  macos_job: "macOS (all targets) — 50s — 182/182 tests pass"
 ---
 
 # Phase 2: Pure Pipeline Logic Verification Report
 
 **Phase Goal:** Every line of business logic that can be expressed without Apple frameworks is written, tested, and green on WSL2 Linux — the FrontmatterSchema, NoteNormalizer, VaultWriter atomic-write logic, CourseClassifier pure matching logic, and the PipelineOrchestrator state machine with all-mock dependencies — establishing the protocol contracts that platform implementations must satisfy.
-**Verified:** 2026-07-14T17:35:00Z
-**Status:** human_needed
-**Re-verification:** No — initial verification
+**Verified:** 2026-07-15T18:20:00Z
+**Status:** passed (CI run 29439950523 — 182/182 macOS tests, all UnibrainCoreTests on Linux)
+**Re-verification:** Yes — flipped from `human_needed` to `passed` after Linux CI executed the 4 behavior-unverified runtime invariants
 
 ## Goal Achievement
 
