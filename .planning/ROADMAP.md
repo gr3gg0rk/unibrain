@@ -61,11 +61,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. A unit test on Linux forces a write failure and verifies a clear error type is surfaced (WRITE-06) — no silent swallow
   5. The `PipelineOrchestrator` state machine unit test (all-mock dependencies) walks through idle -> transcribing -> classifying -> normalizing -> writing -> completed transitions and rejects a second concurrent run
 
-**Plans**: 4 plans (Wave 1: 3 parallel vertical slices, Wave 2: orchestrator integration)
+**Plans**: 1/4 plans executed
 
 **Wave 1** (parallel, no dependencies)
 
-- [ ] 02-01-PLAN.md — Note shape contract: NormalizedNote, NoteNormalizer, FrontmatterSchema validation (Wave 1)
+- [x] 02-01-PLAN.md — Note shape contract: NormalizedNote, NoteNormalizer, FrontmatterSchema validation (Wave 1)
 - [ ] 02-02-PLAN.md — Atomic write contract: NoteWriter protocol, NoteWriterError, TestNoteWriter (Wave 1)
 - [ ] 02-03-PLAN.md — Classification pure logic: CalendarEvent, CourseClassifier, FolderNameSanitizer (Wave 1)
 
@@ -148,7 +148,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 4/4 | Complete    | 2026-07-14 |
-| 2. Pure Pipeline Logic | 0/0 | Not started | - |
+| 2. Pure Pipeline Logic | 1/4 | In Progress|  |
 | 3. macOS Capture + Transcribe | 0/0 | Not started | - |
 | 4. Course Classification + Smart Routing | 0/0 | Not started | - |
 | 5. iOS Capture + iCloud Handoff + Onboarding | 0/0 | Not started | - |

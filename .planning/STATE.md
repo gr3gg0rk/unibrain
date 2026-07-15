@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 02
 current_phase_name: pure-pipeline-logic
 status: executing
-stopped_at: Phase 6 context gathered
-last_updated: "2026-07-14T23:41:11.874Z"
+stopped_at: Completed 02-01-PLAN.md
+last_updated: "2026-07-15T00:00:09.573Z"
 last_activity: 2026-07-14
 last_activity_desc: Phase 02 execution started
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 8
-  completed_plans: 4
+  completed_plans: 5
   percent: 17
 ---
 
@@ -29,8 +29,8 @@ See: .planning/PROJECT.md (updated 2026-07-13)
 ## Current Position
 
 Phase: 02 (pure-pipeline-logic) — EXECUTING
-Plan: 1 of 4
-Status: Executing Phase 02
+Plan: 2 of 4
+Status: Ready to execute
 Last activity: 2026-07-14 — Phase 02 execution started
 
 Progress: [█░░░░░░░░░] 17%
@@ -59,6 +59,7 @@ Progress: [█░░░░░░░░░] 17%
 | Phase 01 P02 | 6m | 2 tasks | 1 files |
 | Phase 01 P03 | 4m | 2 tasks | 3 files |
 | Phase 01 P04 | 8m | 2 tasks | 5 files |
+| Phase 02 P01 | 12m | 6 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -80,6 +81,7 @@ Recent decisions affecting current work:
 - [Phase 01]: Plan 01-04: Deployment targets macOS 26 / iOS 17 — unlocks SpeechAnalyzer on macOS
 - [Phase 01]: Plan 01-04: Bundle ID app.unibrain (provisional until Apple Dev account activated)
 - [Phase 01]: Plan 01-04: DerivedData cache removed from CI — SPM doesn't use it; re-add in Phase 3 when xcodebuild enters
+- [Phase ?]: Phase 02 Plan 01: NormalizedNote Sendable-not-Codable; FrontmatterValidationError Equatable for tests; CalendarEvent created early
 
 ### Pending Todos
 
@@ -100,6 +102,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-14T23:25:20.707Z
-Stopped at: Phase 6 context gathered
-Resume file: .planning/phases/06-gated-summarization-cloud-providers-mvp-polish/06-CONTEXT.md
+Last session: 2026-07-15T00:00:09.559Z
+Stopped at: Completed 02-01-PLAN.md
+Resume file: .planning/phases/02-pure-pipeline-logic/02-01-SUMMARY.md
