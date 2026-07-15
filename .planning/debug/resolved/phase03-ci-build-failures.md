@@ -113,7 +113,10 @@ fix: |
   2. Removed the `coordinator.writeAccessAllowed = true` line — `coordinate(writingItemAt:options:.forReplacing)` already acquires write access
   3. Added `nonisolated(unsafe)` to `audioSettings` static let — it is a constant dictionary with no mutation risk
 verification: |
-  Pushing to main and watching CI run 29432687949 replacement.
+  CI run 29439950523 (commit 024a271) — both jobs green.
+  Linux (UnibrainCore only): 1m1s, all UnibrainCoreTests pass.
+  macOS (all targets): 50s, 182/182 tests pass (all Phase 02 + Phase 03 suites green).
+  Prior iterations: 6 commits across 6 CI runs to reach green (commits 91f9808 → 024a271).
 files_changed:
   - Sources/UnibrainProviders/Transcription/ModelDownload/SmallEnDownloader.swift
   - Sources/UnibrainProviders/VaultWriting/NSFileCoordinatorNoteWriter.swift
