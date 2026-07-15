@@ -251,6 +251,50 @@ struct NoteWriterTests {
         }
     }
 
+    @Test("write throws iCloudPlaceholder with correct URL when .icloud detected")
+    func writeThrowsICloudWithCorrectURL() async throws {
+        let writer = TestNoteWriter()
+        let note = makeNote()
+        let dest = FileManager.default.temporaryDirectory
+            .appendingPathComponent(".icloud")
+            .appendingPathComponent("lecture.md")
+
+        do {
+            try await writer.write(note, to: dest)
+            Issue.record("Should have thrown NoteWriterError.iCloudPlaceholder")
+        } catch let error as NoteWriterError {
+            if case .iCloudPlaceholder(let url) = error {
+                #expect(url == dest)
+            } else {
+                Issue.record("Expected .iCloudPlaceholder, got: \(error)")
+            }
+        } catch {
+            Issue.record("Expected NoteWriterError, got: \(error)")
+        }
+    }
+
+    @Test("write throws directoryCreationFailed with directory URL")
+    func writeThrowsDirectoryCreationFailed() async throws {
+        let writer = TestNoteWriter()
+        let note = makeNote()
+        // Use a path that will fail directory creation under a root that doesn't exist
+        let dest = URL(fileURLWithPath: "/nonexistent_unibrain_root_\(UUID().uuidString)/deep/path/note.md")
+
+        do {
+            try await writer.write(note, to: dest)
+            Issue.record("Should have thrown NoteWriterError")
+        } catch let error as NoteWriterError {
+            if case .directoryCreationFailed(let dirURL, _) = error {
+                // The URL should be the directory, not the file
+                #expect(dirURL.lastPathComponent == "path")
+            } else {
+                Issue.record("Expected .directoryCreationFailed, got: \(error)")
+            }
+        } catch {
+            Issue.record("Expected NoteWriterError, got: \(error)")
+        }
+    }
+
     @Test("NoteWriter protocol method is async throws")
     func protocolMethodIsAsyncThrows() async throws {
         // This test verifies at compile time that the protocol method
