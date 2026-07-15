@@ -114,7 +114,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. Setting a "Current term" label filters out past-term calendar events from classification — a recording made during an old-term timeslot does not route to a past-term folder (CLAS-06)
   5. When the user manually picks a course for a recording, that override is remembered for the next recording of the same course (CLAS-07)
 
-**Plans**: 5/5 plans complete
+**Plans**: 6 plans (5 complete + 1 gap closure)
 **UI hint**: yes
 
 **Wave 1** (parallel, no dependencies)
@@ -127,6 +127,10 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] 04-04-PLAN.md — PipelineState .awaitingUserChoice + Orchestrator pause/resume + NoteNormalizer parameterization + ScheduleAwareVaultResolver (Wave 2)
 - [x] 04-05-PLAN.md — All SwiftUI views + MenuBarPopover overlay switching + MenuBarViewModel extensions + macOS device verification (Wave 2)
+
+**Wave 3** *(gap closure — wiring integration)*
+
+- [ ] 04-06-PLAN.md — Integration Wiring: connect ScheduleAwareVaultResolver + state observer + picker data + manage courses data (Wave 3, gap closure)
 
 ### Phase 5: iOS Capture + iCloud Handoff + Onboarding
 
