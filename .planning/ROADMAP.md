@@ -87,8 +87,18 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. During transcription the UI stays responsive (menu bar interactive, no beachball) — Xcode Time Profiler on macOS CI confirms `whisper_full` runs off MainThread (TRAN-03)
   5. After transcription completes, the whisper.cpp model is released from memory (Activity Monitor / `memory_pressure` confirms return to baseline) and the transcript is post-processed into paragraphs by segment time gaps (TRAN-05, TRAN-06); the `small.en` model was downloaded on first run with checksum verification (TRAN-02)
 
-**Plans**: TBD
+**Plans**: 4/4 plans planned
 **UI hint**: yes
+
+**Wave 1** (parallel, no dependencies)
+
+- [ ] 03-01-PLAN.md — Audio capture: AVAudioRecorder wrapper + RecordingSession actor state machine (Wave 1)
+- [ ] 03-02-PLAN.md — Dual-engine transcription: TranscriberRouter + SpeechAnalyzer/whisper.cpp + SmallEnDownloader (Wave 1)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 03-03-PLAN.md — Vault writing + pipeline wiring: NSFileCoordinatorNoteWriter + HardcodedVaultResolver + PipelineWiring (Wave 2)
+- [ ] 03-04-PLAN.md — Menu-bar popover UI: MenuBarViewModel + MenuBarPopover + MenuBarExtra wiring (Wave 2)
 
 ### Phase 4: Course Classification + Smart Routing
 
@@ -149,7 +159,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 |-------|----------------|--------|-----------|
 | 1. Foundation | 4/4 | Complete    | 2026-07-14 |
 | 2. Pure Pipeline Logic | 4/4 | Complete   | 2026-07-15 |
-| 3. macOS Capture + Transcribe | 0/0 | Not started | - |
+| 3. macOS Capture + Transcribe | 0/4 | Planned | - |
 | 4. Course Classification + Smart Routing | 0/0 | Not started | - |
 | 5. iOS Capture + iCloud Handoff + Onboarding | 0/0 | Not started | - |
 | 6. Gated Summarization + Cloud Providers + MVP Polish | 0/0 | Not started | - |
