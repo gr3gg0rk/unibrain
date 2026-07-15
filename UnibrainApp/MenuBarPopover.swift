@@ -55,10 +55,20 @@ struct MenuBarPopover: View {
         }
     }
 
-    // MARK: - Idle State (P-10)
+    // MARK: - Idle State (P-10 + Phase 4 extensions)
 
     private var idleState: some View {
         VStack(spacing: 16) {
+            // Phase 4: Permission banner (if calendar denied and overlay shown before)
+            if viewModel.calendarPermission == .denied && viewModel.hasShownPermissionOverlay {
+                PermissionBanner(viewModel: viewModel)
+            }
+
+            // Phase 4: Term-expired banner (mutually exclusive with permission banner)
+            if viewModel.calendarPermission != .denied && viewModel.termHasExpired {
+                TermExpiredBanner(viewModel: viewModel)
+            }
+
             VStack(spacing: 8) {
                 Text("Ready to record")
                     .font(.body)
@@ -86,6 +96,17 @@ struct MenuBarPopover: View {
                 Label("Microphone available", systemImage: "checkmark.circle.fill")
                     .font(.caption)
                     .foregroundStyle(.green)
+
+                // Phase 4: Calendar status line
+                if viewModel.calendarPermission == .granted {
+                    Label("Calendar connected", systemImage: "checkmark.circle.fill")
+                        .font(.caption)
+                        .foregroundStyle(.green)
+                } else if viewModel.calendarPermission == .denied {
+                    Label("Calendar off \u{2014} manual pick", systemImage: "exclamationmark.circle")
+                        .font(.caption)
+                        .foregroundStyle(.orange)
+                }
             }
 
             Button {
@@ -99,6 +120,23 @@ struct MenuBarPopover: View {
             .controlSize(.large)
             .buttonStyle(.borderedProminent)
             .accessibilityLabel("Start recording")
+
+            // Phase 4: Term label + Manage Courses button
+            VStack(spacing: 8) {
+                if !viewModel.currentTermLabel.isEmpty {
+                    Text("Term: \(viewModel.currentTermLabel)")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                Button {
+                    viewModel.overlayState = .manageCourses
+                } label: {
+                    Label("Manage Courses", systemImage: "folder.badge.gearshape")
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+            }
         }
         .padding(24)
     }

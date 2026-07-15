@@ -1,5 +1,6 @@
 import SwiftUI
 import UserNotifications
+import UnibrainCore
 import UnibrainProviders
 
 // MARK: - UnibrainApp
@@ -12,6 +13,9 @@ import UnibrainProviders
 /// Per P-D3: the menu-bar icon changes based on session state.
 ///
 /// Per P-17: background model download starts automatically on first launch.
+///
+/// Per Phase 4: injects CourseMappingStore and EventKitCalendarAdapter into
+/// MenuBarViewModel for calendar-driven course routing.
 @main
 struct UnibrainApp: App {
 
@@ -28,11 +32,25 @@ struct UnibrainApp: App {
         let orchestrator = PipelineWiring.makeOrchestrator(modelPath: modelPath)
         let session = PipelineWiring.makeRecordingSession()
 
+        // Phase 4: Create CourseMappingStore with vault root.
+        let courseMappingStore = CourseMappingStore(
+            vaultRoot: HardcodedVaultResolver.vaultRoot
+        )
+
+        // Phase 4: Create EventKitCalendarAdapter (macOS/iOS only).
+        #if os(macOS) || os(iOS)
+        let calendarProvider: any CalendarEventProvider = EventKitCalendarAdapter()
+        #else
+        let calendarProvider: (any CalendarEventProvider)? = nil
+        #endif
+
         _viewModel = State(
             initialValue: MenuBarViewModel(
                 session: session,
                 orchestrator: orchestrator,
-                downloader: downloader
+                downloader: downloader,
+                courseMappingStore: courseMappingStore,
+                calendarProvider: calendarProvider
             )
         )
         _modelDownloader = State(initialValue: downloader)
@@ -51,6 +69,11 @@ struct UnibrainApp: App {
                 .task {
                     // Request notification permission for transcription completion alerts (P-11)
                     await requestNotificationPermission()
+                }
+                .task {
+                    // Phase 4: Check calendar permission and load term on launch (P-02)
+                    await viewModel.checkCalendarPermission()
+                    await viewModel.loadCurrentTerm()
                 }
         }
 
