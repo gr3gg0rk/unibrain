@@ -112,7 +112,8 @@ struct NSFileCoordinatorNoteWriterTests {
 
         let dest = dir.appendingPathComponent("lecture.md")
         // Create the .icloud placeholder file — iCloud Drive uses .{filename}.icloud naming
-        let iCloudFile = dir.appendingPathComponent(".lecture.icloud")
+        // The writer checks for ".\(destination.lastPathComponent).icloud"
+        let iCloudFile = dir.appendingPathComponent(".\(dest.lastPathComponent).icloud")
         try Data().write(to: iCloudFile)
 
         // Verify the placeholder file exists at the path the writer will check

@@ -65,6 +65,7 @@ Two distinct errors:
 - timestamp: 2026-07-15T16:40:00Z — Phase 02 verification cannot be flipped to `passed` because no tests actually executed
 - timestamp: 2026-07-15T17:00:00Z — Root cause confirmed from CI logs. Three independent compile errors verified against source code.
 - timestamp: 2026-07-15T17:05:00Z — Fixes applied: (1) SmallEnDownloader + URLSessionProtocol + tests wrapped in `#if canImport(CryptoKit)`, (2) removed nonexistent `writeAccessAllowed` property, (3) `audioSettings` marked `nonisolated(unsafe)`.
+- timestamp: 2026-07-15T18:15:00Z — After 5 fix iterations, down to 1 remaining failure: NSFileCoordinatorNoteWriterTests iCloud placeholder test. Test created `.lecture.icloud` but writer checks for `.lecture.md.icloud`. Fixed test to use `.{dest.lastPathComponent}.icloud` consistently.
 
 ## Eliminated
 
