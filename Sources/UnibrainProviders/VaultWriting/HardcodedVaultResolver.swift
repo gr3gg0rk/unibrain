@@ -25,8 +25,25 @@ public struct HardcodedVaultResolver: VaultPathResolver, Sendable {
     public init() {}
 
     public func resolve(match: CourseMatch, recordingStart: Date) throws -> URL {
-        // RED phase stub — implementation pending GREEN
-        throw PipelineError.invalidInputs
+        // Create lectures directory if it does not exist.
+        try FileManager.default.createDirectory(
+            at: Self.lecturesDir,
+            withIntermediateDirectories: true
+        )
+
+        // Format date as YYYY-MM-DD.
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+        dateFormatter.timeZone = TimeZone.current
+        let dateString = dateFormatter.string(from: recordingStart)
+
+        // P-14: Return lectures/YYYY-MM-DD-Lecture.md
+        // The match parameter is intentionally ignored — Phase 3 writes
+        // everything to lectures/ with course: UNCLASSIFIED.
+        // Phase 4 will replace this resolver with schedule-aware routing.
+        return Self.lecturesDir
+            .appendingPathComponent("\(dateString)-Lecture.md")
     }
 }
 
