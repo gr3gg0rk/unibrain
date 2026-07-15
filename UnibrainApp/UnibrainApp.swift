@@ -29,7 +29,12 @@ struct UnibrainApp: App {
     init() {
         let downloader = SmallEnDownloader()
         let modelPath = SmallEnDownloader.modelStoragePath
-        let orchestrator = PipelineWiring.makeOrchestrator(modelPath: modelPath)
+        let orchestrator = PipelineWiring.makeScheduleAwareOrchestrator(
+            modelPath: modelPath,
+            vaultRoot: HardcodedVaultResolver.vaultRoot,
+            termLabel: "",
+            mapping: [:]
+        )
         let session = PipelineWiring.makeRecordingSession()
 
         // Phase 4: Create CourseMappingStore with vault root.
