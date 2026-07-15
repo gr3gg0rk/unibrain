@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 04
 current_phase_name: course-classification-smart-routing
 status: executing
-stopped_at: Completed 04-02-PLAN.md
-last_updated: "2026-07-15T21:08:52.199Z"
+stopped_at: Completed 04-03-PLAN.md
+last_updated: "2026-07-15T21:17:47.546Z"
 last_activity: 2026-07-15
 last_activity_desc: Phase 04 execution started
 progress:
   total_phases: 6
   completed_phases: 3
   total_plans: 17
-  completed_plans: 14
+  completed_plans: 15
   percent: 50
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-13)
 ## Current Position
 
 Phase: 04 (course-classification-smart-routing) — EXECUTING
-Plan: 3 of 5
+Plan: 4 of 5
 Status: Ready to execute
 Last activity: 2026-07-15 — Phase 04 execution started
 
@@ -68,6 +68,7 @@ Progress: [██░░░░░░░░] 34%
 | Phase 03 P03 | 9m | 2 tasks | 5 files |
 | Phase 04 P01 | 5m | 1 tasks | 3 files |
 | Phase 04 P02 | 5m | 2 tasks | 5 files |
+| Phase 04 P03 | 6m | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -108,6 +109,8 @@ Recent decisions affecting current work:
 - [Phase ?]: Phase 04 Plan 01: load() returns .empty on malformed JSON (T-04-02); atomic writes for iCloud safety (T-04-03)
 - [Phase ?]: Phase 04 Plan 02: CalendarPermissionStatus.canReadEvents helper — only .fullAccess returns true (P-05)
 - [Phase ?]: Phase 04 Plan 02: Sendable proof test uses async Task — avoids Swift 6.0.3 compiler crash on any Sendable existential
+- [Phase ?]: Phase 04 Plan 03: CoursePickerViewModel plain class (not @Observable) — SwiftUI adapter in UnibrainApp
+- [Phase ?]: Phase 04 Plan 03: Added Equatable to CalendarEvent for CourseSelection synthesis
 
 ### Pending Todos
 
@@ -137,7 +140,7 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-15T21:08:52.156Z
-Stopped at: Completed 04-02-PLAN.md
+Last session: 2026-07-15T21:17:39.979Z
+Stopped at: Completed 04-03-PLAN.md
 Resume file: None
 Next action: Phase 03 macOS device verification (Task 4 of 03-04), then resume autonomous chain `/gsd-autonomous --from 4 --to 6`

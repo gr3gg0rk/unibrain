@@ -30,7 +30,7 @@ Requirements for the MVP "Record-to-Obsidian" release. Each maps to a roadmap ph
 - [x] **CLAS-01**: EventKit queries calendar events overlapping `recordingStart ± 30min` to identify the current course
 - [x] **CLAS-02**: Maps matched event title → course folder via a settings-driven course mapping table
 - [ ] **CLAS-03**: Auto-creates a course folder for unrecognized event titles (sanitized)
-- [ ] **CLAS-04**: Manual course picker fallback shown when zero or multiple events match (recent courses + search)
+- [x] **CLAS-04**: Manual course picker fallback shown when zero or multiple events match (recent courses + search)
 - [x] **CLAS-05**: Multi-term folder structure: `{vault}/{term}/{course-code}/`
 - [x] **CLAS-06**: "Current term" setting that filters out past-term calendar events from classification
 - [x] **CLAS-07**: Manual override is remembered per course for the next recording
@@ -66,7 +66,7 @@ Requirements for the MVP "Record-to-Obsidian" release. Each maps to a roadmap ph
 ### Onboarding
 
 - [ ] **ONBD-01**: First-run flow: welcome → vault folder picker → mic permission → calendar permission → current-term label → ready
-- [ ] **ONBD-02**: Microphone permission required — hard-fail with explanation + Settings deep-link if denied
+- [x] **ONBD-02**: Microphone permission required — hard-fail with explanation + Settings deep-link if denied
 - [x] **ONBD-03**: Calendar permission optional — degrades to manual course picker; explanation shown if denied
 - [ ] **ONBD-04**: Vault folder picker suggests iCloud Drive location; any user-chosen folder works
 - [ ] **ONBD-05**: Permissions screen accessible post-onboarding for re-grant or audit
@@ -195,11 +195,11 @@ Explicit exclusions documented to prevent scope creep.
 | CLAS-01 | Phase 4 | Complete |
 | CLAS-02 | Phase 4 | Complete |
 | CLAS-03 | Phase 4 | Pending |
-| CLAS-04 | Phase 4 | Pending |
+| CLAS-04 | Phase 4 | Complete |
 | CLAS-05 | Phase 4 | Complete |
 | CLAS-06 | Phase 4 | Complete |
 | CLAS-07 | Phase 4 | Complete |
-| ONBD-02 | Phase 4 | Pending |
+| ONBD-02 | Phase 4 | Complete |
 | ONBD-03 | Phase 4 | Complete |
 | CAPT-03 | Phase 5 | Pending |
 | ONBD-01 | Phase 5 | Pending |
