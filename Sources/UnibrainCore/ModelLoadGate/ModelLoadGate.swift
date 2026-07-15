@@ -15,6 +15,9 @@ import Foundation
 /// Data-race safety (T-01-03): Swift 6 actor isolation serializes
 /// all access to `currentModel` by language guarantee.
 public actor ModelLoadGate {
+    /// Shared singleton instance for app-wide model gating.
+    public static let shared = ModelLoadGate()
+
     /// The currently held model kind, or `nil` if the gate is free.
     private var currentModel: HeavyModelKind? = nil
 

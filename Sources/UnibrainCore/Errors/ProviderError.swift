@@ -27,4 +27,8 @@ public enum ProviderError: Error {
     case cancelled
     /// An underlying error from the backend that does not fit other cases.
     case underlying(any Error)
+
+    /// The current platform does not support this provider.
+    /// Used when a macOS-version-gated API is unavailable.
+    case unsupportedPlatform
 }
