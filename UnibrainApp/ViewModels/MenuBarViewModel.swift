@@ -4,6 +4,9 @@ import UserNotifications
 #if canImport(AVFoundation)
 import AVFoundation
 #endif
+#if canImport(AppKit)
+import AppKit
+#endif
 import UnibrainCore
 import UnibrainProviders
 
@@ -18,6 +21,7 @@ enum SessionDisplayState: Equatable {
     case recording
     case paused
     case transcribing
+    case awaitingCourseSelection
     case completed
     case error(String)
 
@@ -27,6 +31,7 @@ enum SessionDisplayState: Equatable {
              (.recording, .recording),
              (.paused, .paused),
              (.transcribing, .transcribing),
+             (.awaitingCourseSelection, .awaitingCourseSelection),
              (.completed, .completed):
             return true
         case (.error(let a), .error(let b)):
@@ -36,6 +41,49 @@ enum SessionDisplayState: Equatable {
         }
     }
 }
+
+// MARK: - PopoverOverlay
+
+/// Inline overlay state for the popover.
+///
+/// Per RESEARCH.md Pitfall 2 (FB11984872): `.sheet` on `MenuBarExtra(.window)`
+/// is unreliable on macOS — sheets fail to anchor or appear behind other windows.
+/// All Phase 4 surfaces render INLINE within the 280pt popover by switching on
+/// this enum in the popover's `body`.
+enum PopoverOverlay: Equatable {
+    /// No overlay — normal popover state (idle/recording/transcribing/etc).
+    case none
+    /// Course picker shown when CourseClassifier returns .multiple or .none.
+    case coursePicker(CoursePickerMode)
+    /// Manage Courses mapping table.
+    case manageCourses
+    /// First-time calendar permission explanation.
+    case permissionDenied
+    /// Term label + date range editor.
+    case termEditor
+}
+
+// MARK: - PipelineOrchestratorProtocol
+
+/// Protocol abstraction for PipelineOrchestrator, enabling test injection.
+///
+/// Per W3 fix: Tests inject a mock conforming to this protocol to verify
+/// resume/skipClassification calls without a real orchestrator.
+/// Not isolated to any actor — both the real actor and test mocks can conform.
+protocol PipelineOrchestratorProtocol: Sendable {
+    func resume(with event: CalendarEvent) async
+    func skipClassification() async
+    func cancel()
+    func reset()
+    func run(inputs: PipelineInputs) async throws
+}
+
+// MARK: - PipelineOrchestrator Conformance
+
+/// PipelineOrchestrator is an actor whose methods already match this protocol.
+/// Swift 6 handles actor-to-MainActor hops automatically when the view model
+/// calls these methods.
+extension PipelineOrchestrator: PipelineOrchestratorProtocol {}
 
 // MARK: - MenuBarViewModel
 
@@ -80,11 +128,51 @@ final class MenuBarViewModel {
     /// Total seconds spent paused (for paused-state summary line per UI-SPEC).
     var totalPausedSeconds: TimeInterval = 0
 
+    // MARK: - Phase 4: Overlay State (inline view-state switching per Pitfall 2)
+
+    /// Drives the inline overlay view switch in the popover.
+    /// Per Pitfall 2 (FB11984872): replaces .sheet with inline view-state switching.
+    var overlayState: PopoverOverlay = .none
+
+    // MARK: - Phase 4: Calendar Permission State
+
+    /// Tracks current calendar permission status.
+    var calendarPermission: PermissionState = .notDetermined
+
+    /// Tracks first-time overlay display (persisted via @AppStorage on macOS).
+    var hasShownPermissionOverlay: Bool = false
+
+    // MARK: - Phase 4: Term State
+
+    /// Current term label from CourseMappingStore, displayed in idle state.
+    var currentTermLabel: String = ""
+
+    /// True when currentTerm.endDate has passed.
+    var termHasExpired: Bool = false
+
     // MARK: - Dependencies (injected)
 
     private let session: RecordingSession
-    private let orchestrator: PipelineOrchestrator
     private let downloader: SmallEnDownloader
+
+    /// Orchestrator protocol — allows test injection via PipelineOrchestratorProtocol.
+    private let overlayOrchestrator: PipelineOrchestratorProtocol?
+
+    /// Access to the real orchestrator for Phase 3 compatibility.
+    private var orchestrator: PipelineOrchestrator? {
+        overlayOrchestrator as? PipelineOrchestrator
+    }
+
+    // MARK: - Phase 4: Injected Dependencies
+
+    /// Course mapping store for reading/writing courses.json.
+    private var courseMappingStore: CourseMappingStore?
+
+    /// Calendar provider for fetching events.
+    private var calendarProvider: (any CalendarEventProvider)?
+
+    /// Course picker view model created on demand when picker fires.
+    private var coursePickerViewModel: CoursePickerViewModel?
 
     /// Polling task for live timer + mic level updates (~30fps).
     private var pollTask: Task<Void, Never>?
@@ -95,18 +183,35 @@ final class MenuBarViewModel {
     /// The recording start date — needed for PipelineInputs construction.
     private var recordingStartDate: Date?
 
-    // MARK: - Init
+    // MARK: - Init (Phase 3 — backward compatible with Phase 4 additions)
 
     init(
         session: RecordingSession,
         orchestrator: PipelineOrchestrator,
-        downloader: SmallEnDownloader
+        downloader: SmallEnDownloader,
+        courseMappingStore: CourseMappingStore? = nil,
+        calendarProvider: (any CalendarEventProvider)? = nil
     ) {
         self.session = session
-        self.orchestrator = orchestrator
+        self.overlayOrchestrator = orchestrator
         self.downloader = downloader
+        self.courseMappingStore = courseMappingStore
+        self.calendarProvider = calendarProvider
         self.sessionState = .idle
         startObservingDownload()
+    }
+
+    // MARK: - Test Init (W3 fix — allows mock orchestrator injection)
+
+    /// Test-only init that accepts a mock orchestrator protocol.
+    /// Used by MenuBarViewModelOverlayTests to verify overlay state transitions.
+    init(
+        overlayOrchestrator: PipelineOrchestratorProtocol
+    ) {
+        self.session = RecordingSession()
+        self.overlayOrchestrator = overlayOrchestrator
+        self.downloader = SmallEnDownloader()
+        self.sessionState = .idle
     }
 
     // deinit: Tasks capture self weakly — they self-terminate when self
@@ -163,6 +268,14 @@ final class MenuBarViewModel {
     /// Per CAPT-01: one-tap stop — no confirmation dialog.
     /// Per P-11: popover transitions to transcribing state within 200ms.
     /// Per TRAN-03: transcription runs via Task.detached off MainActor.
+    ///
+    /// Per W4 fix: Explicitly sets `inputs.termLabel = currentTermLabel` so
+    /// the pipeline carries the real term label to NoteNormalizer and
+    /// ScheduleAwareVaultResolver (without this, termLabel defaults to empty
+    /// string and the resolver falls back to "default-term").
+    ///
+    /// Per P-02: Requests calendar permission on first recording if .notDetermined.
+    /// Fetches calendar events for classification if permission is granted.
     func stopRecording() async {
         do {
             let result = try await session.stop()
@@ -176,14 +289,39 @@ final class MenuBarViewModel {
                 return
             }
 
-            let inputs = PipelineWiring.makePipelineInputs(
+            // Per P-02: Request calendar permission just-in-time if not yet determined.
+            if calendarPermission == .notDetermined {
+                await requestCalendarPermission()
+            }
+
+            // Fetch calendar events if permission is granted.
+            var events: [CalendarEvent] = []
+            if calendarPermission == .granted, let provider = calendarProvider {
+                do {
+                    let term = try await courseMappingStore?.currentTerm()
+                    let dateRange = (term?.startDate ?? .distantPast)...(term?.endDate ?? .distantFuture)
+                    events = try await provider.fetchEvents(in: dateRange)
+                } catch {
+                    // Calendar fetch failed — proceed with empty events.
+                    // The manual picker will fire for .none match.
+                    events = []
+                }
+            }
+
+            // W4 fix: explicitly set termLabel from currentTermLabel.
+            var inputs = PipelineWiring.makePipelineInputs(
                 recordingResult: result,
                 source: "MacBook",
                 recordingStart: recordingStart
             )
+            inputs.events = events
+            inputs.termLabel = currentTermLabel
 
             // Per TRAN-03: run transcription off MainActor.
-            let orchestrator = self.orchestrator
+            guard let orchestrator = self.orchestrator else {
+                sessionState = .error("Pipeline orchestrator not available.")
+                return
+            }
             Task.detached(priority: .userInitiated) { [weak self] in
                 do {
                     try await orchestrator.run(inputs: inputs)
@@ -203,9 +341,12 @@ final class MenuBarViewModel {
 
     /// Dismisses the completion state and returns to idle.
     func dismissCompletion() async {
-        await orchestrator.reset()
+        if let orchestrator {
+            await orchestrator.reset()
+        }
         await session.reset()
         sessionState = .idle
+        overlayState = .none
         elapsedTime = 0
         micLevel = -160
         waveformBuffer = []
@@ -234,6 +375,194 @@ final class MenuBarViewModel {
         #else
         return false
         #endif
+    }
+
+    // MARK: - Phase 4: Calendar Permission
+
+    /// Requests calendar Full Access permission.
+    ///
+    /// Per P-02: fires on first recording alongside mic permission.
+    /// Per P-05: verifies .fullAccess explicitly — .writeOnly treated as denied.
+    func requestCalendarPermission() async {
+        guard let provider = calendarProvider else {
+            calendarPermission = .denied
+            return
+        }
+
+        do {
+            let granted = try await provider.requestFullAccess()
+            if granted {
+                calendarPermission = .granted
+            } else {
+                calendarPermission = .denied
+            }
+        } catch {
+            calendarPermission = .denied
+        }
+    }
+
+    /// Checks the current calendar permission status without requesting.
+    ///
+    /// Updates `calendarPermission` based on the current system state.
+    /// Useful for detecting permission changes when the app becomes active.
+    func checkCalendarPermission() async {
+        guard let provider = calendarProvider else {
+            calendarPermission = .denied
+            return
+        }
+
+        let status = await provider.checkAuthorization()
+        calendarPermission = PermissionState.from(status)
+    }
+
+    // MARK: - Phase 4: Classification Pause/Resume
+
+    /// Called when the orchestrator reaches `.awaitingUserChoice`.
+    ///
+    /// Per MP-04: Creates a CoursePickerViewModel with mode based on match
+    /// (.multiple or .none), loaded courses from CourseMappingStore, and
+    /// recent codes. Sets `overlayState = .coursePicker(mode)`.
+    func handleClassificationPause(match: CourseMatch) async {
+        let mode: CoursePickerMode
+        switch match {
+        case .none:
+            mode = .none
+        case .multiple(let events):
+            mode = .multiple(events)
+        case .single:
+            // .single should not reach here — the orchestrator auto-resolves.
+            overlayState = .none
+            return
+        }
+
+        // Load courses and recent codes from the mapping store.
+        let mappings: [String: CourseMapping]
+        let recentCodes: [String]
+        if let store = courseMappingStore {
+            mappings = (try? await store.allMappings()) ?? [:]
+            recentCodes = (try? await store.allRecentCourses()) ?? []
+        } else {
+            mappings = [:]
+            recentCodes = []
+        }
+
+        let courses: [CourseSummary] = mappings.values.map { mapping in
+            CourseSummary(code: mapping.courseCode, name: mapping.courseName)
+        }
+
+        coursePickerViewModel = CoursePickerViewModel(
+            mode: mode,
+            courses: courses,
+            recentCodes: recentCodes
+        )
+
+        overlayState = .coursePicker(mode)
+    }
+
+    /// Converts CourseSelection to a CalendarEvent and resumes the orchestrator.
+    ///
+    /// Per M-03: Manual pick updates BOTH mapping AND recent list in courses.json.
+    /// Per MP-03: Skip routes to _unsorted via orchestrator.skipClassification().
+    func selectCourse(_ selection: CourseSelection) async {
+        switch selection {
+        case .course(let code):
+            let event = CalendarEvent(
+                id: code,
+                title: code,
+                startDate: Date(),
+                endDate: Date()
+            )
+            await updateMappingAndRecent(code: code, name: code)
+            await overlayOrchestrator?.resume(with: event)
+
+        case .event(let event):
+            await updateMappingAndRecent(code: event.title, name: event.title)
+            await overlayOrchestrator?.resume(with: event)
+
+        case .newCourse(let code, let name):
+            let event = CalendarEvent(
+                id: code,
+                title: code,
+                startDate: Date(),
+                endDate: Date()
+            )
+            // Update mapping for the new course.
+            if let store = courseMappingStore {
+                try? await store.upsert(
+                    eventTitle: code,
+                    mapping: CourseMapping(courseCode: code, courseName: name)
+                )
+                try? await store.addRecent(courseCode: code)
+            }
+            await overlayOrchestrator?.resume(with: event)
+
+        case .skip:
+            await overlayOrchestrator?.skipClassification()
+        }
+
+        overlayState = .none
+    }
+
+    /// Skips classification and routes to _unsorted.
+    ///
+    /// Per MP-03: Calls orchestrator.skipClassification() and resets overlay.
+    func skipClassification() async {
+        await overlayOrchestrator?.skipClassification()
+        overlayState = .none
+    }
+
+    // MARK: - Phase 4: System Settings Deep-Link
+
+    /// Opens macOS System Settings to Privacy > Calendars.
+    ///
+    /// Per RESEARCH.md Pattern 5: Uses NSWorkspace.open with the
+    /// `x-apple.systempreferences:` URL scheme.
+    func openSystemSettings() {
+        #if os(macOS)
+        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Calendars") {
+            NSWorkspace.shared.open(url)
+        }
+        #endif
+    }
+
+    // MARK: - Phase 4: Term Management
+
+    /// Sets the current term label and date range.
+    ///
+    /// Per CT-01: Updates CourseMappingStore and refreshes local state.
+    func setTerm(label: String, startDate: Date, endDate: Date) async {
+        try? await courseMappingStore?.setCurrentTerm(
+            label: label,
+            startDate: startDate,
+            endDate: endDate
+        )
+        currentTermLabel = label
+        termHasExpired = endDate < Date()
+    }
+
+    /// Loads the current term from CourseMappingStore and updates local state.
+    func loadCurrentTerm() async {
+        guard let store = courseMappingStore else { return }
+        do {
+            let term = try await store.currentTerm()
+            currentTermLabel = term.label
+            termHasExpired = term.endDate < Date()
+        } catch {
+            currentTermLabel = ""
+            termHasExpired = false
+        }
+    }
+
+    // MARK: - Phase 4: Private Helpers
+
+    /// Updates mapping and recent list for a course selection (M-03).
+    private func updateMappingAndRecent(code: String, name: String) async {
+        guard let store = courseMappingStore else { return }
+        try? await store.upsert(
+            eventTitle: code,
+            mapping: CourseMapping(courseCode: code, courseName: name)
+        )
+        try? await store.addRecent(courseCode: code)
     }
 
     // MARK: - Private: Polling

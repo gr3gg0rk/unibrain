@@ -9,8 +9,7 @@ import Foundation
 ///
 /// Per W3 fix: Tests inject this spy to verify the view model correctly
 /// routes user selections to the orchestrator.
-@MainActor
-final class MockOrchestrator: PipelineOrchestratorProtocol {
+final class MockOrchestrator: PipelineOrchestratorProtocol, @unchecked Sendable {
 
     // MARK: - Call Recording
 

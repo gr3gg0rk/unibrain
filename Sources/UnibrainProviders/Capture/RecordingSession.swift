@@ -94,6 +94,11 @@ public actor RecordingSession: Sendable {
     /// The final destination URL for the audio file.
     private var destinationURL: URL?
 
+    // MARK: - Init
+
+    /// Creates a new idle recording session.
+    public init() {}
+
     // MARK: - Public Read-Only Properties
 
     /// The current session state.
