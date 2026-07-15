@@ -114,8 +114,19 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. Setting a "Current term" label filters out past-term calendar events from classification — a recording made during an old-term timeslot does not route to a past-term folder (CLAS-06)
   5. When the user manually picks a course for a recording, that override is remembered for the next recording of the same course (CLAS-07)
 
-**Plans**: TBD
+**Plans**: 5/5 plans
 **UI hint**: yes
+
+**Wave 1** (parallel, no dependencies)
+
+- [ ] 04-01-PLAN.md — CourseMappingStore actor + CourseMapping Codable schema + courses.json CRUD (Wave 1)
+- [ ] 04-02-PLAN.md — CalendarEventProvider protocol + EventKitCalendarAdapter (macOS+iOS) + TermRangeFilter (Wave 1)
+- [ ] 04-03-PLAN.md — PermissionState enum + CoursePickerViewModel (search, recent, selection) (Wave 1)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 04-04-PLAN.md — PipelineState .awaitingUserChoice + Orchestrator pause/resume + NoteNormalizer parameterization + ScheduleAwareVaultResolver (Wave 2)
+- [ ] 04-05-PLAN.md — All SwiftUI views + MenuBarPopover overlay switching + MenuBarViewModel extensions + macOS device verification (Wave 2)
 
 ### Phase 5: iOS Capture + iCloud Handoff + Onboarding
 
@@ -160,6 +171,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 1. Foundation | 4/4 | Complete    | 2026-07-14 |
 | 2. Pure Pipeline Logic | 4/4 | Complete   | 2026-07-15 |
 | 3. macOS Capture + Transcribe | 4/4 | Code complete — Task 4 macOS verification pending |  |
-| 4. Course Classification + Smart Routing | 0/0 | Not started | - |
+| 4. Course Classification + Smart Routing | 0/5 | Not started | - |
 | 5. iOS Capture + iCloud Handoff + Onboarding | 0/0 | Not started | - |
 | 6. Gated Summarization + Cloud Providers + MVP Polish | 0/0 | Not started | - |
