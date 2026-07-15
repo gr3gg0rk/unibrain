@@ -437,9 +437,10 @@ struct PipelineOrchestratorTests {
 
     // MARK: - Integration with CourseClassifier / NoteNormalizer / NoteWriter
 
-    @Test("orchestrator calls CourseClassifier during classifying stage")
+    @Test("orchestrator calls CourseClassifier and pauses for non-overlapping event")
     func callsCourseClassifier() async throws {
-        // Use an event that does NOT overlap the recording time — match should be .none
+        // Phase 4: Non-overlapping event -> CourseClassifier returns .none
+        // -> orchestrator pauses at .awaitingUserChoice (no longer fails immediately)
         let recordingStart = Date(timeIntervalSince1970: 1_700_000_000)
         let nonOverlappingEvent = CalendarEvent(
             id: "evt-far",
@@ -456,7 +457,6 @@ struct PipelineOrchestratorTests {
             events: [nonOverlappingEvent]
         )
 
-        // Resolver throws on .none match — proving CourseClassifier was called
         let resolver = MockVaultResolver(throwOnNone: true)
         let orchestrator = PipelineOrchestrator(
             transcriber: MockTranscriber(),
@@ -464,18 +464,21 @@ struct PipelineOrchestratorTests {
             resolver: resolver
         )
 
-        do {
-            try await orchestrator.run(inputs: inputs)
-            Issue.record("Should have failed due to no course match")
-        } catch {
-            // Expected — CourseClassifier returned .none, resolver threw
+        // Start the pipeline — it will park at .awaitingUserChoice
+        async let pipelineResult: Void = try await orchestrator.run(inputs: inputs)
+
+        // Give it time to reach the pause state
+        try? await Task.sleep(nanoseconds: 200_000_000) // 0.2s
+
+        // Phase 4: .none match now pauses at .awaitingUserChoice (MP-04)
+        let pausedState = await orchestrator.currentState
+        if case .awaitingUserChoice = pausedState { /* success */ } else {
+            Issue.record("Expected .awaitingUserChoice for non-overlapping event, got: \(pausedState)")
         }
 
-        // State should be .failed (not .completed)
-        let failedState = await orchestrator.currentState
-        if case .failed = failedState { /* success */ } else {
-            Issue.record("Expected .failed state after no match, got: \(failedState)")
-        }
+        // Resume with the non-overlapping event to complete the pipeline
+        await orchestrator.resume(with: nonOverlappingEvent)
+        _ = try? await pipelineResult
     }
 
     @Test("orchestrator calls NoteWriter during writing stage with real temp file")

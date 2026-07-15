@@ -2,8 +2,8 @@ import Foundation
 
 /// Central coordinator that orchestrates the Record-to-Obsidian pipeline.
 ///
-/// Per O-01: Enforces an 8-state lifecycle:
-///   `idle -> transcribing -> classifying -> normalizing -> writing -> completed`
+/// Per O-01: Enforces a 9-state lifecycle:
+///   `idle -> transcribing -> classifying -> [awaitingUserChoice] -> normalizing -> writing -> completed`
 ///   (plus terminal `failed` and `cancelled`).
 ///
 /// Per O-02: Swift 6 actor isolation serializes all state access by language
@@ -20,6 +20,11 @@ import Foundation
 /// - `writer`: Conforms to ``NoteWriter`` (Phase 3 provides NSFileCoordinatorNoteWriter)
 /// - `resolver`: Conforms to ``VaultPathResolver`` (Phase 4 resolves course -> vault folder)
 ///
+/// Per MP-04: When CourseClassifier returns `.multiple` or `.none`, the
+/// orchestrator transitions to `.awaitingUserChoice` and parks via
+/// `withCheckedThrowingContinuation`. The UI layer resumes via `resume(with:)`
+/// or `skipClassification()` (SR-14875 safe — resume crosses actor boundary).
+///
 /// The orchestrator calls ``CourseClassifier.match`` (Plan 03) during the
 /// classifying stage and ``NoteNormalizer.normalize`` (Plan 01) during the
 /// normalizing stage.
@@ -32,6 +37,13 @@ public actor PipelineOrchestrator {
 
     /// The active pipeline task, if one is running. Stored so `cancel()` can reach it.
     private var activeTask: Task<Void, Error>?
+
+    /// Stored continuation for pause/resume during .awaitingUserChoice (MP-04).
+    ///
+    /// Per RESEARCH Pitfall 3 (SR-14875): The continuation is resumed from
+    /// OUTSIDE the actor (UI layer / @MainActor). This is the safe pattern.
+    /// Resuming from within the same actor can hang.
+    private var selectionContinuation: CheckedContinuation<CalendarEvent, any Error>?
 
     // MARK: - Dependencies
 
@@ -74,9 +86,10 @@ public actor PipelineOrchestrator {
     /// Per O-01: Transitions through all stages:
     /// 1. **transcribing** — calls `transcriber.transcribe(inputs.recordingURL)`
     /// 2. **classifying** — calls `CourseClassifier.match(events:against:window:)`
-    /// 3. **normalizing** — calls `NoteNormalizer.normalize(transcript:course:...)`
-    /// 4. **writing** — calls `writer.write(note, to: destinationURL)`
-    /// 5. **completed** — terminal success state
+    /// 3. **awaitingUserChoice** — if match is .multiple/.none, parks for manual selection
+    /// 4. **normalizing** — calls `NoteNormalizer.normalize(transcript:course:...)`
+    /// 5. **writing** — calls `writer.write(note, to: destinationURL)`
+    /// 6. **completed** — terminal success state
     ///
     /// Per O-02: Throws ``PipelineError/alreadyRunning`` if called while not `.idle`.
     ///
@@ -121,8 +134,16 @@ public actor PipelineOrchestrator {
     /// `CancellationError` at the next `Task.checkCancellation()` checkpoint.
     /// The executePipeline catch block sets state to `.cancelled`.
     ///
+    /// Per MP-04: If paused at `.awaitingUserChoice`, also resumes the
+    /// continuation with `CancellationError` so the parked pipeline unblocks.
+    ///
     /// If no pipeline is running, this is a no-op.
     public func cancel() {
+        // Resume any parked continuation with cancellation (T-04-10 mitigation).
+        if let cont = selectionContinuation {
+            selectionContinuation = nil
+            cont.resume(throwing: CancellationError())
+        }
         activeTask?.cancel()
     }
 
@@ -136,9 +157,48 @@ public actor PipelineOrchestrator {
         }
     }
 
+    // MARK: - Pause/Resume API (MP-04)
+
+    /// Resumes the pipeline with a user-selected course event.
+    ///
+    /// Called from the UI layer (MenuBarViewModel on @MainActor) after the user
+    /// picks a course from the picker. The method crosses the actor boundary —
+    /// Swift 6 ensures it runs within the orchestrator's actor isolation.
+    ///
+    /// Per RESEARCH Pitfall 3 (SR-14875): This method is called from OUTSIDE
+    /// the actor (UI layer), which is the safe pattern. Resuming a continuation
+    /// from within the same actor that created it can hang.
+    ///
+    /// The UI layer is responsible for converting CourseSelection -> CalendarEvent
+    /// before calling this method (keeps the orchestrator simpler and avoids
+    /// importing CoursePickerViewModel into UnibrainCore).
+    ///
+    /// - Parameter event: The user-selected calendar event to route the note to.
+    public func resume(with event: CalendarEvent) async {
+        selectionContinuation?.resume(returning: event)
+        selectionContinuation = nil
+    }
+
+    /// Skips course classification and routes to _unsorted.
+    ///
+    /// Per MP-03: The Skip button in the picker calls this method. It creates
+    /// a synthetic `_unsorted` event and resumes the continuation, so the
+    /// pipeline continues to normalizing + writing with the _unsorted folder
+    /// as the destination.
+    public func skipClassification() async {
+        let unsortedEvent = CalendarEvent(
+            id: "unsorted",
+            title: "_unsorted",
+            startDate: Date(),
+            endDate: Date()
+        )
+        selectionContinuation?.resume(returning: unsortedEvent)
+        selectionContinuation = nil
+    }
+
     // MARK: - Private Pipeline Execution
 
-    /// Executes the 4-stage pipeline. Called from within a Task in `run()`.
+    /// Executes the pipeline stages. Called from within a Task in `run()`.
     ///
     /// Sets state to `.failed(error)` or `.cancelled` before throwing so the
     /// terminal state is always consistent regardless of how the caller handles the error.
@@ -158,31 +218,37 @@ public actor PipelineOrchestrator {
                 window: 1800
             )
 
-            // Resolve vault destination from the match result.
+            // Resolve course event (may pause for user input).
+            // Per MP-04: .single proceeds directly; .multiple/.none pauses.
+            let resolvedEvent: CalendarEvent
+            switch match {
+            case .single(let event):
+                resolvedEvent = event
+            case .multiple, .none:
+                state = .awaitingUserChoice
+                try Task.checkCancellation()
+                resolvedEvent = try await resolveViaUserChoice()
+            }
+
+            // Resolve vault destination from the resolved event.
+            // The resolver always receives a .single match with the resolved event.
             let destinationURL = try resolver.resolve(
-                match: match,
+                match: .single(resolvedEvent),
                 recordingStart: inputs.recordingStart
             )
-
-            // Extract the matched course event for normalization.
-            // For .single, we have exactly one event. For .multiple/.none,
-            // the resolver decides (Phase 4 may throw or prompt).
-            guard case .single(let course) = match else {
-                // Resolver should have thrown for ambiguous matches.
-                // If we get here, it's a bug — surface as failure.
-                state = .failed(PipelineError.invalidInputs)
-                throw PipelineError.invalidInputs
-            }
 
             // Stage 3: Normalizing
             state = .normalizing
             try Task.checkCancellation()
+            // Per Pitfall 5: term and source are now parameterized.
             let note = NoteNormalizer.normalize(
                 transcript: segments,
-                course: course,
+                course: resolvedEvent,
                 audioFile: inputs.recordingURL.lastPathComponent,
                 recordingStart: inputs.recordingStart,
-                durationSeconds: inputs.durationSeconds
+                durationSeconds: inputs.durationSeconds,
+                term: inputs.termLabel,
+                source: inputs.source
             )
 
             // Stage 4: Writing
@@ -201,6 +267,20 @@ public actor PipelineOrchestrator {
             // O-03: Fail-fast — any error transitions to terminal .failed state.
             state = .failed(error)
             throw error
+        }
+    }
+
+    /// Suspends the orchestrator cooperatively until the UI layer resumes the continuation.
+    ///
+    /// Per RESEARCH Pattern 2: Uses `withCheckedThrowingContinuation` to park
+    /// the pipeline at `.awaitingUserChoice`. The continuation is stored as
+    /// actor state; it is resumed from OUTSIDE the actor via `resume(with:)`
+    /// or `skipClassification()` (safe per Pitfall 3 / SR-14875).
+    ///
+    /// - Returns: The user-selected CalendarEvent to route the note to.
+    private func resolveViaUserChoice() async throws -> CalendarEvent {
+        return try await withCheckedThrowingContinuation { continuation in
+            self.selectionContinuation = continuation
         }
     }
 }

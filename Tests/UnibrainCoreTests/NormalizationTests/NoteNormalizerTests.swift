@@ -124,7 +124,9 @@ struct NoteNormalizerNormalizeTests {
             course: course,
             audioFile: "lecture.m4a",
             recordingStart: Date(timeIntervalSince1970: 1_700_000_000),
-            durationSeconds: 5400
+            durationSeconds: 5400,
+            term: "Fall 2026",
+            source: "MacBook Air"
         )
 
         // Per N-02: H1 title format = YYYY-MM-DD — {course_code} Lecture
@@ -146,7 +148,9 @@ struct NoteNormalizerNormalizeTests {
             course: course,
             audioFile: "lecture-2026-09-14.m4a",
             recordingStart: Date(timeIntervalSince1970: 1_700_000_000),
-            durationSeconds: 5400
+            durationSeconds: 5400,
+            term: "Fall 2026",
+            source: "MacBook Air"
         )
 
         // Per N-01 and WRITE-03: audio wiki-link ![[filename]] near top of body
@@ -161,7 +165,9 @@ struct NoteNormalizerNormalizeTests {
             course: course,
             audioFile: "lecture.m4a",
             recordingStart: Date(timeIntervalSince1970: 1_700_000_000),
-            durationSeconds: 5400
+            durationSeconds: 5400,
+            term: "Fall 2026",
+            source: "MacBook Air"
         )
 
         let wikiLinkRange = note.body.range(of: "![[lecture.m4a]]")
@@ -181,7 +187,9 @@ struct NoteNormalizerNormalizeTests {
             course: course,
             audioFile: "lecture.m4a",
             recordingStart: Date(timeIntervalSince1970: 1_700_000_000),
-            durationSeconds: 5400
+            durationSeconds: 5400,
+            term: "Fall 2026",
+            source: "MacBook Air"
         )
 
         #expect(note.body.contains("## Transcript"))
@@ -195,7 +203,9 @@ struct NoteNormalizerNormalizeTests {
             course: course,
             audioFile: "lecture.m4a",
             recordingStart: Date(timeIntervalSince1970: 1_700_000_000),
-            durationSeconds: 5400
+            durationSeconds: 5400,
+            term: "Fall 2026",
+            source: "MacBook Air"
         )
 
         // The transcript has a gap of 8s between segments 2 and 3,
@@ -218,7 +228,9 @@ struct NoteNormalizerNormalizeTests {
             course: course,
             audioFile: "lecture.m4a",
             recordingStart: Date(timeIntervalSince1970: 1_700_000_000),
-            durationSeconds: 5400
+            durationSeconds: 5400,
+            term: "Fall 2026",
+            source: "MacBook Air"
         )
 
         let fm = note.frontmatter
@@ -246,7 +258,9 @@ struct NoteNormalizerNormalizeTests {
             course: course,
             audioFile: "lecture.m4a",
             recordingStart: Date(timeIntervalSince1970: 1_700_000_000),
-            durationSeconds: 5400
+            durationSeconds: 5400,
+            term: "Fall 2026",
+            source: "MacBook Air"
         )
 
         // If validate() was called and passed, frontmatter is valid
@@ -265,7 +279,9 @@ struct NoteNormalizerNormalizeTests {
             course: course,
             audioFile: "lecture.m4a",
             recordingStart: Date(timeIntervalSince1970: 1_700_000_000),
-            durationSeconds: 5400
+            durationSeconds: 5400,
+            term: "Fall 2026",
+            source: "MacBook Air"
         )
 
         // Per N-01: ## Summary section is added in Phase 6 only when
@@ -283,7 +299,9 @@ struct NoteNormalizerNormalizeTests {
             course: course,
             audioFile: "lecture.m4a",
             recordingStart: Date(timeIntervalSince1970: 1_700_000_000),
-            durationSeconds: 5400
+            durationSeconds: 5400,
+            term: "Fall 2026",
+            source: "MacBook Air"
         )
 
         // course field should be sanitized version of course.title

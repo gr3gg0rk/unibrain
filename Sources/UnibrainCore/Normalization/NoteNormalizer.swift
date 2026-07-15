@@ -63,19 +63,27 @@ public struct NoteNormalizer {
     /// Per WRITE-02: FrontmatterSchema with all 12 fields is created and validated.
     /// Per WRITE-03: Audio file is referenced via `![[filename]]` wiki-link syntax.
     ///
+    /// Per RESEARCH Pitfall 5: `term` and `source` are now parameters instead of
+    /// hardcoded values. The caller passes the real term label (from CT-01/courses.json)
+    /// and source device name (from PipelineInputs.source).
+    ///
     /// - Parameters:
     ///   - transcript: Array of (start, end, text) tuples from ASR backend (N-03).
     ///   - course: The matched calendar event for this recording.
     ///   - audioFile: Audio filename for the wiki-link reference.
     ///   - recordingStart: Timestamp when recording started.
     ///   - durationSeconds: Recording duration in seconds.
+    ///   - term: Academic term label (e.g., "Fall 2026") from CT-01.
+    ///   - source: Source device name (e.g., "MacBook Air", "iPhone").
     /// - Returns: ``NormalizedNote`` ready for NoteWriter consumption.
     public static func normalize(
         transcript: [(start: TimeInterval, end: TimeInterval, text: String)],
         course: CalendarEvent,
         audioFile: String,
         recordingStart: Date,
-        durationSeconds: Int
+        durationSeconds: Int,
+        term: String,
+        source: String
     ) -> NormalizedNote {
         // Group segments into paragraphs (N-03, N-04)
         let paragraphs = groupParagraphs(segments: transcript)
@@ -102,14 +110,15 @@ public struct NoteNormalizer {
         let body = "\(title)\n\(audioLink)\n\(transcriptBody)"
 
         // Build frontmatter (WRITE-02) — all 12 fields
+        // Per Pitfall 5: term and source are now parameters, not hardcoded values.
         let frontmatter = FrontmatterSchema(
             schemaVersion: 1,
             course: sanitizedCourse,
             courseName: course.title,
-            term: "Fall 2026",
+            term: term,
             datetime: recordingStart,
             durationSeconds: durationSeconds,
-            source: "MacBook Air",
+            source: source,
             audioFile: audioFile,
             tags: ["lecture"],
             syllabusLink: nil,
