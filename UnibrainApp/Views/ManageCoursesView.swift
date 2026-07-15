@@ -148,25 +148,28 @@ struct ManageCoursesView: View {
     // MARK: - Actions
 
     private func loadMappings() async {
-        // Load from view model's store (if available)
-        // The view model holds the CourseMappingStore reference
-        // For now, use empty until wired in UnibrainApp init
-        mappings = [:]
+        mappings = await viewModel.loadAllMappings()
     }
 
     private func addMapping() {
-        let mapping = CourseMapping(
-            courseCode: newCourseCode,
-            courseName: newCourseName.isEmpty ? newCourseCode : newCourseName
-        )
-        mappings[newEventTitle] = mapping
+        let title = newEventTitle
+        let code = newCourseCode
+        let name = newCourseName.isEmpty ? newCourseCode : newCourseName
+        let mapping = CourseMapping(courseCode: code, courseName: name)
+        mappings[title] = mapping
         showingAddForm = false
         newEventTitle = ""
         newCourseCode = ""
         newCourseName = ""
+        Task {
+            await viewModel.addMapping(eventTitle: title, code: code, name: name)
+        }
     }
 
     private func deleteMapping(_ key: String) {
         mappings.removeValue(forKey: key)
+        Task {
+            await viewModel.deleteMapping(eventTitle: key)
+        }
     }
 }

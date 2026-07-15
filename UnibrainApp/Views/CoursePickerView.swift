@@ -176,15 +176,18 @@ struct CoursePickerView: View {
 
     // MARK: - Course Filtering
 
-    /// Note: courses are derived from the view model's picker state.
-    /// In a real implementation, these come from CoursePickerViewModel.
-    /// For now, use empty arrays as fallback — the picker loads on demand.
+    /// Recent courses from the view model's CoursePickerViewModel data.
     private var recentCourses: [CourseSummary] {
-        []
+        viewModel.pickerRecentCourses
     }
 
+    /// Filtered courses from the view model, with local search applied.
     private var filteredCourses: [CourseSummary] {
-        []
+        guard !searchQuery.isEmpty else { return viewModel.pickerFilteredCourses }
+        let needle = searchQuery.lowercased()
+        return viewModel.pickerFilteredCourses.filter { course in
+            course.code.lowercased().contains(needle) || course.name.lowercased().contains(needle)
+        }
     }
 
     // MARK: - Helpers
