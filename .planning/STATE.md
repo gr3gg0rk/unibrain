@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 03
-current_phase_name: macos-capture-transcribe
+current_phase: 04
+current_phase_name: course-classification-smart-routing
 status: executing
 stopped_at: Completed 03-04-PLAN.md (code); awaiting Task 4 macOS device verification
-last_updated: "2026-07-15T00:00:00.000Z"
+last_updated: "2026-07-15T21:00:17.241Z"
 last_activity: 2026-07-15
-last_activity_desc: Phase 03 Plan 04 code complete + SUMMARY written; NoteWriter Sendable fix landed
+last_activity_desc: Phase 04 execution started
 progress:
   total_phases: 6
-  completed_phases: 2
-  total_plans: 12
-  completed_plans: 12
-  percent: 34
+  completed_phases: 3
+  total_plans: 17
+  completed_plans: 13
+  percent: 50
 ---
 
 # Project State
@@ -24,14 +24,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-13)
 
 **Core value:** Every recording lands in the right course folder, transcribed and optionally summarized, without the student ever manually organizing it.
-**Current focus:** Phase 03 — macos-capture-transcribe
+**Current focus:** Phase 04 — course-classification-smart-routing
 
 ## Current Position
 
-Phase: 03 (macos-capture-transcribe) — EXECUTING (Task 4 human-verify pending)
-Plan: 4 of 4 (code complete; awaiting macOS device verification)
-Status: 03-04 code + SUMMARY landed; NoteWriter Sendable fix landed
-Last activity: 2026-07-15 — 03-04 SUMMARY written + NoteWriter.swift:19 fix
+Phase: 04 (course-classification-smart-routing) — EXECUTING
+Plan: 2 of 5
+Status: Ready to execute
+Last activity: 2026-07-15 — Phase 04 execution started
 
 Progress: [██░░░░░░░░] 34%
 
@@ -66,6 +66,7 @@ Progress: [██░░░░░░░░] 34%
 | Phase 03 P01 | 15m | 2 tasks | 4 files |
 | Phase 03 P02 | 32m | 2 tasks | 9 files |
 | Phase 03 P03 | 9m | 2 tasks | 5 files |
+| Phase 04 P01 | 5m | 1 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -102,6 +103,8 @@ Recent decisions affecting current work:
 - [Phase ?]: Phase 03 Plan 04: MenuBarViewModel uses @Observable @MainActor (iOS 17+/macOS 14+) instead of ObservableObject — matches deployment targets, removes Combine thread-hop overhead
 - [Phase ?]: Phase 03 Plan 04: Task.detached(priority: .userInitiated) for pipeline dispatch — keeps MainActor free so menu bar stays interactive (TRAN-03)
 - [Phase ?]: Phase 03 Plan 04: NoteWriter protocol marked Sendable to match PipelineTranscriber/VaultPathResolver and unblock Swift 6 strict concurrency at PipelineOrchestrator.swift:191
+- [Phase ?]: Phase 04 Plan 01: CourseMappingStore methods are async throws (Swift 6 actor isolation)
+- [Phase ?]: Phase 04 Plan 01: load() returns .empty on malformed JSON (T-04-02); atomic writes for iCloud safety (T-04-03)
 
 ### Pending Todos
 
@@ -131,7 +134,7 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-15T18:20:00Z
+Last session: 2026-07-15T21:00:03.638Z
 Stopped at: Phase 02 verification flipped to passed (CI 29439950523 green, 6-iteration Phase 03 build-fix loop landed). Phase 03 still executing — 4/4 plans done, Task 4 macOS device verification outstanding.
 Resume file: None
 Next action: Phase 03 macOS device verification (Task 4 of 03-04), then resume autonomous chain `/gsd-autonomous --from 4 --to 6`

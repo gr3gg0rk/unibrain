@@ -28,12 +28,12 @@ Requirements for the MVP "Record-to-Obsidian" release. Each maps to a roadmap ph
 ### Classify
 
 - [ ] **CLAS-01**: EventKit queries calendar events overlapping `recordingStart ± 30min` to identify the current course
-- [ ] **CLAS-02**: Maps matched event title → course folder via a settings-driven course mapping table
+- [x] **CLAS-02**: Maps matched event title → course folder via a settings-driven course mapping table
 - [ ] **CLAS-03**: Auto-creates a course folder for unrecognized event titles (sanitized)
 - [ ] **CLAS-04**: Manual course picker fallback shown when zero or multiple events match (recent courses + search)
-- [ ] **CLAS-05**: Multi-term folder structure: `{vault}/{term}/{course-code}/`
+- [x] **CLAS-05**: Multi-term folder structure: `{vault}/{term}/{course-code}/`
 - [ ] **CLAS-06**: "Current term" setting that filters out past-term calendar events from classification
-- [ ] **CLAS-07**: Manual override is remembered per course for the next recording
+- [x] **CLAS-07**: Manual override is remembered per course for the next recording
 
 ### Transcribe
 
@@ -193,12 +193,12 @@ Explicit exclusions documented to prevent scope creep.
 | TRAN-05 | Phase 3 | Complete |
 | TRAN-06 | Phase 3 | Complete |
 | CLAS-01 | Phase 4 | Pending |
-| CLAS-02 | Phase 4 | Pending |
+| CLAS-02 | Phase 4 | Complete |
 | CLAS-03 | Phase 4 | Pending |
 | CLAS-04 | Phase 4 | Pending |
-| CLAS-05 | Phase 4 | Pending |
+| CLAS-05 | Phase 4 | Complete |
 | CLAS-06 | Phase 4 | Pending |
-| CLAS-07 | Phase 4 | Pending |
+| CLAS-07 | Phase 4 | Complete |
 | ONBD-02 | Phase 4 | Pending |
 | ONBD-03 | Phase 4 | Pending |
 | CAPT-03 | Phase 5 | Pending |
