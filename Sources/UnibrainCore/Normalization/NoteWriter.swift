@@ -16,7 +16,7 @@ import Foundation
 /// Phase 3's `NSFileCoordinatorNoteWriter` is the production conformance;
 /// `TestNoteWriter` (in tests) is the Linux-testable conformance using
 /// pure Foundation `FileManager` with `.atomic` writes.
-public protocol NoteWriter {
+public protocol NoteWriter: Sendable {
     /// Write the given note to the destination URL atomically.
     ///
     /// - Parameters:
