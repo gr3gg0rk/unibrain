@@ -2,6 +2,11 @@
 .build/
 .swiftpm/
 DerivedData/
+# Stray SwiftPM incremental artifacts (leak into cwd on WSL2)
+*.d
+*.o
+*.swiftdeps
+*.swiftdeps~
 
 # IDE / editor
 *.xcodeproj/

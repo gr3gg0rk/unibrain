@@ -7,7 +7,7 @@ import Foundation
 /// `id` enables stable identity across recurrences; `location` is optional.
 ///
 /// `Codable` conformance enables Phase 4 EventKit adapter serialization if needed.
-public struct CalendarEvent: Codable, Sendable {
+public struct CalendarEvent: Codable, Sendable, Equatable {
     /// Stable identifier (e.g., EventKit identifier or UUID for tests).
     public let id: String
     /// Event title (e.g., "Intro to Computer Science").

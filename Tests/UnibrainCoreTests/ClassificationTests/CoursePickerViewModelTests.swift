@@ -58,11 +58,10 @@ struct CoursePickerViewModelTests {
             courses: makeCourses(),
             recentCodes: []
         )
-        vm.searchQuery = "cs"
+        // "cs" matches CS101, CS202 (codes) AND PHIL150 ("Ethics" contains "cs")
+        vm.searchQuery = "CS101"
         let codes = vm.filteredCourses.map(\.code)
-        #expect(codes.count == 2)
-        #expect(codes.contains("CS101"))
-        #expect(codes.contains("CS202"))
+        #expect(codes == ["CS101"])
     }
 
     @Test("filteredCourses filters by name case-insensitive")
