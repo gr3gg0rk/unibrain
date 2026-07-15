@@ -216,8 +216,8 @@ struct AudioRecorderTests {
     func startWithInvalidURLThrows() {
         #if canImport(AVFoundation)
         let recorder = AudioRecorder()
-        // A URL to a non-existent directory should fail
-        let badURL = URL(fileURLWithPath: "/nonexistent/dir/that/does/not/exist/recording.m4a")
+        // /dev/null is a file, not a directory — any path under it is guaranteed to fail
+        let badURL = URL(fileURLWithPath: "/dev/null/subdir/recording.m4a")
 
         #expect(throws: (any Error).self) {
             try recorder.start(to: badURL)

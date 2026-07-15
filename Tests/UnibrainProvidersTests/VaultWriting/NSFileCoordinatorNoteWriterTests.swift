@@ -31,9 +31,9 @@ struct NSFileCoordinatorNoteWriterTests {
             source: "MacBook Neo",
             audioFile: "2026-07-14-Lecture.m4a",
             tags: ["lecture", "test"],
-            syllabusLink: nil,
-            vectorId: nil,
-            summaryModel: nil
+            syllabusLink: "https://example.com/syllabus",
+            vectorId: "vec-001",
+            summaryModel: "llama-3.2-3b"
         )
         return NormalizedNote(
             title: "# Test Lecture",
@@ -111,12 +111,27 @@ struct NSFileCoordinatorNoteWriterTests {
         defer { try? FileManager.default.removeItem(at: dir) }
 
         let dest = dir.appendingPathComponent("lecture.md")
-        // Create the .icloud placeholder file
+        // Create the .icloud placeholder file — iCloud Drive uses .{filename}.icloud naming
         let iCloudFile = dir.appendingPathComponent(".lecture.icloud")
         try Data().write(to: iCloudFile)
 
-        await #expect(throws: NoteWriterError.self) {
+        // Verify the placeholder file exists (sanity check for CI environment)
+        #expect(FileManager.default.fileExists(atPath: iCloudFile.path))
+
+        do {
             try await writer.write(note, to: dest)
+            // If write succeeded, the .icloud detection may not have triggered.
+            // This can happen on macOS without iCloud Drive configured.
+            // Log as issue rather than hard failure.
+            Issue.record("Expected iCloudPlaceholder error but write succeeded")
+        } catch let error as NoteWriterError {
+            if case .iCloudPlaceholder = error {
+                // Expected
+            } else {
+                Issue.record("Expected .iCloudPlaceholder but got: \(error)")
+            }
+        } catch {
+            Issue.record("Expected NoteWriterError but got: \(error)")
         }
     }
 
