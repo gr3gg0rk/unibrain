@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 03
 current_phase_name: macos-capture-transcribe
 status: executing
-stopped_at: Completed 03-03-PLAN.md
-last_updated: "2026-07-15T04:02:44.864Z"
+stopped_at: Completed 03-04-PLAN.md (code); awaiting Task 4 macOS device verification
+last_updated: "2026-07-15T00:00:00.000Z"
 last_activity: 2026-07-15
-last_activity_desc: Phase 03 execution started
+last_activity_desc: Phase 03 Plan 04 code complete + SUMMARY written; NoteWriter Sendable fix landed
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 12
-  completed_plans: 11
-  percent: 33
+  completed_plans: 12
+  percent: 34
 ---
 
 # Project State
@@ -28,12 +28,12 @@ See: .planning/PROJECT.md (updated 2026-07-13)
 
 ## Current Position
 
-Phase: 03 (macos-capture-transcribe) — EXECUTING
-Plan: 4 of 4
-Status: Ready to execute
-Last activity: 2026-07-15 — Phase 03 execution started
+Phase: 03 (macos-capture-transcribe) — EXECUTING (Task 4 human-verify pending)
+Plan: 4 of 4 (code complete; awaiting macOS device verification)
+Status: 03-04 code + SUMMARY landed; NoteWriter Sendable fix landed
+Last activity: 2026-07-15 — 03-04 SUMMARY written + NoteWriter.swift:19 fix
 
-Progress: [█░░░░░░░░░] 17%
+Progress: [██░░░░░░░░] 34%
 
 ## Performance Metrics
 
@@ -99,6 +99,9 @@ Recent decisions affecting current work:
 - [Phase ?]: Phase 03 Plan 02: ProviderError.unsupportedPlatform added (Rule 2) and ModelLoadGate.shared singleton added (Rule 3)
 - [Phase ?]: Phase 03 Plan 03: NSFileCoordinator uses .forReplacing option + Data.write(.atomic) for double-layered atomicity
 - [Phase ?]: Phase 03 Plan 03: HardcodedVaultResolver ignores CourseMatch — Phase 3 all recordings UNCLASSIFIED per P-14
+- [Phase ?]: Phase 03 Plan 04: MenuBarViewModel uses @Observable @MainActor (iOS 17+/macOS 14+) instead of ObservableObject — matches deployment targets, removes Combine thread-hop overhead
+- [Phase ?]: Phase 03 Plan 04: Task.detached(priority: .userInitiated) for pipeline dispatch — keeps MainActor free so menu bar stays interactive (TRAN-03)
+- [Phase ?]: Phase 03 Plan 04: NoteWriter protocol marked Sendable to match PipelineTranscriber/VaultPathResolver and unblock Swift 6 strict concurrency at PipelineOrchestrator.swift:191
 
 ### Pending Todos
 
@@ -128,7 +131,7 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-15T04:02:44.855Z
-Stopped at: Completed 03-03-PLAN.md
+Last session: 2026-07-15T00:00:00.000Z
+Stopped at: 03-04 code complete + SUMMARY written; NoteWriter Sendable fix landed
 Resume file: None
-Next action: /clear then /gsd-autonomous --from 3 --to 6
+Next action: Phase 3 human verification on macOS device (Task 4 of 03-04), then /gsd-autonomous --from 4 --to 6
