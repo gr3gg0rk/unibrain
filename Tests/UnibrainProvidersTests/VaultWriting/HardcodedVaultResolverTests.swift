@@ -140,14 +140,17 @@ struct HardcodedVaultResolverTests {
 struct PipelineWiringTests {
 
     @Test("makeOrchestrator returns a PipelineOrchestrator")
-    func makeOrchestratorReturnsOrchestrator() throws {
+    func makeOrchestratorReturnsOrchestrator() async throws {
         let modelPath = FileManager.default.temporaryDirectory
             .appendingPathComponent("ggml-small.en.bin")
 
         let orchestrator = PipelineWiring.makeOrchestrator(modelPath: modelPath)
 
         // Verify the orchestrator is in idle state
-        #expect(await orchestrator.currentState == .idle)
+        let state = await orchestrator.currentState
+        if case .idle = state { /* success */ } else {
+            Issue.record("Expected .idle, got: \(state)")
+        }
     }
 
     @Test("makeRecordingSession returns a RecordingSession")

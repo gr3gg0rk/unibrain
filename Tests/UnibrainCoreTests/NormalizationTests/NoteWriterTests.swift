@@ -350,8 +350,8 @@ private struct TestNoteWriter: NoteWriter {
             throw NoteWriterError.underlying(error)
         }
 
-        // Build full Markdown content: frontmatter block + body
-        let content = "---\n\(yamlFrontmatter)---\n\n\(note.body)"
+        // Build full Markdown content: frontmatter block + title + body
+        let content = "---\n\(yamlFrontmatter)---\n\n\(note.title)\n\n\(note.body)"
 
         // WRITE-04: Atomic write via FileManager .atomic option
         // String.write(to:atomically:encoding:) uses POSIX rename(2) which
