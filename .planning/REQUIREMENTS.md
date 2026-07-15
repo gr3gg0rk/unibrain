@@ -49,9 +49,9 @@ Requirements for the MVP "Record-to-Obsidian" release. Each maps to a roadmap ph
 - [x] **WRITE-01**: Markdown note written to `{vault}/{term}/{course-code}/YYYY-MM-DD-{COURSE}-Lecture.md`
 - [x] **WRITE-02**: YAML frontmatter includes: `schema_version`, `course`, `course_name`, `term`, `datetime`, `duration_seconds`, `source`, `audio_file`, `tags`, `syllabus_link` (null in v1), `vector_id` (null in v1), `summary_model` (null unless summarized)
 - [x] **WRITE-03**: Audio file written alongside note and referenced via Obsidian wiki-link (`![[...]]`)
-- [ ] **WRITE-04**: Atomic write via `NSFileCoordinator` to avoid corruption with iCloud Drive sync
-- [ ] **WRITE-05**: `.icloud` placeholder files (not-yet-downloaded iCloud Drive files) are detected and skipped gracefully
-- [ ] **WRITE-06**: Write failures surface a clear error to the user with retry, never silently drop a recording
+- [x] **WRITE-04**: Atomic write via `NSFileCoordinator` to avoid corruption with iCloud Drive sync
+- [x] **WRITE-05**: `.icloud` placeholder files (not-yet-downloaded iCloud Drive files) are detected and skipped gracefully
+- [x] **WRITE-06**: Write failures surface a clear error to the user with retry, never silently drop a recording
 
 ### Summarize
 
@@ -178,9 +178,9 @@ Explicit exclusions documented to prevent scope creep.
 | WRITE-01 | Phase 2 | Complete |
 | WRITE-02 | Phase 2 | Complete |
 | WRITE-03 | Phase 2 | Complete |
-| WRITE-04 | Phase 2 | Pending |
-| WRITE-05 | Phase 2 | Pending |
-| WRITE-06 | Phase 2 | Pending |
+| WRITE-04 | Phase 2 | Complete |
+| WRITE-05 | Phase 2 | Complete |
+| WRITE-06 | Phase 2 | Complete |
 | CAPT-01 | Phase 3 | Pending |
 | CAPT-02 | Phase 3 | Pending |
 | CAPT-04 | Phase 3 | Pending |
