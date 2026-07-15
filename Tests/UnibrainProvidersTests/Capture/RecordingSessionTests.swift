@@ -68,7 +68,7 @@ struct RecordingSessionTests {
 
         #expect(await session.currentState == .recording)
 
-        await session.stop()
+        _ = try await session.stop()
         #else
         // macOS-only test — runs on CI
         #endif
@@ -89,7 +89,7 @@ struct RecordingSessionTests {
         try await session.pause()
         #expect(await session.currentState == .paused)
 
-        await session.stop()
+        _ = try await session.stop()
         #else
         // macOS-only test — runs on CI
         #endif
@@ -111,7 +111,7 @@ struct RecordingSessionTests {
         try await session.resume()
         #expect(await session.currentState == .recording)
 
-        await session.stop()
+        _ = try await session.stop()
         #else
         // macOS-only test — runs on CI
         #endif
@@ -186,7 +186,7 @@ struct RecordingSessionTests {
             try await session.startRecording(destination: dest)
         }
 
-        await session.stop()
+        _ = try await session.stop()
         #else
         // macOS-only test — runs on CI
         #endif
@@ -211,7 +211,7 @@ struct RecordingSessionTests {
         #expect(elapsed > 0.1, "elapsedSeconds should be > 0.1 after 0.3s recording")
         #expect(elapsed < 2.0, "elapsedSeconds should be reasonable (< 2.0s)")
 
-        await session.stop()
+        _ = try await session.stop()
         #else
         // macOS-only test — runs on CI
         #endif
@@ -242,7 +242,7 @@ struct RecordingSessionTests {
 
         let elapsedAfterResume = await session.elapsedSeconds
 
-        await session.stop()
+        _ = try await session.stop()
 
         // Elapsed while paused should be frozen (not include pause time)
         #expect(elapsedWhilePaused <= elapsedBeforePause + 0.05,

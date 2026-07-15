@@ -1,5 +1,9 @@
 import Testing
 import Foundation
+#if canImport(AVFoundation)
+import AVFoundation
+import AVFAudio
+#endif
 @testable import UnibrainProviders
 
 @Suite("AudioRecorder")

@@ -76,7 +76,7 @@ struct ProviderProtocolTests {
 
     // MARK: - ProviderError All-Cases Coverage
 
-    @Test("All six ProviderError cases are constructible and catchable")
+    @Test("All ProviderError cases are constructible and catchable")
     func providerErrorAllCasesConstructible() async throws {
         let errors: [ProviderError] = [
             .networkFailure(
@@ -87,7 +87,8 @@ struct ProviderProtocolTests {
             .rateLimited(retryAfter: 60),
             .invalidResponse("bad response"),
             .cancelled,
-            .underlying(NSError(domain: "test", code: 1))
+            .underlying(NSError(domain: "test", code: 1)),
+            .unsupportedPlatform
         ]
 
         for error in errors {
@@ -107,6 +108,8 @@ struct ProviderProtocolTests {
                 case .cancelled:
                     break
                 case .underlying:
+                    break
+                case .unsupportedPlatform:
                     break
                 }
             } catch {
