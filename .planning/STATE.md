@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 04
 current_phase_name: course-classification-smart-routing
 status: executing
-stopped_at: Completed 04-03-PLAN.md
-last_updated: "2026-07-15T21:17:47.546Z"
+stopped_at: Completed 04-04-PLAN.md
+last_updated: "2026-07-15T21:27:29.145Z"
 last_activity: 2026-07-15
 last_activity_desc: Phase 04 execution started
 progress:
   total_phases: 6
   completed_phases: 3
   total_plans: 17
-  completed_plans: 15
+  completed_plans: 16
   percent: 50
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-13)
 ## Current Position
 
 Phase: 04 (course-classification-smart-routing) — EXECUTING
-Plan: 4 of 5
+Plan: 5 of 5
 Status: Ready to execute
 Last activity: 2026-07-15 — Phase 04 execution started
 
@@ -69,6 +69,7 @@ Progress: [██░░░░░░░░] 34%
 | Phase 04 P01 | 5m | 1 tasks | 3 files |
 | Phase 04 P02 | 5m | 2 tasks | 5 files |
 | Phase 04 P03 | 6m | 2 tasks | 6 files |
+| Phase 04 P04 | 6m | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -111,6 +112,8 @@ Recent decisions affecting current work:
 - [Phase ?]: Phase 04 Plan 02: Sendable proof test uses async Task — avoids Swift 6.0.3 compiler crash on any Sendable existential
 - [Phase ?]: Phase 04 Plan 03: CoursePickerViewModel plain class (not @Observable) — SwiftUI adapter in UnibrainApp
 - [Phase ?]: Phase 04 Plan 03: Added Equatable to CalendarEvent for CourseSelection synthesis
+- [Phase ?]: Phase 04 Plan 04: CheckedContinuation stored as actor state, resumed from outside (UI/@MainActor) — SR-14875 safe pattern
+- [Phase ?]: Phase 04 Plan 04: Resolver receives mapping snapshot as plain dict at init — no actor dependency, no async calls in resolve()
 
 ### Pending Todos
 
@@ -140,7 +143,7 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-15T21:17:39.979Z
-Stopped at: Completed 04-03-PLAN.md
+Last session: 2026-07-15T21:27:29.128Z
+Stopped at: Completed 04-04-PLAN.md
 Resume file: None
 Next action: Phase 03 macOS device verification (Task 4 of 03-04), then resume autonomous chain `/gsd-autonomous --from 4 --to 6`

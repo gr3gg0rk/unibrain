@@ -29,7 +29,7 @@ Requirements for the MVP "Record-to-Obsidian" release. Each maps to a roadmap ph
 
 - [x] **CLAS-01**: EventKit queries calendar events overlapping `recordingStart ± 30min` to identify the current course
 - [x] **CLAS-02**: Maps matched event title → course folder via a settings-driven course mapping table
-- [ ] **CLAS-03**: Auto-creates a course folder for unrecognized event titles (sanitized)
+- [x] **CLAS-03**: Auto-creates a course folder for unrecognized event titles (sanitized)
 - [x] **CLAS-04**: Manual course picker fallback shown when zero or multiple events match (recent courses + search)
 - [x] **CLAS-05**: Multi-term folder structure: `{vault}/{term}/{course-code}/`
 - [x] **CLAS-06**: "Current term" setting that filters out past-term calendar events from classification
@@ -194,7 +194,7 @@ Explicit exclusions documented to prevent scope creep.
 | TRAN-06 | Phase 3 | Complete |
 | CLAS-01 | Phase 4 | Complete |
 | CLAS-02 | Phase 4 | Complete |
-| CLAS-03 | Phase 4 | Pending |
+| CLAS-03 | Phase 4 | Complete |
 | CLAS-04 | Phase 4 | Complete |
 | CLAS-05 | Phase 4 | Complete |
 | CLAS-06 | Phase 4 | Complete |
