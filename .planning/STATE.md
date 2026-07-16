@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 06
 current_phase_name: Gated Summarization + Cloud Providers + MVP Polish
 status: executing
-stopped_at: Completed 06-03-PLAN.md
-last_updated: "2026-07-16T20:57:31.019Z"
+stopped_at: Completed 06-04-PLAN.md
+last_updated: "2026-07-16T21:29:00.000Z"
 last_activity: 2026-07-16
-last_activity_desc: Phase 06 execution started
+last_activity_desc: Completed 06-04 Consent Gate UI + Cloud Failure Recovery
 progress:
   total_phases: 6
   completed_phases: 5
   total_plans: 27
-  completed_plans: 24
-  percent: 85
+  completed_plans: 25
+  percent: 88
 ---
 
 # Project State
@@ -29,11 +29,11 @@ See: .planning/PROJECT.md (updated 2026-07-13)
 ## Current Position
 
 Phase: 06 (Gated Summarization + Cloud Providers + MVP Polish) — EXECUTING
-Plan: 3 of 6
+Plan: 4 of 6
 Status: Ready to execute
-Last activity: 2026-07-16 — Phase 06 execution started
+Last activity: 2026-07-16 — Completed 06-04 Consent Gate UI + Cloud Failure Recovery
 
-Progress: [██░░░░░░░░] 34%
+Progress: [██░░░░░░░░] 37%
 
 ## Performance Metrics
 
@@ -77,6 +77,7 @@ Progress: [██░░░░░░░░] 34%
 | Phase 05 P03 | 12min | 2 tasks | 13 files |
 | Phase 06 P02 | 17m | 5 tasks | 16 files |
 | Phase 06 P03 | 12m | 6 tasks | 16 files |
+| Phase 06 P04 | 11m | 5 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -137,6 +138,10 @@ Recent decisions affecting current work:
 - [Phase ?]: Phase 06 Plan 03: OpenAICompatibleClient factors shared HTTP logic for Grok + Z.ai (both OpenAI-compatible)
 - [Phase ?]: Phase 06 Plan 03: APIKeyStoring + ConsentStoring protocols enable test injection without Keychain dependency
 - [Phase ?]: Phase 06 Plan 03: Anthropic uses x-api-key (NOT Bearer) + anthropic-version: 2023-06-01 header
+- [Phase ?]: Phase 06 Plan 04: ConsentViewModel is @unchecked Sendable final class with internal DispatchQueue locking (not actor) for synchronous UI binding
+- [Phase ?]: Phase 06 Plan 04: ConsentStoring protocol extended with consentRecord(for:modality:) — exposes alwaysAllow flag without breaking actor isolation
+- [Phase ?]: Phase 06 Plan 04: PopoverOverlay uses stable String identifiers for consentSheet/cloudFailure cases (CloudFailureContext non-Equatable)
+- [Phase ?]: Phase 06 Plan 04: ProviderRouter keeps both 06-03 and 06-04 initializers — backward compatible
 
 ### Pending Todos
 
@@ -165,10 +170,11 @@ None yet.
 | 03 | verification_deferred_human (Task 4 macOS device verify) | /gsd-verify-work 03 |
 | 04 | verification_deferred_human (04-05 Task 3 macOS device verify — 8 scenarios) | /gsd-verify-work 04 |
 | 05 | verification_deferred_human (05-02 Task 3 iOS device verify — 3 scenarios) | /gsd-verify-work 05 |
+| 06 | ui_deferred_macos (06-04 Tasks 2 & 4 — ConsentSheet + CloudFailureSheet UI verify on macOS) | /gsd-verify-work 06 |
 
 ## Session Continuity
 
-Last session: 2026-07-16T21:13:00.000Z
-Stopped at: Completed 06-03-PLAN.md
+Last session: 2026-07-16T21:29:00.000Z
+Stopped at: Completed 06-04-PLAN.md
 Resume file: None
-Next action: Phase 03 macOS device verification (Task 4 of 03-04), then resume autonomous chain `/gsd-autonomous --from 4 --to 6`
+Next action: Continue Phase 06 with 06-05-PLAN.md, then 06-06-PLAN.md

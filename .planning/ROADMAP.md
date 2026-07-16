@@ -183,7 +183,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 **Wave 3** (depends on 06-01, 06-02, 06-03):
 
-- [ ] 06-04-PLAN.md — Consent gate + failure recovery UI (ConsentSheet, CloudFailureSheet, ConsentViewModel, FailureRecoveryViewModel)
+- [x] 06-04-PLAN.md — Consent gate + failure recovery UI (ConsentSheet, CloudFailureSheet, ConsentViewModel, FailureRecoveryViewModel)
 - [ ] 06-05-PLAN.md — macOS Settings UI (SettingsScene, ProvidersTab, GeneralTab with Ollama callouts, CoursesTab, PermissionsTab)
 
 **Wave 4** (depends on 06-05):
@@ -202,4 +202,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 3. macOS Capture + Transcribe | 4/4 | Code complete — Task 4 macOS verification pending |  |
 | 4. Course Classification + Smart Routing | 6/6 | Complete    | 2026-07-15 |
 | 5. iOS Capture + iCloud Handoff + Onboarding | 3/3 | Complete   | 2026-07-16 |
-| 6. Gated Summarization + Cloud Providers + MVP Polish | 2/6 | In Progress|  |
+| 6. Gated Summarization + Cloud Providers + MVP Polish | 3/6 | In Progress|  |
