@@ -6,14 +6,14 @@ current_phase: 05
 current_phase_name: iOS Capture + iCloud Handoff + Onboarding
 status: executing
 stopped_at: Completed 04-06-PLAN.md — gap closure wiring
-last_updated: "2026-07-16T00:02:39.271Z"
+last_updated: "2026-07-16T02:38:02.229Z"
 last_activity: 2026-07-16
-last_activity_desc: Phase 04 complete, transitioned to Phase 05
+last_activity_desc: Phase 05 execution started
 progress:
   total_phases: 6
   completed_phases: 4
-  total_plans: 18
-  completed_plans: 18
+  total_plans: 21
+  completed_plans: 19
   percent: 67
 ---
 
@@ -24,14 +24,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-13)
 
 **Core value:** Every recording lands in the right course folder, transcribed and optionally summarized, without the student ever manually organizing it.
-**Current focus:** Phase 04 — course-classification-smart-routing
+**Current focus:** Phase 05 — iOS Capture + iCloud Handoff + Onboarding
 
 ## Current Position
 
-Phase: 05 — iOS Capture + iCloud Handoff + Onboarding
-Plan: Not started
+Phase: 05 (iOS Capture + iCloud Handoff + Onboarding) — EXECUTING
+Plan: 2 of 3
 Status: Ready to execute
-Last activity: 2026-07-16 — Phase 04 complete, transitioned to Phase 05
+Last activity: 2026-07-16 — Phase 05 execution started
 
 Progress: [██░░░░░░░░] 34%
 
@@ -73,6 +73,7 @@ Progress: [██░░░░░░░░] 34%
 | Phase 04 P04 | 6m | 2 tasks | 9 files |
 | Phase 04 P05 | 7m | 3 tasks | 15 files |
 | Phase 04 P06 | 3m | 3 tasks | 5 files |
+| Phase 05 P01 | 7min | 2 tasks | 15 files |
 
 ## Accumulated Context
 
@@ -121,6 +122,9 @@ Recent decisions affecting current work:
 - [Phase ?]: Phase 04 Plan 05: PipelineOrchestratorProtocol for test injection
 - [Phase ?]: Phase 04 Plan 06: Per-recording orchestrator construction with fresh mapping snapshot — resolver is immutable struct, so each recording gets a new orchestrator
 - [Phase ?]: Phase 04 Plan 06: State observer uses 100ms polling for orchestrator.currentState — actor has no AsyncStream publisher
+- [Phase ?]: test
+- [Phase ?]: Phase 05 Plan 01: BookmarkStore uses Keychain kSecAttrAccessibleWhenUnlocked for security-scoped bookmark persistence
+- [Phase ?]: Phase 05 Plan 01: OnboardingTermPage is macOS-only via if-os guard; iOS inherits term via courses.json (ONB-01)
 
 ### Pending Todos
 
@@ -151,7 +155,7 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-16T00:00:46.719Z
+Last session: 2026-07-16T02:36:42.518Z
 Stopped at: Completed 04-06-PLAN.md — gap closure wiring
 Resume file: None
 Next action: Phase 03 macOS device verification (Task 4 of 03-04), then resume autonomous chain `/gsd-autonomous --from 4 --to 6`

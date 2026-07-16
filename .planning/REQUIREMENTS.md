@@ -65,11 +65,11 @@ Requirements for the MVP "Record-to-Obsidian" release. Each maps to a roadmap ph
 
 ### Onboarding
 
-- [ ] **ONBD-01**: First-run flow: welcome → vault folder picker → mic permission → calendar permission → current-term label → ready
+- [x] **ONBD-01**: First-run flow: welcome → vault folder picker → mic permission → calendar permission → current-term label → ready
 - [x] **ONBD-02**: Microphone permission required — hard-fail with explanation + Settings deep-link if denied
 - [x] **ONBD-03**: Calendar permission optional — degrades to manual course picker; explanation shown if denied
-- [ ] **ONBD-04**: Vault folder picker suggests iCloud Drive location; any user-chosen folder works
-- [ ] **ONBD-05**: Permissions screen accessible post-onboarding for re-grant or audit
+- [x] **ONBD-04**: Vault folder picker suggests iCloud Drive location; any user-chosen folder works
+- [x] **ONBD-05**: Permissions screen accessible post-onboarding for re-grant or audit
 
 ### Discipline (Cross-Cutting)
 
@@ -202,9 +202,9 @@ Explicit exclusions documented to prevent scope creep.
 | ONBD-02 | Phase 4 | Complete |
 | ONBD-03 | Phase 4 | Complete |
 | CAPT-03 | Phase 5 | Pending |
-| ONBD-01 | Phase 5 | Pending |
-| ONBD-04 | Phase 5 | Pending |
-| ONBD-05 | Phase 5 | Pending |
+| ONBD-01 | Phase 5 | Complete |
+| ONBD-04 | Phase 5 | Complete |
+| ONBD-05 | Phase 5 | Complete |
 | DISC-04 | Phase 5 | Pending |
 | SUMM-01 | Phase 6 | Pending |
 | SUMM-02 | Phase 6 | Pending |
