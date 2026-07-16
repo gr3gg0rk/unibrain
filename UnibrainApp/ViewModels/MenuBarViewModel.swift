@@ -188,14 +188,25 @@ final class MenuBarViewModel {
     /// inline action buttons (per P-11 banner pattern).
     var failureBannerMessage: String?
 
+    /// Phase 06-05 SET-04: Pending Settings tab to open on next Settings show.
+    ///
+    /// When non-nil, the next time Settings opens, it starts at this tab.
+    /// Used for context-aware opening (CF-04 → Audit, permission warning →
+    /// Permissions, provider issue → Providers). Cleared after Settings opens.
+    var pendingSettingsTab: SettingsTab?
+
     /// Phase 06-04: Presents the consent sheet overlay for the given pair.
     func presentConsentSheet(provider: CloudProvider, modality: Modality) {
         overlayState = .consentSheet(provider: provider.rawValue, modality: modality.rawValue)
     }
 
     /// Phase 06-04: Presents the cloud failure sheet overlay.
+    ///
+    /// Phase 06-05 SET-04: Also sets `pendingSettingsTab = .audit` so the
+    /// next Settings window open jumps to the Audit tab (CF-04).
     func presentCloudFailureSheet(context: CloudFailureContext) {
         cloudFailureContext = context
+        pendingSettingsTab = .audit
         overlayState = .cloudFailure(
             provider: context.provider.rawValue,
             modality: context.modality.rawValue,
@@ -214,6 +225,16 @@ final class MenuBarViewModel {
     /// blocking the popover — used while waiting for user decision.
     func showFailureBanner(message: String) {
         failureBannerMessage = message
+    }
+
+    /// Phase 06-05 SET-04: Request Settings to open at a specific tab.
+    ///
+    /// Per CF-04: cloud failure → Audit tab.
+    /// Per CON-01: permission warning → Permissions tab.
+    /// Per provider issues: → Providers tab.
+    /// Default: General tab.
+    func requestSettingsTab(_ tab: SettingsTab) {
+        pendingSettingsTab = tab
     }
 
     /// Derive a stable error tag for the overlay enum.

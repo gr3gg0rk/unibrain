@@ -82,7 +82,7 @@ struct GeneralTab: View {
 
             Section("About") {
                 LabeledContent("Version", value: appVersion)
-                Text("Zero telemetry. Zero analytics. No phone-home.")
+                Text("Local-first. Your audio never leaves your devices. Zero telemetry. No analytics. No phone-home.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -144,6 +144,12 @@ struct GeneralTab: View {
 
     private var vaultPathDisplay: String {
         #if os(macOS)
+        // Per Phase 5: BookmarkStore holds the user-selected vault folder.
+        // Per Phase 3 P-13: default vault root is ~/Documents/Unibrain/.
+        if let url = BookmarkStore.resolve() {
+            url.stopAccessingSecurityScopedResource()
+            return url.path
+        }
         return HardcodedVaultResolver.vaultRoot.path
         #else
         return "(unknown)"
@@ -151,7 +157,12 @@ struct GeneralTab: View {
     }
 
     private var currentTermDisplay: String {
-        "(not configured)" // Courses tab writes the term
+        // The Courses tab writes the term; General shows a summary.
+        // Read synchronously from CourseMappingStore is not available here
+        // without making this an async view. The popover's MenuBarViewModel
+        // tracks currentTermLabel — Settings opens in its own window, so
+        // we show a static prompt that links to the Courses tab.
+        "(see Courses tab)"
     }
 
     private var appVersion: String {

@@ -118,8 +118,11 @@ struct UnibrainApp: App {
         // Per ONBD-01: hidden during onboarding.
         MenuBarExtra {
             if hasCompletedOnboarding {
-                MenuBarPopover(viewModel: viewModel)
-                    .frame(width: 280)
+                MenuBarPopover(
+                    viewModel: viewModel,
+                    settingsSelectedTab: $settingsSelectedTab
+                )
+                .frame(width: 280)
             }
         } label: {
             if hasCompletedOnboarding {

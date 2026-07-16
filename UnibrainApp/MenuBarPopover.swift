@@ -22,6 +22,10 @@ struct MenuBarPopover: View {
     #if os(macOS)
     /// Phase 06-05 SET-01: open the macOS Settings window from the popover.
     @Environment(\.openSettings) private var openSettings
+
+    /// Phase 06-05 SET-04: Binding to the shared selected-tab state in UnibrainApp.
+    /// Applied before opening Settings so the window opens at the context-aware tab.
+    @Binding var settingsSelectedTab: SettingsTab
     #endif
 
     var body: some View {
@@ -278,6 +282,11 @@ struct MenuBarPopover: View {
                     // warning opens Permissions. Default opens General.
                     Button {
                         #if os(macOS)
+                        // Per SET-04: apply pending tab before opening.
+                        if let pending = viewModel.pendingSettingsTab {
+                            settingsSelectedTab = pending
+                            viewModel.pendingSettingsTab = nil
+                        }
                         openSettings()
                         #endif
                     } label: {
@@ -552,13 +561,17 @@ struct MenuBarPopover: View {
 
 #if DEBUG
 #Preview("Idle") {
-    MenuBarPopover(viewModel: MenuBarViewModel(
-        session: PipelineWiring.makeRecordingSession(),
-        orchestrator: PipelineWiring.makeOrchestrator(
-            modelPath: SmallEnDownloader.modelStoragePath
+    @Previewable @State var tab: SettingsTab = .general
+    return MenuBarPopover(
+        viewModel: MenuBarViewModel(
+            session: PipelineWiring.makeRecordingSession(),
+            orchestrator: PipelineWiring.makeOrchestrator(
+                modelPath: SmallEnDownloader.modelStoragePath
+            ),
+            downloader: SmallEnDownloader()
         ),
-        downloader: SmallEnDownloader()
-    ))
+        settingsSelectedTab: $tab
+    )
     .frame(width: 280)
 }
 #endif
