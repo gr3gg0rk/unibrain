@@ -4,16 +4,16 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 04
 current_phase_name: course-classification-smart-routing
-status: verifying
-stopped_at: Completed 04-04-PLAN.md
-last_updated: "2026-07-15T21:36:38.863Z"
+status: executing
+stopped_at: Completed 04-06-PLAN.md — gap closure wiring
+last_updated: "2026-07-16T00:00:46.732Z"
 last_activity: 2026-07-15
 last_activity_desc: Phase 04 execution started
 progress:
   total_phases: 6
   completed_phases: 4
-  total_plans: 17
-  completed_plans: 17
+  total_plans: 18
+  completed_plans: 18
   percent: 67
 ---
 
@@ -29,8 +29,8 @@ See: .planning/PROJECT.md (updated 2026-07-13)
 ## Current Position
 
 Phase: 04 (course-classification-smart-routing) — EXECUTING
-Plan: 5 of 5
-Status: Phase complete — ready for verification
+Plan: 2 of 5
+Status: Ready to execute
 Last activity: 2026-07-15 — Phase 04 execution started
 
 Progress: [██░░░░░░░░] 34%
@@ -71,6 +71,7 @@ Progress: [██░░░░░░░░] 34%
 | Phase 04 P03 | 6m | 2 tasks | 6 files |
 | Phase 04 P04 | 6m | 2 tasks | 9 files |
 | Phase 04 P05 | 7m | 3 tasks | 15 files |
+| Phase 04 P06 | 3m | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -117,6 +118,8 @@ Recent decisions affecting current work:
 - [Phase ?]: Phase 04 Plan 04: Resolver receives mapping snapshot as plain dict at init — no actor dependency, no async calls in resolve()
 - [Phase ?]: Phase 04 Plan 05: PopoverOverlay replaces .sheet per FB11984872
 - [Phase ?]: Phase 04 Plan 05: PipelineOrchestratorProtocol for test injection
+- [Phase ?]: Phase 04 Plan 06: Per-recording orchestrator construction with fresh mapping snapshot — resolver is immutable struct, so each recording gets a new orchestrator
+- [Phase ?]: Phase 04 Plan 06: State observer uses 100ms polling for orchestrator.currentState — actor has no AsyncStream publisher
 
 ### Pending Todos
 
@@ -147,7 +150,7 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-15T21:36:32.764Z
-Stopped at: Completed 04-04-PLAN.md
+Last session: 2026-07-16T00:00:46.719Z
+Stopped at: Completed 04-06-PLAN.md — gap closure wiring
 Resume file: None
 Next action: Phase 03 macOS device verification (Task 4 of 03-04), then resume autonomous chain `/gsd-autonomous --from 4 --to 6`
