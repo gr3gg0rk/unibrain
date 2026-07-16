@@ -24,8 +24,10 @@ struct UnibrainApp: App {
 
     // MARK: - State
 
+    #if os(macOS)
     @State private var viewModel: MenuBarViewModel
     @State private var modelDownloader: SmallEnDownloader
+    #endif
 
     /// Per ONBD-01: controls onboarding vs main UI rendering.
     @AppStorage(OnboardingViewModel.hasCompletedOnboardingKey) private var hasCompletedOnboarding = false
@@ -36,6 +38,11 @@ struct UnibrainApp: App {
     // MARK: - Init
 
     init() {
+        // Per Pitfall 6 (RESEARCH.md): PipelineWiring, HardcodedVaultResolver,
+        // NSFileCoordinatorNoteWriter, and ScheduleAwareVaultResolver are all
+        // macOS-only. iOS app does NOT need the pipeline — iPhone is capture-only.
+        // iOS init only needs RecordingSession + CourseMappingStore + EventKitCalendarAdapter.
+        #if os(macOS)
         let downloader = SmallEnDownloader()
         let modelPath = SmallEnDownloader.modelStoragePath
 
@@ -44,9 +51,6 @@ struct UnibrainApp: App {
             vaultRoot: HardcodedVaultResolver.vaultRoot
         )
 
-        // Per Pitfall 6 from RESEARCH.md: PipelineWiring is macOS-only.
-        // iOS app init only needs RecordingSession + CourseMappingStore.
-        #if os(macOS)
         let orchestrator = PipelineWiring.makeScheduleAwareOrchestrator(
             modelPath: modelPath,
             vaultRoot: HardcodedVaultResolver.vaultRoot,
@@ -54,16 +58,9 @@ struct UnibrainApp: App {
             mapping: [:]
         )
         let session = PipelineWiring.makeRecordingSession()
-        #endif
 
-        // Phase 4: Create EventKitCalendarAdapter (macOS/iOS only).
-        #if os(macOS) || os(iOS)
         let calendarProvider: any CalendarEventProvider = EventKitCalendarAdapter()
-        #else
-        let calendarProvider: (any CalendarEventProvider)? = nil
-        #endif
 
-        #if os(macOS)
         _viewModel = State(
             initialValue: MenuBarViewModel(
                 session: session,
@@ -73,28 +70,8 @@ struct UnibrainApp: App {
                 calendarProvider: calendarProvider
             )
         )
-        #else
-        // iOS: minimal view model until Plan 02 ships the TabView shell.
-        _viewModel = State(
-            initialValue: MenuBarViewModel(
-                session: RecordingSession(),
-                orchestrator: PipelineOrchestrator(
-                    transcriber: TranscriberRouter(modelPath: modelPath),
-                    writer: NSFileCoordinatorNoteWriter(),
-                    resolver: ScheduleAwareVaultResolver(
-                        vaultRoot: HardcodedVaultResolver.vaultRoot,
-                        termLabel: "",
-                        mapping: [:]
-                    )
-                ),
-                downloader: downloader,
-                courseMappingStore: courseMappingStore,
-                calendarProvider: calendarProvider
-            )
-        )
-        #endif
-
         _modelDownloader = State(initialValue: downloader)
+        #endif
     }
 
     // MARK: - Body
@@ -103,6 +80,10 @@ struct UnibrainApp: App {
         // Per P-08: minimal WindowGroup — future Settings entry point (Phase 6)
         WindowGroup {
             if hasCompletedOnboarding {
+                #if os(iOS)
+                // Per IOS-01: iOS renders iOSTabView when onboarding is complete.
+                iOSTabView()
+                #else
                 ContentView(viewModel: viewModel)
                     .task {
                         // Per P-17: start background model download on first launch
@@ -117,6 +98,7 @@ struct UnibrainApp: App {
                         await viewModel.checkCalendarPermission()
                         await viewModel.loadCurrentTerm()
                     }
+                #endif
             } else {
                 // Per ONBD-01: show onboarding on first launch.
                 OnboardingFlow(viewModel: makeOnboardingViewModel())
@@ -152,17 +134,24 @@ struct UnibrainApp: App {
         if let existing = onboardingViewModel {
             return existing
         }
+        #if os(macOS)
         let vm = OnboardingViewModel(
             courseMappingStore: CourseMappingStore(
                 vaultRoot: HardcodedVaultResolver.vaultRoot
             )
         )
+        #else
+        // iOS: vault root is resolved from BookmarkStore after onboarding folder pick.
+        // CourseMappingStore is nil during onboarding; loaded post-onboarding.
+        let vm = OnboardingViewModel()
+        #endif
         onboardingViewModel = vm
         return vm
     }
 
     // MARK: - Menu Bar Icon (P-D3)
 
+    #if os(macOS)
     /// State-driven menu-bar icon per P-D3:
     /// - Idle: brain (secondary)
     /// - Recording: brain.fill (red)
@@ -189,6 +178,7 @@ struct UnibrainApp: App {
                 .foregroundStyle(.secondary)
         }
     }
+    #endif
 
     // MARK: - Notification Permission
 

@@ -1,5 +1,7 @@
 import SwiftUI
 
+#if os(macOS)
+
 /// Minimal main-window content view.
 ///
 /// Per P-08: the menu-bar popover IS the primary recording surface.
@@ -66,3 +68,5 @@ struct ContentView: View {
         }
     }
 }
+
+#endif // os(macOS)
