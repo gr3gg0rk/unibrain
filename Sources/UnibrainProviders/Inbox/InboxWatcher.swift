@@ -140,7 +140,7 @@ public final class InboxWatcher: @unchecked Sendable {
     private func handleQueryUpdate(_ notification: Notification) {
         guard let userInfo = notification.userInfo else { return }
 
-        let addedURLs: [URL] = []
+        var addedURLs: [URL] = []
 
         // Per Pattern 4: extract newly added items
         if let addedItems = userInfo[NSMetadataQueryUpdateAddedItemsKey] as? [NSMetadataItem] {
