@@ -13,4 +13,14 @@ public enum HeavyModelKind: String, Sendable {
     case asr
     /// LLM summarization model (e.g., Ollama llama-3.2-3b, ~4-5 GB).
     case llm
+
+    // MARK: - Phase 06-01 Addition
+
+    /// Ollama local LLM (specific variant for SUMM-07 gate enforcement).
+    ///
+    /// Phase 06-01: Distinguishes Ollama from generic `.llm` for
+    /// ModelLoadGate conflict detection. While Ollama is technically
+    /// an LLM, this case enables explicit gate checks for SUMM-07
+    /// (refuse to run while ASR is loaded).
+    case ollama
 }

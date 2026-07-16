@@ -111,6 +111,12 @@ struct ProviderProtocolTests {
                     break
                 case .unsupportedPlatform:
                     break
+                case .apiKeyMissing:
+                    break
+                case .consentDenied:
+                    break
+                case .providerUnreachable:
+                    break
                 }
             } catch {
                 Issue.record("Caught non-ProviderError: \(error)")

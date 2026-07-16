@@ -3,6 +3,34 @@ import Foundation
 import FoundationNetworking
 #endif
 
+// MARK: - Cloud Provider Enums (Phase 06-01)
+
+/// Cloud provider identifiers for API key storage and consent tracking.
+///
+/// Phase 06-01: String-backed enum for Keychain account keys and
+/// consent record lookups. Each case maps to a provider's internal name.
+public enum CloudProvider: String, Sendable {
+    case openai
+    case anthropic
+    case grok
+    case zai
+    case ollama
+    case whisperCpp = "whisper-cpp"
+}
+
+/// AI modality categories for per-modality provider selection.
+///
+/// Phase 06-01: Used for consent gating and Settings UI pickers.
+/// Each modality maps to a Phase 1 protocol (LLMSummarizer, AudioTranscriber, etc.).
+public enum Modality: String, Sendable {
+    case llm
+    case asr
+    case vision
+    case tts
+}
+
+// MARK: - Provider Error
+
 /// Shared error type for all provider conformances.
 ///
 /// Per D-16: every provider (local and cloud) throws ``ProviderError``.
@@ -31,4 +59,13 @@ public enum ProviderError: Error {
     /// The current platform does not support this provider.
     /// Used when a macOS-version-gated API is unavailable.
     case unsupportedPlatform
+
+    // MARK: - Cloud-Specific Cases (Phase 06-01)
+
+    /// API key not found in Keychain for the given provider.
+    case apiKeyMissing(provider: CloudProvider)
+    /// User denied consent for this provider+modality pair.
+    case consentDenied(provider: CloudProvider, modality: Modality)
+    /// Provider host unreachable (TCP connect failed).
+    case providerUnreachable(host: String)
 }
