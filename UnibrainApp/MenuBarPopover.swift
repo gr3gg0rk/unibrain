@@ -1,5 +1,6 @@
 import SwiftUI
 import UnibrainCore
+import UnibrainProviders
 
 // MARK: - MenuBarPopover
 
@@ -19,17 +20,46 @@ struct MenuBarPopover: View {
     @Bindable var viewModel: MenuBarViewModel
 
     var body: some View {
-        switch viewModel.overlayState {
-        case .none:
-            mainContent
-        case .coursePicker(let mode):
-            CoursePickerView(mode: mode, viewModel: viewModel)
-        case .manageCourses:
-            ManageCoursesView(viewModel: viewModel)
-        case .permissionDenied:
-            PermissionDeniedSheet(viewModel: viewModel)
-        case .termEditor:
-            TermEditorForm(viewModel: viewModel)
+        VStack(spacing: 0) {
+            // Failure banner (CF-04) — appears inline above main content
+            // during an active cloud failure, per P-11 banner pattern.
+            if let banner = viewModel.failureBannerMessage {
+                CloudFailureBanner(message: banner)
+            }
+
+            switch viewModel.overlayState {
+            case .none:
+                mainContent
+            case .coursePicker(let mode):
+                CoursePickerView(mode: mode, viewModel: viewModel)
+            case .manageCourses:
+                ManageCoursesView(viewModel: viewModel)
+            case .permissionDenied:
+                PermissionDeniedSheet(viewModel: viewModel)
+            case .termEditor:
+                TermEditorForm(viewModel: viewModel)
+            case .consentSheet(let providerRaw, let modalityRaw):
+                if let provider = CloudProvider(rawValue: providerRaw),
+                   let modality = Modality(rawValue: modalityRaw) {
+                    ConsentSheet(
+                        consentViewModel: ConsentViewModel(
+                            consentStore: ConsentStore(vaultPath: URL(fileURLWithPath: "/"))
+                        ),
+                        provider: provider,
+                        modality: modality,
+                        onDecision: { _ in viewModel.dismissCloudSheet() }
+                    )
+                }
+            case .cloudFailure(let providerRaw, _, _):
+                if let context = viewModel.cloudFailureContext,
+                   context.provider.rawValue == providerRaw {
+                    CloudFailureSheet(
+                        failureRecovery: FailureRecoveryViewModel(),
+                        context: context,
+                        onDecision: { _ in viewModel.dismissCloudSheet() }
+                    )
+                }
+            }
         }
     }
 
@@ -523,5 +553,31 @@ struct MenuBarPopover: View {
         downloader: SmallEnDownloader()
     ))
     .frame(width: 280)
+}
+#endif
+
+// MARK: - CloudFailureBanner (CF-04)
+
+/// Inline failure banner shown in the popover during an active cloud failure.
+///
+/// Phase 06-04 Task 4: Follows Phase 3 P-11 transcribing-state banner pattern.
+/// Appears above the main popover content (non-blocking), unlike the
+/// `CloudFailureSheet` which replaces the main content.
+#if os(macOS)
+struct CloudFailureBanner: View {
+    let message: String
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .foregroundStyle(.orange)
+            Text(message)
+                .font(.caption)
+                .lineLimit(2)
+        }
+        .padding(8)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.orange.opacity(0.1))
+    }
 }
 #endif

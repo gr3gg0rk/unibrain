@@ -61,6 +61,14 @@ enum PopoverOverlay: Equatable {
     case permissionDenied
     /// Term label + date range editor.
     case termEditor
+    /// Phase 06-04: First-use consent sheet (CON-01). Associated value is a
+    /// stable identifier so `Equatable` comparison works without comparing
+    /// the non-Equatable `ConsentViewModel`.
+    case consentSheet(provider: String, modality: String)
+    /// Phase 06-04: Cloud failure recovery sheet (CF-01). Associated value
+    /// is a stable identifier so `Equatable` comparison works without
+    /// comparing the non-Equatable `CloudFailureContext`.
+    case cloudFailure(provider: String, modality: String, errorTag: String)
 }
 
 // MARK: - PipelineOrchestratorProtocol
@@ -164,6 +172,64 @@ final class MenuBarViewModel {
     /// Phase 5: Triggers PermissionsSheet presentation (ONBD-05).
     func showPermissionsSheet() {
         showPermissions = true
+    }
+
+    // MARK: - Phase 06-04: Consent & Cloud Failure State
+
+    /// Phase 06-04: Cloud failure context for the active failure (CF-01).
+    ///
+    /// When non-nil, the popover renders a failure banner inline and the
+    /// `cloudFailure` overlay state is presented. Cleared on retry/fallback/cancel.
+    var cloudFailureContext: CloudFailureContext?
+
+    /// Phase 06-04: Active failure banner message (CF-04).
+    ///
+    /// Displayed in the popover during an active cloud failure alongside
+    /// inline action buttons (per P-11 banner pattern).
+    var failureBannerMessage: String?
+
+    /// Phase 06-04: Presents the consent sheet overlay for the given pair.
+    func presentConsentSheet(provider: CloudProvider, modality: Modality) {
+        overlayState = .consentSheet(provider: provider.rawValue, modality: modality.rawValue)
+    }
+
+    /// Phase 06-04: Presents the cloud failure sheet overlay.
+    func presentCloudFailureSheet(context: CloudFailureContext) {
+        cloudFailureContext = context
+        overlayState = .cloudFailure(
+            provider: context.provider.rawValue,
+            modality: context.modality.rawValue,
+            errorTag: errorTag(for: context.error)
+        )
+    }
+
+    /// Phase 06-04: Clears consent/failure overlay (resume main content).
+    func dismissCloudSheet() {
+        cloudFailureContext = nil
+        failureBannerMessage = nil
+        overlayState = .none
+    }
+
+    /// Phase 06-04: Surfaces an inline failure banner (CF-04) without
+    /// blocking the popover — used while waiting for user decision.
+    func showFailureBanner(message: String) {
+        failureBannerMessage = message
+    }
+
+    /// Derive a stable error tag for the overlay enum.
+    private func errorTag(for error: ProviderError) -> String {
+        switch error {
+        case .networkFailure: return "networkFailure"
+        case .rateLimited: return "rateLimited"
+        case .providerUnreachable: return "providerUnreachable"
+        case .apiKeyMissing: return "apiKeyMissing"
+        case .consentDenied: return "consentDenied"
+        case .modelError: return "modelError"
+        case .invalidResponse: return "invalidResponse"
+        case .cancelled: return "cancelled"
+        case .unsupportedPlatform: return "unsupportedPlatform"
+        case .underlying: return "underlying"
+        }
     }
 
     // MARK: - Dependencies (injected)
