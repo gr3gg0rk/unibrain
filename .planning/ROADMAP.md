@@ -17,7 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Pure Pipeline Logic** - WSL2-testable core: FrontmatterSchema, Normalizer, Orchestrator, atomic-write helpers, CourseClassifier pure logic (completed 2026-07-15)
 - [ ] **Phase 3: macOS Capture + Transcribe** - First end-to-end vertical slice: AVFoundation record, whisper.cpp+Metal, hardcoded-folder write-out
 - [x] **Phase 4: Course Classification + Smart Routing** - The moat: EventKit calendar-to-course mapping, manual picker fallback, multi-term folders (completed 2026-07-15)
-- [ ] **Phase 5: iOS Capture + iCloud Handoff + Onboarding** - Second capture surface: iOS background recording, iCloud Drive handoff, full onboarding flow
+- [x] **Phase 5: iOS Capture + iCloud Handoff + Onboarding** - Second capture surface: iOS background recording, iCloud Drive handoff, full onboarding flow (completed 2026-07-16)
 - [ ] **Phase 6: Gated Summarization + Cloud Providers + MVP Polish** - Ollama local summary, four cloud providers, Keychain keys, per-document consent, audit trail, Settings UI
 
 ## Phase Details
@@ -145,7 +145,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. A first-run user walks through the onboarding flow (welcome -> vault folder picker suggesting iCloud Drive -> mic permission -> calendar permission -> current-term label -> ready) and reaches the main app ready to record (ONBD-01, ONBD-04)
   4. The user can re-open the permissions screen post-onboarding to audit or re-grant mic/calendar access (ONBD-05)
 
-**Plans**: 2/3 plans executed
+**Plans**: 3/3 plans complete
 **UI hint**: yes
 
 **Wave 1** (parallel, no dependencies)
@@ -155,7 +155,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 05-03-PLAN.md — macOS iCloud handoff pipeline: InboxWatcher, serial queue, dead-letter, popover queue UI
+- [x] 05-03-PLAN.md — macOS iCloud handoff pipeline: InboxWatcher, serial queue, dead-letter, popover queue UI
 
 ### Phase 6: Gated Summarization + Cloud Providers + MVP Polish
 
@@ -185,5 +185,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 2. Pure Pipeline Logic | 4/4 | Complete   | 2026-07-15 |
 | 3. macOS Capture + Transcribe | 4/4 | Code complete — Task 4 macOS verification pending |  |
 | 4. Course Classification + Smart Routing | 6/6 | Complete    | 2026-07-15 |
-| 5. iOS Capture + iCloud Handoff + Onboarding | 2/3 | In Progress|  |
+| 5. iOS Capture + iCloud Handoff + Onboarding | 3/3 | Complete   | 2026-07-16 |
 | 6. Gated Summarization + Cloud Providers + MVP Polish | 0/0 | Not started | - |

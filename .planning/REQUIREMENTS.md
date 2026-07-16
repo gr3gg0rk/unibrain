@@ -20,7 +20,7 @@ Requirements for the MVP "Record-to-Obsidian" release. Each maps to a roadmap ph
 
 - [x] **CAPT-01**: One-tap start/stop recording on macOS via menu-bar (`MenuBarExtra`) and app-window record button
 - [x] **CAPT-02**: Pause/resume during recording maintaining a single contiguous audio file with pause/resume timestamps
-- [ ] **CAPT-03**: Background recording on iOS using `AVAudioSession` background audio mode with lock-screen recording indicator
+- [x] **CAPT-03**: Background recording on iOS using `AVAudioSession` background audio mode with lock-screen recording indicator
 - [x] **CAPT-04**: Live recording timer + waveform display during capture
 - [x] **CAPT-05**: Mic level meter confirming the lecturer is audible
 - [x] **CAPT-06**: Audio exported as `.m4a` (AAC) into the vault attachment folder alongside the note
@@ -76,7 +76,7 @@ Requirements for the MVP "Record-to-Obsidian" release. Each maps to a roadmap ph
 - [x] **DISC-01**: At most one heavy LOCAL model (ASR or LLM) loaded into RAM at any time, enforced by `ModelLoadGate`. (Cloud providers don't count toward local RAM budget.)
 - [x] **DISC-02**: All Apple-framework dependencies (AVFoundation, EventKit, FileManager, Ollama client) sit behind protocols so pure-logic tests run without Apple frameworks
 - [x] **DISC-03**: Pure-logic unit tests (Normalizer, FrontmatterSchema, CourseClassifier, Orchestrator with mocks) run on WSL2 Linux Swift toolchain without Xcode
-- [ ] **DISC-04**: App survives iOS backgrounding during an active recording
+- [x] **DISC-04**: App survives iOS backgrounding during an active recording
 - [ ] **DISC-05**: Local-first core path: capture → classify → transcribe (local) → write works fully offline by default. Cloud provider calls are explicit user opt-in per modality, never silently injected.
 - [ ] **DISC-06**: iCloud Drive sync conflicts do not corrupt notes (atomic writes + schema_version field for migration)
 
@@ -201,11 +201,11 @@ Explicit exclusions documented to prevent scope creep.
 | CLAS-07 | Phase 4 | Complete |
 | ONBD-02 | Phase 4 | Complete |
 | ONBD-03 | Phase 4 | Complete |
-| CAPT-03 | Phase 5 | Pending |
+| CAPT-03 | Phase 5 | Complete |
 | ONBD-01 | Phase 5 | Complete |
 | ONBD-04 | Phase 5 | Complete |
 | ONBD-05 | Phase 5 | Complete |
-| DISC-04 | Phase 5 | Pending |
+| DISC-04 | Phase 5 | Complete |
 | SUMM-01 | Phase 6 | Pending |
 | SUMM-02 | Phase 6 | Pending |
 | SUMM-03 | Phase 6 | Pending |
