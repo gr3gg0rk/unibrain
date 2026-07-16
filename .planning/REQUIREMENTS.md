@@ -77,8 +77,8 @@ Requirements for the MVP "Record-to-Obsidian" release. Each maps to a roadmap ph
 - [x] **DISC-02**: All Apple-framework dependencies (AVFoundation, EventKit, FileManager, Ollama client) sit behind protocols so pure-logic tests run without Apple frameworks
 - [x] **DISC-03**: Pure-logic unit tests (Normalizer, FrontmatterSchema, CourseClassifier, Orchestrator with mocks) run on WSL2 Linux Swift toolchain without Xcode
 - [x] **DISC-04**: App survives iOS backgrounding during an active recording
-- [ ] **DISC-05**: Local-first core path: capture → classify → transcribe (local) → write works fully offline by default. Cloud provider calls are explicit user opt-in per modality, never silently injected.
-- [ ] **DISC-06**: iCloud Drive sync conflicts do not corrupt notes (atomic writes + schema_version field for migration)
+- [x] **DISC-05**: Local-first core path: capture → classify → transcribe (local) → write works fully offline by default. Cloud provider calls are explicit user opt-in per modality, never silently injected.
+- [x] **DISC-06**: iCloud Drive sync conflicts do not corrupt notes (atomic writes + schema_version field for migration)
 
 ### Cloud Providers (Provider Layer — opt-in per modality)
 
@@ -93,7 +93,7 @@ Requirements for the MVP "Record-to-Obsidian" release. Each maps to a roadmap ph
 - [ ] **CLOUD-09**: Cloud transcription is an ALTERNATIVE to local whisper.cpp — only one ASR backend runs per recording (whichever the user selected in Settings at recording time)
 - [x] **CLOUD-10**: Cloud provider failure surfaces a clear error and offers "retry" or "fall back to local" — never silent
 - [x] **CLOUD-11**: Network reachability check before cloud calls; if offline, automatically fall back to local (if configured) or queue for retry
-- [ ] **CLOUD-12**: Zero telemetry, zero analytics, zero "phone home" — the only outbound network traffic is user-initiated inference calls to configured providers
+- [x] **CLOUD-12**: Zero telemetry, zero analytics, zero "phone home" — the only outbound network traffic is user-initiated inference calls to configured providers
 - [x] **CLOUD-13**: Per-document audit trail in frontmatter: `provider_used: openai | anthropic | grok | zai | ollama | whisper-cpp` so the user knows which model touched each note
 
 ## v2 Requirements
@@ -224,10 +224,10 @@ Explicit exclusions documented to prevent scope creep.
 | CLOUD-09 | Phase 6 | Pending |
 | CLOUD-10 | Phase 6 | Complete |
 | CLOUD-11 | Phase 6 | Complete |
-| CLOUD-12 | Phase 6 | Pending |
+| CLOUD-12 | Phase 6 | Complete |
 | CLOUD-13 | Phase 6 | Complete |
-| DISC-05 | Phase 6 | Pending |
-| DISC-06 | Phase 6 | Pending |
+| DISC-05 | Phase 6 | Complete |
+| DISC-06 | Phase 6 | Complete |
 
 **Coverage:**
 
