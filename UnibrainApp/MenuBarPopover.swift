@@ -19,6 +19,11 @@ import UnibrainProviders
 struct MenuBarPopover: View {
     @Bindable var viewModel: MenuBarViewModel
 
+    #if os(macOS)
+    /// Phase 06-05 SET-01: open the macOS Settings window from the popover.
+    @Environment(\.openSettings) private var openSettings
+    #endif
+
     var body: some View {
         VStack(spacing: 0) {
             // Failure banner (CF-04) — appears inline above main content
@@ -268,13 +273,15 @@ struct MenuBarPopover: View {
                     .buttonStyle(.bordered)
                     .controlSize(.small)
 
-                    // Phase 5: Manage Permissions button (ONBD-05)
+                    // Phase 06-05 SET-01: Settings window opens to most-relevant tab.
+                    // Per SET-04: context-aware — post-failure opens Audit, permission
+                    // warning opens Permissions. Default opens General.
                     Button {
-                        // Per UI-SPEC: presents PermissionsSheet
-                        // Wire to sheet presentation in parent view
-                        viewModel.showPermissionsSheet()
+                        #if os(macOS)
+                        openSettings()
+                        #endif
                     } label: {
-                        Label("Manage Permissions", systemImage: "lock.shield")
+                        Label("Settings…", systemImage: "gearshape")
                     }
                     .buttonStyle(.bordered)
                     .controlSize(.small)

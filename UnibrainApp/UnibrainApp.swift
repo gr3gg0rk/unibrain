@@ -27,6 +27,13 @@ struct UnibrainApp: App {
     #if os(macOS)
     @State private var viewModel: MenuBarViewModel
     @State private var modelDownloader: SmallEnDownloader
+
+    /// Phase 06-05 SET-01: Shared selected-tab state for context-aware
+    /// Settings opening (CF-04 → Audit; permission warning → Permissions).
+    @State private var settingsSelectedTab: SettingsTab = .general
+
+    /// Phase 06-05 SET-01: Triggers Settings window presentation.
+    @State private var openSettingsRequest: Bool = false
     #endif
 
     /// Per ONBD-01: controls onboarding vs main UI rendering.
@@ -124,6 +131,15 @@ struct UnibrainApp: App {
             }
         }
         .menuBarExtraStyle(.window)
+        #endif
+
+        #if os(macOS)
+        // Phase 06-05 SET-01: dedicated macOS Settings scene.
+        // Per SET-02: 5-tab layout (General/Providers/Courses/Permissions/Audit).
+        // Per SET-04: context-aware opening via `settingsSelectedTab` binding.
+        Settings {
+            SettingsScene(selectedTab: $settingsSelectedTab)
+        }
         #endif
     }
 
