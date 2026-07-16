@@ -20,6 +20,17 @@ public protocol ReachabilityProbe: Sendable {
     /// - Throws: ``ProviderError/providerUnreachable`` when the endpoint
     ///   cannot be reached within `timeout`.
     func probe(host: String, port: Int, timeout: TimeInterval) async throws
+
+    /// Convenience method mirroring ``TCPReachability/check``.
+    ///
+    /// Default implementation delegates to ``probe``.
+    func check(host: String, port: Int, timeout: TimeInterval) async throws
+}
+
+extension ReachabilityProbe {
+    public func check(host: String, port: Int, timeout: TimeInterval = 2.0) async throws {
+        try await probe(host: host, port: port, timeout: timeout)
+    }
 }
 
 /// TCP pre-flight reachability check per CF-02.
@@ -114,16 +125,5 @@ public struct TCPReachability: ReachabilityProbe, Sendable {
 
     public func probe(host: String, port: Int, timeout: TimeInterval) async throws {
         try await probeImpl(host, port, timeout)
-    }
-
-    /// Convenience entry point matching the plan's API surface.
-    ///
-    /// - Parameters:
-    ///   - host: Hostname (e.g., `api.openai.com`).
-    ///   - port: TCP port (typically 443).
-    ///   - timeout: Seconds to wait before declaring unreachable (default 2s per CF-02).
-    /// - Throws: ``ProviderError/providerUnreachable`` when unreachable.
-    public func check(host: String, port: Int, timeout: TimeInterval = 2.0) async throws {
-        try await probe(host: host, port: port, timeout: timeout)
     }
 }
