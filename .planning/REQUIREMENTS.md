@@ -61,7 +61,7 @@ Requirements for the MVP "Record-to-Obsidian" release. Each maps to a roadmap ph
 - [ ] **SUMM-04**: Generates 5-8 bullet key points focused on "concepts and definitions a student needs to know"
 - [ ] **SUMM-05**: Summary written under `## Summary` heading in the same note (not a separate file)
 - [ ] **SUMM-06**: "Regenerate Summary" action re-runs Ollama on the (possibly edited) transcript and replaces only the Summary section
-- [ ] **SUMM-07**: Summary refuses to run while ASR is loaded (ModelLoadGate serialization)
+- [x] **SUMM-07**: Summary refuses to run while ASR is loaded (ModelLoadGate serialization)
 
 ### Onboarding
 
@@ -83,18 +83,18 @@ Requirements for the MVP "Record-to-Obsidian" release. Each maps to a roadmap ph
 ### Cloud Providers (Provider Layer — opt-in per modality)
 
 - [ ] **CLOUD-01**: Settings UI exposes per-modality provider selection: each of LLM / ASR / Vision / TTS can be set to `Local` / `Off` / a configured cloud provider (e.g., `OpenAI`, `Anthropic`, `Grok`, `Z.ai`)
-- [ ] **CLOUD-02**: Local is always the default for every modality on first launch — user must explicitly add and select cloud providers
+- [x] **CLOUD-02**: Local is always the default for every modality on first launch — user must explicitly add and select cloud providers
 - [ ] **CLOUD-03**: OpenAI provider integration: `gpt-4o` / `gpt-4o-mini` for LLM summary, `whisper-1` API for ASR alternative, `gpt-4o` vision for image description
 - [ ] **CLOUD-04**: Anthropic provider integration: Claude (current Sonnet/Opus) for LLM summary + vision
 - [ ] **CLOUD-05**: X / Grok provider integration: Grok for LLM summary
 - [ ] **CLOUD-06**: Z.ai provider integration: GLM family for LLM summary
-- [ ] **CLOUD-07**: API key storage in macOS Keychain (macOS) / iOS Secure Enclave (iOS); never written to plaintext config or vault
+- [x] **CLOUD-07**: API key storage in macOS Keychain (macOS) / iOS Secure Enclave (iOS); never written to plaintext config or vault
 - [ ] **CLOUD-08**: First-use consent gate per modality per provider: "Allow OpenAI to transcribe this recording?" with "Always allow OpenAI for ASR" toggle
 - [ ] **CLOUD-09**: Cloud transcription is an ALTERNATIVE to local whisper.cpp — only one ASR backend runs per recording (whichever the user selected in Settings at recording time)
 - [ ] **CLOUD-10**: Cloud provider failure surfaces a clear error and offers "retry" or "fall back to local" — never silent
 - [ ] **CLOUD-11**: Network reachability check before cloud calls; if offline, automatically fall back to local (if configured) or queue for retry
 - [ ] **CLOUD-12**: Zero telemetry, zero analytics, zero "phone home" — the only outbound network traffic is user-initiated inference calls to configured providers
-- [ ] **CLOUD-13**: Per-document audit trail in frontmatter: `provider_used: openai | anthropic | grok | zai | ollama | whisper-cpp` so the user knows which model touched each note
+- [x] **CLOUD-13**: Per-document audit trail in frontmatter: `provider_used: openai | anthropic | grok | zai | ollama | whisper-cpp` so the user knows which model touched each note
 
 ## v2 Requirements
 
@@ -212,20 +212,20 @@ Explicit exclusions documented to prevent scope creep.
 | SUMM-04 | Phase 6 | Pending |
 | SUMM-05 | Phase 6 | Pending |
 | SUMM-06 | Phase 6 | Pending |
-| SUMM-07 | Phase 6 | Pending |
+| SUMM-07 | Phase 6 | Complete |
 | CLOUD-01 | Phase 6 | Pending |
-| CLOUD-02 | Phase 6 | Pending |
+| CLOUD-02 | Phase 6 | Complete |
 | CLOUD-03 | Phase 6 | Pending |
 | CLOUD-04 | Phase 6 | Pending |
 | CLOUD-05 | Phase 6 | Pending |
 | CLOUD-06 | Phase 6 | Pending |
-| CLOUD-07 | Phase 6 | Pending |
+| CLOUD-07 | Phase 6 | Complete |
 | CLOUD-08 | Phase 6 | Pending |
 | CLOUD-09 | Phase 6 | Pending |
 | CLOUD-10 | Phase 6 | Pending |
 | CLOUD-11 | Phase 6 | Pending |
 | CLOUD-12 | Phase 6 | Pending |
-| CLOUD-13 | Phase 6 | Pending |
+| CLOUD-13 | Phase 6 | Complete |
 | DISC-05 | Phase 6 | Pending |
 | DISC-06 | Phase 6 | Pending |
 
