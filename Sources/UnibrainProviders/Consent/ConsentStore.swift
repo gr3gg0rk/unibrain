@@ -36,6 +36,12 @@ public actor ConsentStore {
         return state.hasConsent(provider: provider, modality: modality)
     }
 
+    /// Returns a snapshot of the current consent state.
+    ///
+    /// Phase 06-04 Task 1: Exposed so the ``ConsentStoring`` protocol
+    /// extension can read `alwaysAllow` flags without touching private state.
+    public var stateSnapshot: ConsentState { state }
+
     /// Grants consent for provider+modality pair.
     ///
     /// Updates in-memory state and persists to `.unibrain/consent.json`

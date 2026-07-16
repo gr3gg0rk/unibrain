@@ -254,6 +254,9 @@ final class StubConsentStore: ConsentStoring, @unchecked Sendable {
     let hasConsent: Bool
     init(hasConsent: Bool) { self.hasConsent = hasConsent }
     func hasConsent(provider: CloudProvider, modality: Modality) async -> Bool { hasConsent }
+    func consentRecord(for provider: CloudProvider, modality: Modality) async -> ConsentRecord? {
+        hasConsent ? ConsentRecord(alwaysAllow: false, firstConsentedAt: Date(timeIntervalSince1970: 0)) : nil
+    }
     func grantConsent(provider: CloudProvider, modality: Modality, alwaysAllow: Bool) async throws {}
     func revokeConsent(provider: CloudProvider, modality: Modality) async throws {}
     func load() async throws {}
