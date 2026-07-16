@@ -20,6 +20,7 @@ let package = Package(
             dependencies: [
                 .product(name: "Yams", package: "Yams"),
             ],
+            resources: [.copy("Prompts")],
             swiftSettings: [
                 .swiftLanguageMode(.v6),
             ]
