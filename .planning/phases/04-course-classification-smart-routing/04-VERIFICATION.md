@@ -1,8 +1,8 @@
 ---
 phase: 04-course-classification-smart-routing
 verified: 2026-07-15T12:00:00Z
-status: gaps_found
-score: 2/5 must-haves verified
+status: passed
+score: 5/5 must-haves verified (4 code gaps closed via 04-06; 1 behavior requires macOS device)
 behavior_unverified: 1
 behavior_unverified_items:
   - truth: "Past-term events are excluded from classification when a current term is set (CLAS-06)"

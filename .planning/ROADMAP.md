@@ -175,6 +175,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 1. Foundation | 4/4 | Complete    | 2026-07-14 |
 | 2. Pure Pipeline Logic | 4/4 | Complete   | 2026-07-15 |
 | 3. macOS Capture + Transcribe | 4/4 | Code complete — Task 4 macOS verification pending |  |
-| 4. Course Classification + Smart Routing | 6/6 | Complete   | 2026-07-15 |
+| 4. Course Classification + Smart Routing | 6/6 | Complete    | 2026-07-15 |
 | 5. iOS Capture + iCloud Handoff + Onboarding | 0/0 | Not started | - |
 | 6. Gated Summarization + Cloud Providers + MVP Polish | 0/0 | Not started | - |
