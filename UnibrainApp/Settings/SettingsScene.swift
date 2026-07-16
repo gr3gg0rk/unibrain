@@ -99,7 +99,7 @@ struct SettingsScene: View {
                 .tag(SettingsTab.permissions)
                 .keyboardShortcut("4", modifiers: .command)
 
-            AuditTab()
+            AuditTabFull()
                 .tabItem {
                     Label(SettingsTab.audit.label,
                           systemImage: SettingsTab.audit.systemImage)
@@ -109,37 +109,6 @@ struct SettingsScene: View {
         }
         .frame(minWidth: 600, minHeight: 400)
         .navigationTitle("unibrain Settings")
-    }
-}
-
-// MARK: - AuditTab (placeholder — full implementation in plan 06-06)
-
-/// Audit tab placeholder.
-///
-/// Per CF-04: surfaces per-note cloud failure history with error details and
-/// timestamps. Full implementation lands in plan 06-06 (consent revocation +
-/// audit trail UI). Placeholder shows an explanatory empty state so the tab
-/// structure is complete and usable now.
-struct AuditTab: View {
-    var body: some View {
-        VStack(spacing: 12) {
-            Image(systemName: "chart.bar.doc.horizontal")
-                .font(.system(size: 36))
-                .foregroundStyle(.secondary)
-            Text("Audit Trail")
-                .font(.title2)
-                .fontWeight(.semibold)
-            Text("Cloud call history, consent records, and failure details will appear here.")
-                .font(.body)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding()
-        .tabItem {
-            Label(SettingsTab.audit.label,
-                  systemImage: SettingsTab.audit.systemImage)
-        }
     }
 }
 
