@@ -145,8 +145,17 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. A first-run user walks through the onboarding flow (welcome -> vault folder picker suggesting iCloud Drive -> mic permission -> calendar permission -> current-term label -> ready) and reaches the main app ready to record (ONBD-01, ONBD-04)
   4. The user can re-open the permissions screen post-onboarding to audit or re-grant mic/calendar access (ONBD-05)
 
-**Plans**: TBD
+**Plans**: 3 plans
 **UI hint**: yes
+
+**Wave 1** (parallel, no dependencies)
+
+- [ ] 05-01-PLAN.md — Onboarding flow: first-run wizard (vault picker, mic, calendar, term), PermissionsSheet, BookmarkStore
+- [ ] 05-02-PLAN.md — iOS capture surface: TabView shell, background recording, Now Playing, interruption handling
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 05-03-PLAN.md — macOS iCloud handoff pipeline: InboxWatcher, serial queue, dead-letter, popover queue UI
 
 ### Phase 6: Gated Summarization + Cloud Providers + MVP Polish
 
@@ -176,5 +185,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 2. Pure Pipeline Logic | 4/4 | Complete   | 2026-07-15 |
 | 3. macOS Capture + Transcribe | 4/4 | Code complete — Task 4 macOS verification pending |  |
 | 4. Course Classification + Smart Routing | 6/6 | Complete    | 2026-07-15 |
-| 5. iOS Capture + iCloud Handoff + Onboarding | 0/0 | Not started | - |
+| 5. iOS Capture + iCloud Handoff + Onboarding | 0/3 | Not started | - |
 | 6. Gated Summarization + Cloud Providers + MVP Polish | 0/0 | Not started | - |
