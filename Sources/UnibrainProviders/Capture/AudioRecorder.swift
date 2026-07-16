@@ -78,10 +78,14 @@ public final class AudioRecorder: @unchecked Sendable {
     ///   or the recorder cannot be created.
     public func start(to url: URL) throws {
         // Configure audio session (iOS only — AVAudioSession is unavailable on macOS)
+        // Per Pitfall 1 (RESEARCH.md): iOSAudioSessionManager MUST be configured
+        // BEFORE creating AVAudioRecorder — without the session active, iOS kills
+        // the app within ~30 seconds of backgrounding.
         #if os(iOS)
-        let session = AVAudioSession.sharedInstance()
-        try session.setCategory(.playAndRecord, mode: .default)
-        try session.setActive(true)
+        try iOSAudioSessionManager.shared.configure(
+            onPause: { [weak self] in self?.pause() },
+            onResume: { [weak self] in self?.resume() }
+        )
         #endif
 
         // Create recorder with URL + settings
