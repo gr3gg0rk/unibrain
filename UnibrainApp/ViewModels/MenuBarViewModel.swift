@@ -150,6 +150,22 @@ final class MenuBarViewModel {
     /// True when currentTerm.endDate has passed.
     var termHasExpired: Bool = false
 
+    // MARK: - Phase 5: iCloud Inbox State
+
+    /// Number of pending files in the iCloud inbox queue.
+    var inboxPendingCount: Int = 0
+
+    /// Current inbox processing state for popover display.
+    var inboxProcessingState: InboxProcessingState = .idle
+
+    /// Phase 5: Controls presentation of PermissionsSheet from the popover.
+    var showPermissions = false
+
+    /// Phase 5: Triggers PermissionsSheet presentation (ONBD-05).
+    func showPermissionsSheet() {
+        showPermissions = true
+    }
+
     // MARK: - Dependencies (injected)
 
     private let session: RecordingSession
@@ -821,4 +837,272 @@ final class MenuBarViewModel {
         return granted
     }
     #endif
+
+    // MARK: - Phase 5: iCloud Inbox Monitoring
+
+    /// Inbox watcher for detecting new `_inbox/` files via NSMetadataQuery (TRIG-01).
+    #if os(macOS)
+    private var inboxWatcher: InboxWatcher?
+    private var inboxQueue: InboxQueue?
+    private var inboxDeadLetterHandler: DeadLetterHandler?
+    private var inboxFileDownloader = InboxFileDownloader()
+    private var inboxProcessingTask: Task<Void, Never>?
+    private var failedRecordingURL: URL?
+
+    /// Starts monitoring the vault `_inbox/` folder for iCloud handoff files.
+    ///
+    /// Per TRIG-01: creates an InboxWatcher pointed at `{vault}/_inbox/`,
+    /// performs a launch scan, then starts live NSMetadataQuery monitoring.
+    /// Discovered files are enqueued and processed one at a time (TRIG-02).
+    ///
+    /// - Parameter vaultURL: The root vault URL (from BookmarkStore).
+    func startInboxMonitoring(vaultURL: URL) {
+        let inboxURL = vaultURL.appendingPathComponent("_inbox")
+
+        // Create _inbox/ if it doesn't exist
+        try? FileManager.default.createDirectory(
+            at: inboxURL,
+            withIntermediateDirectories: true
+        )
+
+        let queue = InboxQueue()
+        let deadLetter = DeadLetterHandler()
+        inboxQueue = queue
+        inboxDeadLetterHandler = deadLetter
+
+        let watcher = InboxWatcher(inboxURL: inboxURL) { [weak self] newFiles in
+            guard let self else { return }
+            Task { @MainActor in
+                for file in newFiles {
+                    await queue.enqueue(file)
+                }
+                self.inboxPendingCount = await queue.pendingCount
+                await self.processNextInboxFileIfNeeded(vaultURL: vaultURL)
+            }
+        }
+
+        watcher.start()
+        inboxWatcher = watcher
+    }
+
+    /// Stops inbox monitoring.
+    func stopInboxMonitoring() {
+        inboxWatcher?.stop()
+        inboxWatcher = nil
+        inboxProcessingTask?.cancel()
+        inboxProcessingTask = nil
+    }
+
+    /// Processes the next inbox file if the queue is not already processing.
+    ///
+    /// Per TRIG-02: one file at a time. Checks IC-04 download status,
+    /// runs the full pipeline, moves audio on success (TRIG-03), or
+    /// schedules retry/dead-letter on failure (TRIG-04).
+    private func processNextInboxFileIfNeeded(vaultURL: URL) async {
+        guard let queue = inboxQueue else { return }
+
+        // Don't start if already processing
+        let isProcessing = await queue.processing
+        guard !isProcessing else { return }
+
+        guard let fileURL = try? await queue.processNext() else {
+            inboxPendingCount = 0
+            inboxProcessingState = .idle
+            return
+        }
+
+        inboxPendingCount = await queue.pendingCount
+        inboxProcessingState = .downloading(filename: fileURL.lastPathComponent, progress: 0)
+
+        // IC-04: check if file needs download (.icloud placeholder)
+        let status = inboxFileDownloader.checkFileStatus(at: fileURL)
+        if status == .downloadNeeded {
+            inboxProcessingState = .downloading(
+                filename: fileURL.lastPathComponent,
+                progress: 0
+            )
+            do {
+                try await inboxFileDownloader.startDownload(at: fileURL)
+            } catch {
+                // Download failed — record failure for retry/dead-letter
+                await handleInboxFailure(
+                    fileURL: fileURL,
+                    vaultURL: vaultURL,
+                    error: .downloadTimedOut(fileURL)
+                )
+                return
+            }
+        }
+
+        // TRIG-02/03: run the full pipeline on the downloaded file
+        inboxProcessingState = .transcribing(filename: fileURL.lastPathComponent)
+
+        let recordingStart = PipelineWiring.parseRecordingStart(from: fileURL)
+        let mapping = (try? await courseMappingStore?.allMappings()) ?? [:]
+        let events: [CalendarEvent] = []
+        let duration = computeAudioDuration(at: fileURL) ?? 0
+
+        do {
+            _ = try await PipelineWiring.processInboxFile(
+                at: fileURL,
+                vaultRoot: vaultURL,
+                termLabel: currentTermLabel,
+                mapping: mapping,
+                recordingStart: recordingStart,
+                events: events,
+                durationSeconds: duration
+            )
+
+            // Success — mark complete and process next
+            await queue.markComplete()
+            inboxProcessingState = .idle
+            await processNextInboxFileIfNeeded(vaultURL: vaultURL)
+        } catch {
+            await handleInboxFailure(
+                fileURL: fileURL,
+                vaultURL: vaultURL,
+                error: .pipelineFailed(fileURL, underlying: error)
+            )
+        }
+    }
+
+    /// Handles a pipeline failure for an inbox file (TRIG-04).
+    ///
+    /// Records the failure with the DeadLetterHandler, which either schedules
+    /// a retry or dead-letters the file to `_failed/`.
+    private func handleInboxFailure(
+        fileURL: URL,
+        vaultURL: URL,
+        error: InboxError
+    ) async {
+        guard let queue = inboxQueue,
+              let deadLetter = inboxDeadLetterHandler else { return }
+
+        let inboxRoot = vaultURL.appendingPathComponent("_inbox")
+        let outcome = await deadLetter.recordFailure(
+            for: fileURL,
+            inboxRoot: inboxRoot,
+            error: error
+        )
+
+        await queue.markComplete()
+
+        switch outcome {
+        case .retryScheduled:
+            // Per TRIG-04: schedule a retry after backoff.
+            // The retry count and backoff are tracked by DeadLetterHandler.
+            // We re-enqueue after a delay.
+            let retryCount = await deadLetter.retryCount(for: fileURL)
+            let backoffIndex = min(retryCount - 1, DeadLetterHandler.backoffSchedule.count - 1)
+            let delay = DeadLetterHandler.backoffSchedule[max(0, backoffIndex)]
+
+            inboxProcessingState = .idle
+            Task { [weak self] in
+                try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+                await queue.enqueue(fileURL)
+                await self?.processNextInboxFileIfNeeded(vaultURL: vaultURL)
+            }
+
+        case .deadLettered:
+            // TRIG-04: file dead-lettered to _failed/
+            failedRecordingURL = inboxRoot.appendingPathComponent("_failed")
+                .appendingPathComponent(fileURL.lastPathComponent)
+            inboxProcessingState = .failed(
+                filename: fileURL.lastPathComponent,
+                errorSummary: error.errorMessage
+            )
+        }
+    }
+
+    /// Retries a previously dead-lettered recording (UI-SPEC Surface 4).
+    ///
+    /// Moves the file from `_failed/` back to `_inbox/` and re-enqueues.
+    func retryFailedRecording() async {
+        guard let failedURL = failedRecordingURL else { return }
+        let inboxRoot = failedURL.deletingLastPathComponent().deletingLastPathComponent()
+        let filename = failedURL.lastPathComponent
+        let destURL = inboxRoot.appendingPathComponent(filename)
+
+        do {
+            if FileManager.default.fileExists(atPath: destURL.path) {
+                try FileManager.default.removeItem(at: destURL)
+            }
+            try FileManager.default.moveItem(at: failedURL, to: destURL)
+
+            // Remove the sidecar
+            let sidecar = failedURL.appendingPathComponent(".error.json")
+            try? FileManager.default.removeItem(at: sidecar)
+
+            // Reset retries and re-enqueue
+            await inboxDeadLetterHandler?.resetRetries(for: destURL)
+            if let queue = inboxQueue {
+                await queue.enqueue(destURL)
+                failedRecordingURL = nil
+                inboxProcessingState = .idle
+
+                let vaultRoot = inboxRoot.deletingLastPathComponent()
+                await processNextInboxFileIfNeeded(vaultURL: vaultRoot)
+            }
+        } catch {
+            // Retry move failed — keep the failure state
+        }
+    }
+
+    /// Deletes a dead-lettered recording permanently (UI-SPEC Surface 4).
+    ///
+    /// Removes the audio file and its `.error.json` sidecar.
+    func deleteFailedRecording() async {
+        guard let failedURL = failedRecordingURL else { return }
+        try? FileManager.default.removeItem(at: failedURL)
+        let sidecar = URL(fileURLWithPath: failedURL.path + ".error.json")
+        try? FileManager.default.removeItem(at: sidecar)
+        failedRecordingURL = nil
+        inboxProcessingState = .idle
+    }
+
+    /// Computes the audio file duration in seconds from AVAudioSession.
+    ///
+    /// Returns nil if the duration cannot be determined (the pipeline will
+    /// use 0 as a fallback).
+    private func computeAudioDuration(at url: URL) -> Int? {
+        #if canImport(AVFoundation)
+        if let asset = try? AVURLAsset(url: url) {
+            let duration = CMTimeGetSeconds(asset.duration)
+            return Int(duration)
+        }
+        #endif
+        return nil
+    }
+    #endif // os(macOS)
+}
+
+// MARK: - InboxProcessingState
+
+/// Display state for the iCloud inbox queue processing (UI-SPEC Surface 4).
+///
+/// Drives the macOS popover inbox progress rendering:
+/// - `.idle`: no inbox activity
+/// - `.downloading`: IC-04 active iCloud download in progress
+/// - `.transcribing`: pipeline is transcribing + classifying + writing
+/// - `.failed`: file dead-lettered after 3 retries (TRIG-04)
+enum InboxProcessingState: Equatable {
+    case idle
+    case downloading(filename: String, progress: Double)
+    case transcribing(filename: String)
+    case failed(filename: String, errorSummary: String)
+
+    static func == (lhs: InboxProcessingState, rhs: InboxProcessingState) -> Bool {
+        switch (lhs, rhs) {
+        case (.idle, .idle):
+            return true
+        case (.downloading(let a), .downloading(let b)):
+            return a.filename == b.filename && a.progress == b.progress
+        case (.transcribing(let a), .transcribing(let b)):
+            return a == b
+        case (.failed(let a), .failed(let b)):
+            return a.filename == b.filename && a.errorSummary == b.errorSummary
+        default:
+            return false
+        }
+    }
 }

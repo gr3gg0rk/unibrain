@@ -55,6 +55,92 @@ struct MenuBarPopover: View {
         }
     }
 
+    // MARK: - iCloud Inbox Processing States (UI-SPEC Surface 4)
+
+    @ViewBuilder
+    private var inboxProcessingView: some View {
+        switch viewModel.inboxProcessingState {
+        case .idle:
+            EmptyView()
+        case .downloading(let filename, let progress):
+            VStack(spacing: 8) {
+                HStack(spacing: 8) {
+                    ProgressView()
+                        .controlSize(.small)
+                    Text("Downloading iPhone recording…")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                Text(filename)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+                ProgressView(value: progress)
+                    .controlSize(.small)
+                if viewModel.inboxPendingCount > 0 {
+                    Text("Queue: \(viewModel.inboxPendingCount) more pending")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+        case .transcribing(let filename):
+            VStack(spacing: 8) {
+                HStack(spacing: 8) {
+                    ProgressView()
+                        .controlSize(.small)
+                    Text("Transcribing iPhone recording…")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                Text(filename)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+                Text("Est. ~3 min")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                if viewModel.inboxPendingCount > 0 {
+                    Text("Queue: \(viewModel.inboxPendingCount) more pending")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+        case .failed(let filename, let errorSummary):
+            VStack(spacing: 8) {
+                Label("Recording failed", systemImage: "exclamationmark.triangle.fill")
+                    .font(.caption)
+                    .foregroundStyle(.orange)
+                Text(filename)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+                Text("Failed after 3 retries. Saved to `_inbox/_failed/`.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                HStack(spacing: 8) {
+                    Button {
+                        Task { await viewModel.retryFailedRecording() }
+                    } label: {
+                        Text("Retry")
+                    }
+                    .controlSize(.small)
+                    .buttonStyle(.borderedProminent)
+
+                    Button {
+                        Task { await viewModel.deleteFailedRecording() }
+                    } label: {
+                        Text("Delete")
+                    }
+                    .controlSize(.small)
+                    .tint(.red)
+                }
+            }
+        }
+    }
+
     // MARK: - Idle State (P-10 + Phase 4 extensions)
 
     private var idleState: some View {
@@ -109,6 +195,20 @@ struct MenuBarPopover: View {
                 }
             }
 
+            // Phase 5: iCloud inbox pending count (UI-SPEC Surface 4)
+            if viewModel.inboxPendingCount > 0 {
+                HStack(spacing: 4) {
+                    Label("iCloud Inbox: \(viewModel.inboxPendingCount) pending", systemImage: "icloud")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            // Phase 5: Inbox processing states (downloading/transcribing/failed)
+            if viewModel.inboxProcessingState != .idle {
+                inboxProcessingView
+            }
+
             Button {
                 Task {
                     await viewModel.requestMicrophonePermission()
@@ -121,7 +221,7 @@ struct MenuBarPopover: View {
             .buttonStyle(.borderedProminent)
             .accessibilityLabel("Start recording")
 
-            // Phase 4: Term label + Manage Courses button
+            // Phase 4/5: Term label + Manage Courses + Manage Permissions buttons
             VStack(spacing: 8) {
                 if !viewModel.currentTermLabel.isEmpty {
                     Text("Term: \(viewModel.currentTermLabel)")
@@ -129,13 +229,26 @@ struct MenuBarPopover: View {
                         .foregroundStyle(.secondary)
                 }
 
-                Button {
-                    viewModel.overlayState = .manageCourses
-                } label: {
-                    Label("Manage Courses", systemImage: "folder.badge.gearshape")
+                HStack(spacing: 8) {
+                    Button {
+                        viewModel.overlayState = .manageCourses
+                    } label: {
+                        Label("Manage Courses", systemImage: "folder.badge.gearshape")
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+
+                    // Phase 5: Manage Permissions button (ONBD-05)
+                    Button {
+                        // Per UI-SPEC: presents PermissionsSheet
+                        // Wire to sheet presentation in parent view
+                        viewModel.showPermissionsSheet()
+                    } label: {
+                        Label("Manage Permissions", systemImage: "lock.shield")
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
                 }
-                .buttonStyle(.bordered)
-                .controlSize(.small)
             }
         }
         .padding(24)
