@@ -16,6 +16,9 @@ import UnibrainProviders
 ///
 /// Per Phase 4: injects CourseMappingStore and EventKitCalendarAdapter into
 /// MenuBarViewModel for calendar-driven course routing.
+///
+/// Per Phase 5 ONBD-01: conditionally renders OnboardingFlow when
+/// `hasCompletedOnboarding` is false.
 @main
 struct UnibrainApp: App {
 
@@ -24,11 +27,26 @@ struct UnibrainApp: App {
     @State private var viewModel: MenuBarViewModel
     @State private var modelDownloader: SmallEnDownloader
 
+    /// Per ONBD-01: controls onboarding vs main UI rendering.
+    @AppStorage(OnboardingViewModel.hasCompletedOnboardingKey) private var hasCompletedOnboarding = false
+
+    /// Onboarding view model created for the wizard flow.
+    @State private var onboardingViewModel: OnboardingViewModel?
+
     // MARK: - Init
 
     init() {
         let downloader = SmallEnDownloader()
         let modelPath = SmallEnDownloader.modelStoragePath
+
+        // Phase 4: Create CourseMappingStore with vault root.
+        let courseMappingStore = CourseMappingStore(
+            vaultRoot: HardcodedVaultResolver.vaultRoot
+        )
+
+        // Per Pitfall 6 from RESEARCH.md: PipelineWiring is macOS-only.
+        // iOS app init only needs RecordingSession + CourseMappingStore.
+        #if os(macOS)
         let orchestrator = PipelineWiring.makeScheduleAwareOrchestrator(
             modelPath: modelPath,
             vaultRoot: HardcodedVaultResolver.vaultRoot,
@@ -36,11 +54,7 @@ struct UnibrainApp: App {
             mapping: [:]
         )
         let session = PipelineWiring.makeRecordingSession()
-
-        // Phase 4: Create CourseMappingStore with vault root.
-        let courseMappingStore = CourseMappingStore(
-            vaultRoot: HardcodedVaultResolver.vaultRoot
-        )
+        #endif
 
         // Phase 4: Create EventKitCalendarAdapter (macOS/iOS only).
         #if os(macOS) || os(iOS)
@@ -49,6 +63,7 @@ struct UnibrainApp: App {
         let calendarProvider: (any CalendarEventProvider)? = nil
         #endif
 
+        #if os(macOS)
         _viewModel = State(
             initialValue: MenuBarViewModel(
                 session: session,
@@ -58,6 +73,27 @@ struct UnibrainApp: App {
                 calendarProvider: calendarProvider
             )
         )
+        #else
+        // iOS: minimal view model until Plan 02 ships the TabView shell.
+        _viewModel = State(
+            initialValue: MenuBarViewModel(
+                session: RecordingSession(),
+                orchestrator: PipelineOrchestrator(
+                    transcriber: TranscriberRouter(modelPath: modelPath),
+                    writer: NSFileCoordinatorNoteWriter(),
+                    resolver: ScheduleAwareVaultResolver(
+                        vaultRoot: HardcodedVaultResolver.vaultRoot,
+                        termLabel: "",
+                        mapping: [:]
+                    )
+                ),
+                downloader: downloader,
+                courseMappingStore: courseMappingStore,
+                calendarProvider: calendarProvider
+            )
+        )
+        #endif
+
         _modelDownloader = State(initialValue: downloader)
     }
 
@@ -66,33 +102,63 @@ struct UnibrainApp: App {
     var body: some Scene {
         // Per P-08: minimal WindowGroup — future Settings entry point (Phase 6)
         WindowGroup {
-            ContentView(viewModel: viewModel)
-                .task {
-                    // Per P-17: start background model download on first launch
-                    await modelDownloader.startDownload()
-                }
-                .task {
-                    // Request notification permission for transcription completion alerts (P-11)
-                    await requestNotificationPermission()
-                }
-                .task {
-                    // Phase 4: Check calendar permission and load term on launch (P-02)
-                    await viewModel.checkCalendarPermission()
-                    await viewModel.loadCurrentTerm()
-                }
+            if hasCompletedOnboarding {
+                ContentView(viewModel: viewModel)
+                    .task {
+                        // Per P-17: start background model download on first launch
+                        await modelDownloader.startDownload()
+                    }
+                    .task {
+                        // Request notification permission for transcription completion alerts (P-11)
+                        await requestNotificationPermission()
+                    }
+                    .task {
+                        // Phase 4: Check calendar permission and load term on launch (P-02)
+                        await viewModel.checkCalendarPermission()
+                        await viewModel.loadCurrentTerm()
+                    }
+            } else {
+                // Per ONBD-01: show onboarding on first launch.
+                OnboardingFlow(viewModel: makeOnboardingViewModel())
+            }
         }
 
         #if os(macOS)
         // Per P-08: MenuBarExtra is the PRIMARY recording surface
-        // Per P-D3: icon changes based on session state
+        // Per P-D3: icon changes based on session state.
+        // Per ONBD-01: hidden during onboarding.
         MenuBarExtra {
-            MenuBarPopover(viewModel: viewModel)
-                .frame(width: 280)
+            if hasCompletedOnboarding {
+                MenuBarPopover(viewModel: viewModel)
+                    .frame(width: 280)
+            }
         } label: {
-            menuBarIcon
+            if hasCompletedOnboarding {
+                menuBarIcon
+            } else {
+                // During onboarding, show a dim icon.
+                Image(systemName: "brain")
+                    .foregroundStyle(.secondary)
+            }
         }
         .menuBarExtraStyle(.window)
         #endif
+    }
+
+    // MARK: - Onboarding VM Factory
+
+    /// Creates the OnboardingViewModel with CourseMappingStore for term saving.
+    private func makeOnboardingViewModel() -> OnboardingViewModel {
+        if let existing = onboardingViewModel {
+            return existing
+        }
+        let vm = OnboardingViewModel(
+            courseMappingStore: CourseMappingStore(
+                vaultRoot: HardcodedVaultResolver.vaultRoot
+            )
+        )
+        onboardingViewModel = vm
+        return vm
     }
 
     // MARK: - Menu Bar Icon (P-D3)

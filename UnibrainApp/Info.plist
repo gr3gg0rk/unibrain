@@ -3,6 +3,12 @@
 <plist version="1.0">
 <dict>
     <key>NSCalendarsUsageDescription</key>
-    <string>Unibrain reads your calendar to route lecture recordings to the correct course folder automatically.</string>
+    <string>unibrain uses your calendar to automatically route recordings to the right course folder.</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>unibrain needs microphone access to record your lectures.</string>
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>audio</string>
+    </array>
 </dict>
 </plist>
