@@ -179,7 +179,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Wave 2** (parallel, depends on 06-01):
 
 - [x] 06-02-PLAN.md — Ollama local summarization (OllamaLLMSummarizer, health check, prompt template, summary injection, Regenerate Summary)
-- [ ] 06-03-PLAN.md — Cloud provider clients (OpenAI, Anthropic, Grok, Z.ai HTTP clients with TCPReachability, RetryComposer, ProviderRouter)
+- [x] 06-03-PLAN.md — Cloud provider clients (OpenAI, Anthropic, Grok, Z.ai HTTP clients with TCPReachability, RetryComposer, ProviderRouter)
 
 **Wave 3** (depends on 06-01, 06-02, 06-03):
 
