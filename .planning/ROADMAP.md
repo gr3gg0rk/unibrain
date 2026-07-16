@@ -171,7 +171,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. The first time the user routes a recording through a cloud provider per modality, a consent dialog appears ("Allow OpenAI to transcribe this recording?" with "Always allow" toggle); the resulting note's frontmatter records `provider_used` (CLOUD-08, CLOUD-13); a cloud failure surfaces a clear error with retry/fallback-to-local (CLOUD-10, CLOUD-11)
   5. The app's only outbound network traffic is user-initiated inference calls — zero telemetry, zero analytics, zero phone-home verified by network inspection; the full local-first path (capture -> classify -> transcribe -> write) works offline by default (CLOUD-12, DISC-05, DISC-06)
 
-**Plans**: 2/6 plans executed
+**Plans**: 5/6 plans executed
 **Wave 1** (parallel, no dependencies):
 
 - [x] 06-01-PLAN.md — Foundation infrastructure (APIKeyStore, ConsentStore, FrontmatterSchema v2, ModelLoadGate.ollama, summary-default.md)
@@ -184,7 +184,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Wave 3** (depends on 06-01, 06-02, 06-03):
 
 - [x] 06-04-PLAN.md — Consent gate + failure recovery UI (ConsentSheet, CloudFailureSheet, ConsentViewModel, FailureRecoveryViewModel)
-- [ ] 06-05-PLAN.md — macOS Settings UI (SettingsScene, ProvidersTab, GeneralTab with Ollama callouts, CoursesTab, PermissionsTab)
+- [x] 06-05-PLAN.md — macOS Settings UI (SettingsScene, ProvidersTab, GeneralTab with Ollama callouts, CoursesTab, PermissionsTab)
 
 **Wave 4** (depends on 06-05):
 
@@ -202,4 +202,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 3. macOS Capture + Transcribe | 4/4 | Code complete — Task 4 macOS verification pending |  |
 | 4. Course Classification + Smart Routing | 6/6 | Complete    | 2026-07-15 |
 | 5. iOS Capture + iCloud Handoff + Onboarding | 3/3 | Complete   | 2026-07-16 |
-| 6. Gated Summarization + Cloud Providers + MVP Polish | 3/6 | In Progress|  |
+| 6. Gated Summarization + Cloud Providers + MVP Polish | 5/6 | In Progress|  |

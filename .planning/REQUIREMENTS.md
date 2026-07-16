@@ -82,12 +82,12 @@ Requirements for the MVP "Record-to-Obsidian" release. Each maps to a roadmap ph
 
 ### Cloud Providers (Provider Layer — opt-in per modality)
 
-- [ ] **CLOUD-01**: Settings UI exposes per-modality provider selection: each of LLM / ASR / Vision / TTS can be set to `Local` / `Off` / a configured cloud provider (e.g., `OpenAI`, `Anthropic`, `Grok`, `Z.ai`)
+- [x] **CLOUD-01**: Settings UI exposes per-modality provider selection: each of LLM / ASR / Vision / TTS can be set to `Local` / `Off` / a configured cloud provider (e.g., `OpenAI`, `Anthropic`, `Grok`, `Z.ai`)
 - [x] **CLOUD-02**: Local is always the default for every modality on first launch — user must explicitly add and select cloud providers
-- [ ] **CLOUD-03**: OpenAI provider integration: `gpt-4o` / `gpt-4o-mini` for LLM summary, `whisper-1` API for ASR alternative, `gpt-4o` vision for image description
-- [ ] **CLOUD-04**: Anthropic provider integration: Claude (current Sonnet/Opus) for LLM summary + vision
-- [ ] **CLOUD-05**: X / Grok provider integration: Grok for LLM summary
-- [ ] **CLOUD-06**: Z.ai provider integration: GLM family for LLM summary
+- [x] **CLOUD-03**: OpenAI provider integration: `gpt-4o` / `gpt-4o-mini` for LLM summary, `whisper-1` API for ASR alternative, `gpt-4o` vision for image description
+- [x] **CLOUD-04**: Anthropic provider integration: Claude (current Sonnet/Opus) for LLM summary + vision
+- [x] **CLOUD-05**: X / Grok provider integration: Grok for LLM summary
+- [x] **CLOUD-06**: Z.ai provider integration: GLM family for LLM summary
 - [x] **CLOUD-07**: API key storage in macOS Keychain (macOS) / iOS Secure Enclave (iOS); never written to plaintext config or vault
 - [x] **CLOUD-08**: First-use consent gate per modality per provider: "Allow OpenAI to transcribe this recording?" with "Always allow OpenAI for ASR" toggle
 - [ ] **CLOUD-09**: Cloud transcription is an ALTERNATIVE to local whisper.cpp — only one ASR backend runs per recording (whichever the user selected in Settings at recording time)
@@ -213,12 +213,12 @@ Explicit exclusions documented to prevent scope creep.
 | SUMM-05 | Phase 6 | Complete |
 | SUMM-06 | Phase 6 | Complete |
 | SUMM-07 | Phase 6 | Complete |
-| CLOUD-01 | Phase 6 | Pending |
+| CLOUD-01 | Phase 6 | Complete |
 | CLOUD-02 | Phase 6 | Complete |
-| CLOUD-03 | Phase 6 | Pending |
-| CLOUD-04 | Phase 6 | Pending |
-| CLOUD-05 | Phase 6 | Pending |
-| CLOUD-06 | Phase 6 | Pending |
+| CLOUD-03 | Phase 6 | Complete |
+| CLOUD-04 | Phase 6 | Complete |
+| CLOUD-05 | Phase 6 | Complete |
+| CLOUD-06 | Phase 6 | Complete |
 | CLOUD-07 | Phase 6 | Complete |
 | CLOUD-08 | Phase 6 | Complete |
 | CLOUD-09 | Phase 6 | Pending |
