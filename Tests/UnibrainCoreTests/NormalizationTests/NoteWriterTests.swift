@@ -149,6 +149,7 @@ struct NoteWriterTests {
             .permissionDenied(url),
             .alreadyExists(url),
             .directoryCreationFailed(url, underlying: underlying),
+            .iCloudDownloadTimedOut(url),
             .underlying(underlying)
         ]
 
@@ -167,6 +168,8 @@ struct NoteWriterTests {
                 case .alreadyExists:
                     break
                 case .directoryCreationFailed:
+                    break
+                case .iCloudDownloadTimedOut:
                     break
                 case .underlying:
                     break

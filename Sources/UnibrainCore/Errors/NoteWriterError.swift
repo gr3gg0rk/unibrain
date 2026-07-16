@@ -18,7 +18,20 @@ public enum NoteWriterError: Error {
     /// for documents that have not yet been downloaded to the local device.
     /// Writing to such a path would silently fail or corrupt data.
     /// The associated URL is the destination that triggered the detection.
+    ///
+    /// Phase 5 note: For the iCloud-handoff `_inbox/` path (IC-04), this case
+    /// is NOT the right error — ``InboxError/downloadTimedOut`` handles the
+    /// inbox pipeline's active-download flow. This ``iCloudPlaceholder`` case
+    /// remains the hard-error contract for non-iCloud destinations per A-03.
     case iCloudPlaceholder(URL)
+    /// iCloud download timed out before the file became available.
+    ///
+    /// Per IC-04 (amends A-03 for the iCloud-handoff path specifically):
+    /// when the inbox pipeline triggers `URL.startDownloadingUbiquitousItem()`
+    /// and the file does not reach `.current` download status within the
+    /// timeout, this error surfaces so the queue can schedule a retry via
+    /// ``DeadLetterHandler``. The associated URL is the file that timed out.
+    case iCloudDownloadTimedOut(URL)
     /// The disk is full — no space remaining to write the note.
     ///
     /// Per WRITE-06: surfaces a clear error so the caller can inform the user
