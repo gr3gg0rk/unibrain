@@ -5,7 +5,7 @@ import Foundation
 /// Per D-15: standalone protocol with no common ancestor.
 /// Per D-17: single-shot only in Phase 1 (no streaming).
 /// A concrete conformance calls the provider once and returns a complete response.
-public protocol LLMSummarizer {
+public protocol LLMSummarizer: Sendable {
     associatedtype Request
     associatedtype Response
 
