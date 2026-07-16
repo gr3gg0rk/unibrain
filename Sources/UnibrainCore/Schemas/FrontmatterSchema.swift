@@ -35,6 +35,18 @@ public struct FrontmatterSchema: Codable, Sendable {
     /// Optional model name used for the summary.
     public var summaryModel: String?
 
+    // MARK: - Phase 06-01 Additions (Audit Trail Fields)
+
+    /// ASR provider used (ollama, whisper-cpp, openai, anthropic, grok, zai).
+    /// Phase 06-01 CON-04: Records which ASR provider processed this note.
+    public var asrProvider: String?
+    /// LLM provider used for summarization.
+    /// Phase 06-01 CON-04: Records which LLM provider generated the summary.
+    public var llmProvider: String?
+    /// Vision provider used for image description.
+    /// Phase 06-01 CON-04: Records which Vision provider processed images.
+    public var visionProvider: String?
+
     enum CodingKeys: String, CodingKey {
         case schemaVersion = "schema_version"
         case course
@@ -48,6 +60,9 @@ public struct FrontmatterSchema: Codable, Sendable {
         case syllabusLink = "syllabus_link"
         case vectorId = "vector_id"
         case summaryModel = "summary_model"
+        case asrProvider = "asr_provider"
+        case llmProvider = "llm_provider"
+        case visionProvider = "vision_provider"
     }
 
     public init(
@@ -62,7 +77,10 @@ public struct FrontmatterSchema: Codable, Sendable {
         tags: [String],
         syllabusLink: String? = nil,
         vectorId: String? = nil,
-        summaryModel: String? = nil
+        summaryModel: String? = nil,
+        asrProvider: String? = nil,
+        llmProvider: String? = nil,
+        visionProvider: String? = nil
     ) {
         self.schemaVersion = schemaVersion
         self.course = course
@@ -76,6 +94,9 @@ public struct FrontmatterSchema: Codable, Sendable {
         self.syllabusLink = syllabusLink
         self.vectorId = vectorId
         self.summaryModel = summaryModel
+        self.asrProvider = asrProvider
+        self.llmProvider = llmProvider
+        self.visionProvider = visionProvider
     }
 
     /// Validates the frontmatter schema for required fields and data consistency.
