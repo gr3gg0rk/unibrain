@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 05
-current_phase_name: iOS Capture + iCloud Handoff + Onboarding
-status: verifying
-stopped_at: context exhaustion at 75% (2026-07-16)
-last_updated: "2026-07-16T17:21:48.329Z"
+current_phase: 06
+current_phase_name: Gated Summarization + Cloud Providers + MVP Polish
+status: executing
+stopped_at: Completed 06-02-PLAN.md
+last_updated: "2026-07-16T20:57:31.019Z"
 last_activity: 2026-07-16
-last_activity_desc: Phase 05 execution started
+last_activity_desc: Phase 06 execution started
 progress:
   total_phases: 6
   completed_phases: 5
   total_plans: 27
-  completed_plans: 22
-  percent: 81
+  completed_plans: 23
+  percent: 83
 ---
 
 # Project State
@@ -24,14 +24,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-13)
 
 **Core value:** Every recording lands in the right course folder, transcribed and optionally summarized, without the student ever manually organizing it.
-**Current focus:** Phase 05 — iOS Capture + iCloud Handoff + Onboarding
+**Current focus:** Phase 06 — Gated Summarization + Cloud Providers + MVP Polish
 
 ## Current Position
 
-Phase: 05 (iOS Capture + iCloud Handoff + Onboarding) — EXECUTING
-Plan: 3 of 3
-Status: Phase complete — ready for verification
-Last activity: 2026-07-16 — Phase 05 execution started
+Phase: 06 (Gated Summarization + Cloud Providers + MVP Polish) — EXECUTING
+Plan: 2 of 6
+Status: Ready to execute
+Last activity: 2026-07-16 — Phase 06 execution started
 
 Progress: [██░░░░░░░░] 34%
 
@@ -75,6 +75,7 @@ Progress: [██░░░░░░░░] 34%
 | Phase 04 P06 | 3m | 3 tasks | 5 files |
 | Phase 05 P01 | 7min | 2 tasks | 15 files |
 | Phase 05 P03 | 12min | 2 tasks | 13 files |
+| Phase 06 P02 | 17m | 5 tasks | 16 files |
 
 ## Accumulated Context
 
@@ -128,6 +129,9 @@ Recent decisions affecting current work:
 - [Phase ?]: Phase 05 Plan 01: OnboardingTermPage is macOS-only via if-os guard; iOS inherits term via courses.json (ONB-01)
 - [Phase ?]: Phase 05 Plan 03: InboxQueue is in-memory actor — launch scan recovers lost files on restart
 - [Phase ?]: Phase 05 Plan 03: DeadLetterHandler sidecar JSON is metadata-only per T-05-10 — never transcript or audio content
+- [Phase ?]: Phase 06 Plan 02: OllamaLLMSummarizer uses inline release (not defer-Task) for deterministic ModelLoadGate lifecycle
+- [Phase ?]: Phase 06 Plan 02: HTML comment markers enable section-only Regenerate (OLL-04)
+- [Phase ?]: Phase 06 Plan 02: HTTPSession protocol bridges Linux/Darwin URLSession differences
 
 ### Pending Todos
 
@@ -159,7 +163,7 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-16T17:21:48.319Z
-Stopped at: context exhaustion at 75% (2026-07-16)
+Last session: 2026-07-16T20:57:31.011Z
+Stopped at: Completed 06-02-PLAN.md
 Resume file: None
 Next action: Phase 03 macOS device verification (Task 4 of 03-04), then resume autonomous chain `/gsd-autonomous --from 4 --to 6`

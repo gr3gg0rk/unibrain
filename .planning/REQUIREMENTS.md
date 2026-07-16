@@ -55,12 +55,12 @@ Requirements for the MVP "Record-to-Obsidian" release. Each maps to a roadmap ph
 
 ### Summarize
 
-- [ ] **SUMM-01**: Ollama HTTP API integration at `localhost:11434` with health-check before use — the LOCAL backend of the `LLMSummarizer` provider protocol
-- [ ] **SUMM-02**: Summary feature is **OFF by default** (gated — user opts in via Settings)
-- [ ] **SUMM-03**: Uses `llama-3.2-3b` (or `qwen2.5:3b`) with `keep_alive: 0` so Ollama releases RAM immediately
-- [ ] **SUMM-04**: Generates 5-8 bullet key points focused on "concepts and definitions a student needs to know"
-- [ ] **SUMM-05**: Summary written under `## Summary` heading in the same note (not a separate file)
-- [ ] **SUMM-06**: "Regenerate Summary" action re-runs Ollama on the (possibly edited) transcript and replaces only the Summary section
+- [x] **SUMM-01**: Ollama HTTP API integration at `localhost:11434` with health-check before use — the LOCAL backend of the `LLMSummarizer` provider protocol
+- [x] **SUMM-02**: Summary feature is **OFF by default** (gated — user opts in via Settings)
+- [x] **SUMM-03**: Uses `llama-3.2-3b` (or `qwen2.5:3b`) with `keep_alive: 0` so Ollama releases RAM immediately
+- [x] **SUMM-04**: Generates 5-8 bullet key points focused on "concepts and definitions a student needs to know"
+- [x] **SUMM-05**: Summary written under `## Summary` heading in the same note (not a separate file)
+- [x] **SUMM-06**: "Regenerate Summary" action re-runs Ollama on the (possibly edited) transcript and replaces only the Summary section
 - [x] **SUMM-07**: Summary refuses to run while ASR is loaded (ModelLoadGate serialization)
 
 ### Onboarding
@@ -206,12 +206,12 @@ Explicit exclusions documented to prevent scope creep.
 | ONBD-04 | Phase 5 | Complete |
 | ONBD-05 | Phase 5 | Complete |
 | DISC-04 | Phase 5 | Complete |
-| SUMM-01 | Phase 6 | Pending |
-| SUMM-02 | Phase 6 | Pending |
-| SUMM-03 | Phase 6 | Pending |
-| SUMM-04 | Phase 6 | Pending |
-| SUMM-05 | Phase 6 | Pending |
-| SUMM-06 | Phase 6 | Pending |
+| SUMM-01 | Phase 6 | Complete |
+| SUMM-02 | Phase 6 | Complete |
+| SUMM-03 | Phase 6 | Complete |
+| SUMM-04 | Phase 6 | Complete |
+| SUMM-05 | Phase 6 | Complete |
+| SUMM-06 | Phase 6 | Complete |
 | SUMM-07 | Phase 6 | Complete |
 | CLOUD-01 | Phase 6 | Pending |
 | CLOUD-02 | Phase 6 | Complete |
