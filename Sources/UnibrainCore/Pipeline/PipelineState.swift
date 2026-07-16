@@ -40,6 +40,9 @@ public enum PipelineState: @unchecked Sendable {
     case normalizing
     /// Stage 4: NoteWriter is writing the NormalizedNote to the vault.
     case writing
+    /// Stage 5 (optional, gated): OllamaLLMSummarizer is generating a summary
+    /// for the note. Only entered when ``SummaryViewModel/isEnabled`` is true.
+    case summarizing
     /// Terminal: pipeline completed successfully.
     case completed
     /// Terminal: pipeline failed at some stage. Carries the error for UI/debugging.
