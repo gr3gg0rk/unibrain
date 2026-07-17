@@ -61,6 +61,56 @@ enum SummarySectionEditorTests {
         let result = SummarySectionEditor.replaceSummary(note: note, newSummary: "fresh")
         #expect(result == note)
     }
+
+    // MARK: - injectAuditFields (Gap Closure: CLOUD-13 / CON-04)
+
+    @Test("injectAuditFields adds summary_model and llm_provider to frontmatter")
+    static func injectAuditFieldsAddsFields() {
+        let note = """
+        ---
+        schema_version: 2
+        course: CS101
+        ---
+
+        # Lecture
+        """
+        let result = SummarySectionEditor.injectAuditFields(
+            note: note, summaryModel: "llama-3.2:3b", llmProvider: "ollama"
+        )
+        #expect(result.contains("summary_model: llama-3.2:3b"))
+        #expect(result.contains("llm_provider: ollama"))
+        // Body preserved
+        #expect(result.contains("# Lecture"))
+        // Only one frontmatter block
+        #expect(result.components(separatedBy: "---").count - 1 == 2)
+    }
+
+    @Test("injectAuditFields replaces existing fields in-place")
+    static func injectAuditFieldsReplacesFields() {
+        let note = """
+        ---
+        schema_version: 2
+        summary_model: old-model
+        llm_provider: openai
+        ---
+        """
+        let result = SummarySectionEditor.injectAuditFields(
+            note: note, summaryModel: "llama-3.2:3b", llmProvider: "ollama"
+        )
+        #expect(result.contains("summary_model: llama-3.2:3b"))
+        #expect(result.contains("llm_provider: ollama"))
+        #expect(!result.contains("old-model"))
+        #expect(!result.contains("openai"))
+    }
+
+    @Test("injectAuditFields returns note unchanged when no frontmatter")
+    static func injectAuditFieldsNoFrontmatter() {
+        let note = "# Just a note\n\nNo frontmatter."
+        let result = SummarySectionEditor.injectAuditFields(
+            note: note, summaryModel: "model", llmProvider: "provider"
+        )
+        #expect(result == note)
+    }
 }
 
 @Suite

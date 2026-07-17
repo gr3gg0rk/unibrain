@@ -36,6 +36,14 @@ public struct RegenerateSummaryUseCase: Sendable {
             throw ProviderError.providerUnreachable(host: "localhost:11434")
         }
         let newSummary = try await summarizer.summarize(transcript)
-        return SummarySectionEditor.replaceSummary(note: note, newSummary: newSummary)
+        // CLOUD-13 / CON-04: inject audit trail fields into frontmatter
+        // so AuditTrailStore can classify the note as summarized.
+        var updatedNote = SummarySectionEditor.replaceSummary(note: note, newSummary: newSummary)
+        updatedNote = SummarySectionEditor.injectAuditFields(
+            note: updatedNote,
+            summaryModel: OllamaLLMSummarizer.model,
+            llmProvider: "ollama"
+        )
+        return updatedNote
     }
 }

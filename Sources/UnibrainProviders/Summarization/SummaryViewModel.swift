@@ -40,6 +40,22 @@ public final class SummaryViewModel: @unchecked Sendable {
         self.healthCheck = healthCheck
     }
 
+    /// Carries the summary text and frontmatter audit metadata.
+    ///
+    /// Per CLOUD-13 / CON-04: callers use these fields to populate
+    /// FrontmatterSchema v2 `summary_model` and `llm_provider`.
+    public struct SummaryResult: Sendable {
+        public let summary: String
+        public let summaryModel: String
+        public let llmProvider: String
+
+        public init(summary: String, summaryModel: String, llmProvider: String) {
+            self.summary = summary
+            self.summaryModel = summaryModel
+            self.llmProvider = llmProvider
+        }
+    }
+
     /// Generates a summary by invoking the configured summarizer.
     ///
     /// - Throws:
@@ -61,5 +77,22 @@ public final class SummaryViewModel: @unchecked Sendable {
         }
 
         return try await summarizer.summarize(transcript)
+    }
+
+    /// Generates a summary and returns it with audit trail metadata.
+    ///
+    /// Per CLOUD-13 / CON-04: callers use `summaryModel` and `llmProvider`
+    /// to populate FrontmatterSchema v2 fields via
+    /// ``SummarySectionEditor/injectAuditFields(note:summaryModel:llmProvider:)``.
+    public func generateSummaryWithMetadata(
+        transcript: String,
+        courseContext: CourseContext
+    ) async throws -> SummaryResult {
+        let summary = try await generateSummary(transcript: transcript, courseContext: courseContext)
+        return SummaryResult(
+            summary: summary,
+            summaryModel: OllamaLLMSummarizer.model,
+            llmProvider: "ollama"
+        )
     }
 }
