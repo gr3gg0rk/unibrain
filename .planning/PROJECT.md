@@ -117,5 +117,11 @@ This document evolves at phase transitions and milestone boundaries.
 3. Audit Out of Scope — reasons still valid?
 4. Update Context with current state
 
+## Current State
+
+**Phase 6 source-complete (2026-07-17).** All 6 phases implemented at source level: foundation (01), pure pipeline logic (02), macOS capture+transcribe scaffolding (03), course classification smart routing (04), iOS capture + iCloud handoff + onboarding (05), gated summarization + cloud providers + MVP polish (06). Phase 6 gap closure (plan 06-07) wired frontmatter v2 audit fields into the summarization path and fixed the AuditTrailStore status derivation bug; full `swift test` runs 345/345 with zero regressions.
+
+**Device verification deferred** to 06-UAT.md (15 scenarios) + 03/04/05 device-deferred items — requires Apple Developer Program membership + Angelica's MacBook Neo + iPhone. Requirements remain in **Active** until device UAT confirms ship-quality behavior.
+
 ---
-*Last updated: 2026-07-14 — Phase 1 foundation complete (SPM, protocols, ModelLoadGate, Yams, CI, app shell, all decisions documented)*
+*Last updated: 2026-07-17 — Phase 6 source-complete (gated summarization + cloud providers + MVP polish, 345/345 tests passing); device UAT pending Apple Dev Program*
