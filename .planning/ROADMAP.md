@@ -171,7 +171,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. The first time the user routes a recording through a cloud provider per modality, a consent dialog appears ("Allow OpenAI to transcribe this recording?" with "Always allow" toggle); the resulting note's frontmatter records `provider_used` (CLOUD-08, CLOUD-13); a cloud failure surfaces a clear error with retry/fallback-to-local (CLOUD-10, CLOUD-11)
   5. The app's only outbound network traffic is user-initiated inference calls — zero telemetry, zero analytics, zero phone-home verified by network inspection; the full local-first path (capture -> classify -> transcribe -> write) works offline by default (CLOUD-12, DISC-05, DISC-06)
 
-**Plans**: 6/6 plans complete
+**Plans**: 7/7 plans complete
 **Wave 1** (parallel, no dependencies):
 
 - [x] 06-01-PLAN.md — Foundation infrastructure (APIKeyStore, ConsentStore, FrontmatterSchema v2, ModelLoadGate.ollama, summary-default.md)
@@ -189,6 +189,10 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Wave 4** (depends on 06-05):
 
 - [x] 06-06-PLAN.md — iOS Settings tab + Audit tab + UAT (iOSSettingsTab read-only, AuditTab with filters, zero-telemetry verification, local-first offline test)
+
+**Wave 5** (gap closure, depends on 06-01, 06-02, 06-06):
+
+- [ ] 06-07-PLAN.md — Gap closure: wire frontmatter v2 audit fields into summarization write path (CLOUD-13, CON-04, SUMM-01) and fix AuditTrailStore status derivation bug (CF-04)
 
 ## Progress
 
