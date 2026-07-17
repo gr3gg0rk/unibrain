@@ -90,7 +90,7 @@ Requirements for the MVP "Record-to-Obsidian" release. Each maps to a roadmap ph
 - [x] **CLOUD-06**: Z.ai provider integration: GLM family for LLM summary
 - [x] **CLOUD-07**: API key storage in macOS Keychain (macOS) / iOS Secure Enclave (iOS); never written to plaintext config or vault
 - [x] **CLOUD-08**: First-use consent gate per modality per provider: "Allow OpenAI to transcribe this recording?" with "Always allow OpenAI for ASR" toggle
-- [ ] **CLOUD-09**: Cloud transcription is an ALTERNATIVE to local whisper.cpp — only one ASR backend runs per recording (whichever the user selected in Settings at recording time)
+- [x] **CLOUD-09**: Cloud transcription is an ALTERNATIVE to local whisper.cpp — only one ASR backend runs per recording (whichever the user selected in Settings at recording time)
 - [x] **CLOUD-10**: Cloud provider failure surfaces a clear error and offers "retry" or "fall back to local" — never silent
 - [x] **CLOUD-11**: Network reachability check before cloud calls; if offline, automatically fall back to local (if configured) or queue for retry
 - [x] **CLOUD-12**: Zero telemetry, zero analytics, zero "phone home" — the only outbound network traffic is user-initiated inference calls to configured providers
@@ -221,7 +221,7 @@ Explicit exclusions documented to prevent scope creep.
 | CLOUD-06 | Phase 6 | Complete |
 | CLOUD-07 | Phase 6 | Complete |
 | CLOUD-08 | Phase 6 | Complete |
-| CLOUD-09 | Phase 6 | Pending |
+| CLOUD-09 | Phase 6 | Complete |
 | CLOUD-10 | Phase 6 | Complete |
 | CLOUD-11 | Phase 6 | Complete |
 | CLOUD-12 | Phase 6 | Complete |

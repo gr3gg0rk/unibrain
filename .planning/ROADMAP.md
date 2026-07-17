@@ -206,4 +206,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 3. macOS Capture + Transcribe | 4/4 | Code complete — Task 4 macOS verification pending |  |
 | 4. Course Classification + Smart Routing | 6/6 | Complete    | 2026-07-15 |
 | 5. iOS Capture + iCloud Handoff + Onboarding | 3/3 | Complete   | 2026-07-16 |
-| 6. Gated Summarization + Cloud Providers + MVP Polish | 7/7 | In Progress|  |
+| 6. Gated Summarization + Cloud Providers + MVP Polish | 7/7 | Complete    | 2026-07-17 |
