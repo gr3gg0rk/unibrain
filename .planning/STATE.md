@@ -30,7 +30,7 @@ See: .planning/PROJECT.md (updated 2026-07-13)
 Phase: 3 — macOS Capture + Transcribe
 Plan: Not started
 Status: Ready to plan
-Last activity: 2026-07-17 — Phase 06 complete, transitioned to Phase 3
+Last activity: 2026-07-17 - Completed quick task 260717-fil: MILESTONE-UAT-RUNBOOK.md (clean MacBook Neo → v1.0 sign-off, paid Apple Dev Program)
 
 Progress: [██░░░░░░░░] 37%
 
@@ -158,6 +158,12 @@ None yet.
 - [Phase 1]: GitHub Actions macOS free-tier is ~200 effective macOS minutes/month on private repos; public repo gives unlimited — public-vs-private repo decision affects CI minute economics
 - [Phase 3]: whisper.cpp + Metal SPM integration flagged as riskiest technical step — needs SwiftWhisper vs official whisper.cpp SPM decision and SHA256 model verification pipeline
 - [Phase 4]: EventKit `.fullAccess` vs `.writeOnly` behavior varies by iOS version — permission flow must verify `.fullAccess` explicitly
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260717-fil | Create MILESTONE-UAT-RUNBOOK.md covering clean MacBook Neo first boot through v1.0 milestone sign-off (paid Apple Dev Program) | 2026-07-17 | (this commit) | [260717-fil-create-milestone-uat-runbook-md-covering](./quick/260717-fil-create-milestone-uat-runbook-md-covering/) |
 
 ## Deferred Items
 
