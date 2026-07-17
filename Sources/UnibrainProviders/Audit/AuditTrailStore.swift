@@ -245,8 +245,17 @@ public actor AuditTrailStore {
         let hasSummary = schema.summaryModel != nil && !schema.summaryModel!.isEmpty
 
         // Determine status: if note has a summary model, it was successful;
-        // otherwise we check if it has provider fields (processing happened but no summary = failed)
-        let status: AuditStatus = hasSummary ? .success : .success
+        // if provider fields exist but no summary, the operation failed;
+        // otherwise the note was local-only (no cloud processing = success).
+        let usedLLMProvider = schema.llmProvider != nil && !schema.llmProvider!.isEmpty
+        let status: AuditStatus
+        if hasSummary {
+            status = .success
+        } else if usedLLMProvider {
+            status = .failed
+        } else {
+            status = .success
+        }
 
         return AuditEntry(
             id: url.path,

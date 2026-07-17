@@ -116,6 +116,79 @@ struct AuditTrailStoreTests {
         #expect(entries[1].course == "CS101")
     }
 
+    // MARK: - Gap Closure: Status Derivation (CF-04)
+
+    @Test("scanVault marks notes with provider but no summary as failed")
+    func scanVaultProviderWithoutSummaryIsFailed() async throws {
+        let vaultPath = FileManager.default.temporaryDirectory
+            .appendingPathComponent("audit-failed-\(UUID().uuidString)")
+
+        try FileManager.default.createDirectory(
+            at: vaultPath, withIntermediateDirectories: true)
+
+        // A note where llm_provider was set (cloud LLM was used) but no
+        // summary_model — the summarization failed.
+        let failedNote = vaultPath.appendingPathComponent("failed-note.md")
+        try """
+        ---
+        schema_version: 2
+        course: CS101
+        course_name: Intro to CS
+        term: Fall 2026
+        datetime: 2026-07-15T10:00:00Z
+        duration_seconds: 3600
+        source: MacBook
+        audio_file: failed.m4a
+        tags: [lecture]
+        llm_provider: openai
+        ---
+        """.write(to: failedNote, atomically: true, encoding: .utf8)
+
+        let store = AuditTrailStore(vaultPath: vaultPath)
+        let entries = try await store.scanVault()
+
+        #expect(entries.count == 1)
+        let entry = try #require(entries.first)
+        #expect(entry.llmProvider == "openai")
+        #expect(entry.hasSummary == false)
+        #expect(entry.status == .failed)
+    }
+
+    @Test("scanVault marks local-only notes without provider as success")
+    func scanVaultLocalOnlyWithoutProviderIsSuccess() async throws {
+        let vaultPath = FileManager.default.temporaryDirectory
+            .appendingPathComponent("audit-local-\(UUID().uuidString)")
+
+        try FileManager.default.createDirectory(
+            at: vaultPath, withIntermediateDirectories: true)
+
+        // A note with no provider fields — local-only, never went through
+        // cloud summarization. Should be .success (not a failure).
+        let localNote = vaultPath.appendingPathComponent("local-note.md")
+        try """
+        ---
+        schema_version: 2
+        course: CS101
+        course_name: Intro to CS
+        term: Fall 2026
+        datetime: 2026-07-15T10:00:00Z
+        duration_seconds: 3600
+        source: MacBook
+        audio_file: local.m4a
+        tags: [lecture]
+        ---
+        """.write(to: localNote, atomically: true, encoding: .utf8)
+
+        let store = AuditTrailStore(vaultPath: vaultPath)
+        let entries = try await store.scanVault()
+
+        #expect(entries.count == 1)
+        let entry = try #require(entries.first)
+        #expect(entry.llmProvider == nil)
+        #expect(entry.hasSummary == false)
+        #expect(entry.status == .success)
+    }
+
     // MARK: - Filters
 
     @Test("filterByDate returns only entries within range")
