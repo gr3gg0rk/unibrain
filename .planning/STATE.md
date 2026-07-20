@@ -185,7 +185,7 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-16T21:51:36.821Z
-Stopped at: Completed 06-04-PLAN.md
-Resume file: None
-Next action: Continue Phase 06 with 06-05-PLAN.md, then 06-06-PLAN.md
+Last session: 2026-07-20
+Stopped at: Cancelled quick task 260717-fuq (whisper.cpp SPM TODO) at user request — UAT on Mac takes priority
+Resume file: None (handoff discarded)
+Next action: Begin MILESTONE-UAT-RUNBOOK.md on MacBook Neo — Stage 0 (WSL2 pre-flight: swift test → git push → watch CI) is the entry point. whisper.cpp SPM TODO (Stage 8.5 #1 blocker) is deferred until after UAT reveals whether it blocks milestone sign-off.
